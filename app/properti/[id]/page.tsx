@@ -249,6 +249,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           createdAt={property.createdAt}
           propertyId={property.id}
           propertyTitle={property.title}
+          price={property.price}
+          listingType={property.listingType}
         />
       </div>
     </div>

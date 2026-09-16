@@ -92,6 +92,13 @@ export const BRAND = {
 
   contact: {
     email: "tigaanakpropetindo@gmail.com",
+
+    // Fallback for the WhatsApp enquiry when a listing's agent has no number
+    // on file. Left blank on purpose — an empty value hides the button rather
+    // than pointing buyers at a number nobody answers. Fill it to switch the
+    // office fallback on.
+    whatsapp: "",
+
     address:
       "Alamat Kantor\nGedung Yayasan Purna Bakti (YARNATI)\nLt. 4 Ruang 407-408\nJl. Proklamasi No. 44\nPegangsaan, Menteng\nJakarta Pusat 10320",
     hours: "Senin – Jumat, 09.00 – 18.00 WIB",

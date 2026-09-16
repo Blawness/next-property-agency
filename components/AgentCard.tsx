@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Phone, Calendar, Heart } from "lucide-react"
 import { useFavorites } from "@/hooks/useFavorites"
+import { buildWhatsAppLink } from "@/lib/whatsapp"
+import { SITE_URL } from "@/lib/constants"
+import { BRAND } from "@/lib/brand"
 
 interface Agent {
   fullName: string
@@ -17,15 +20,36 @@ interface AgentCardProps {
   createdAt: Date | null
   propertyId?: string
   propertyTitle?: string
+  price?: string
+  listingType?: string
 }
 
-export default function AgentCard({ agent, createdAt, propertyId, propertyTitle }: AgentCardProps) {
+export default function AgentCard({
+  agent,
+  createdAt,
+  propertyId,
+  propertyTitle,
+  price,
+  listingType,
+}: AgentCardProps) {
   const { favorites, toggleFavorite } = useFavorites()
   const isFavorited = propertyId ? favorites.some((f) => f.id === propertyId) : false
 
+  const whatsappHref =
+    propertyTitle && price && listingType
+      ? buildWhatsAppLink({
+          title: propertyTitle,
+          price,
+          listingType,
+          url: propertyId ? `${SITE_URL}/properti/${propertyId}` : undefined,
+          agentPhone: agent?.phone,
+          officePhone: BRAND.contact.whatsapp,
+        })
+      : null
+
   return (
     <div className="lg:col-span-1">
-      <div className="sticky top-20 rounded-3xl bg-secondary/60 p-6 space-y-4 border border-border/40">
+      <div className="sticky top-20 rounded-sm bg-secondary/60 p-6 space-y-4 border border-border/40">
         <h3 className="font-sans text-lg font-semibold text-foreground">Hubungi Agen</h3>
         {agent ? (
           <>
@@ -48,24 +72,10 @@ export default function AgentCard({ agent, createdAt, propertyId, propertyTitle 
                 </span>
               </div>
             </div>
-            {agent.phone && (
-              <Button className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" asChild>
-                <a
-                  href={`https://wa.me/${agent.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                    `Halo, saya tertarik dengan properti "${propertyTitle ?? "ini"}". Bisa info lebih lanjut?`,
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  WhatsApp
-                </a>
-              </Button>
-            )}
             {propertyId ? (
               <Button
                 variant="outline"
-                className="w-full rounded-xl"
+                className="w-full rounded-sm"
                 onClick={() => toggleFavorite(propertyId)}
                 aria-label={isFavorited ? "Hapus dari favorit" : "Simpan"}
               >
@@ -75,7 +85,7 @@ export default function AgentCard({ agent, createdAt, propertyId, propertyTitle 
                 Simpan
               </Button>
             ) : (
-              <div className="flex items-center justify-center gap-1.5 rounded-xl border border-border py-2 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-1.5 rounded-sm border border-border py-2 text-sm text-muted-foreground">
                 <Heart className="h-4 w-4" />
                 Simpan
               </div>
@@ -83,6 +93,14 @@ export default function AgentCard({ agent, createdAt, propertyId, propertyTitle 
           </>
         ) : (
           <p className="text-sm text-muted-foreground">Info agen tidak tersedia</p>
+        )}
+        {whatsappHref && (
+          <Button className="w-full rounded-sm bg-primary text-primary-foreground hover:bg-primary/90" asChild>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              <Phone className="h-4 w-4 mr-2" />
+              WhatsApp
+            </a>
+          </Button>
         )}
         <Separator />
         <div className="flex items-center gap-1 text-xs text-muted-foreground">

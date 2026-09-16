@@ -1,13 +1,29 @@
 jest.mock('../../db', () => {
-  const images: Record<string, Array<{ id: string; propertyId: string; url: string; isPrimary: boolean; order: number }>> = {}
+  // Two batched reads now share this chain — images off `property_images` and
+  // agent phones off `profiles` — so the mock resolves on the table `from()`
+  // was handed rather than on which chain method ended the call.
+  const { profiles } = require('../../db/schema')
+  const state: { images: any[]; agents: any[] } = { images: [], agents: [] }
+  let current: unknown = null
+
+  const chain: any = {
+    select: jest.fn(() => chain),
+    from: jest.fn((table: unknown) => {
+      current = table
+      return chain
+    }),
+    where: jest.fn(() => (current === profiles ? Promise.resolve(state.agents) : chain)),
+    orderBy: jest.fn(async () => state.images),
+  }
+
   return {
-    db: {
-      select: jest.fn().mockReturnThis(),
-      from: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      orderBy: jest.fn().mockImplementation(async () => Object.values(images).flat()),
+    db: chain,
+    __setImages: (data: Record<string, any[]>) => {
+      state.images = Object.values(data).flat()
     },
-    __setImages: (data: typeof images) => { Object.keys(images).forEach((k) => delete images[k]); Object.assign(images, data) },
+    __setAgents: (rows: any[]) => {
+      state.agents = rows
+    },
   }
 })
 
@@ -18,7 +34,13 @@ import { properties } from '../../db/schema'
 const mockDb = jest.requireMock('../../db') as {
   db: { orderBy: jest.Mock }
   __setImages: (data: any) => void
+  __setAgents: (rows: any) => void
 }
+
+beforeEach(() => {
+  mockDb.__setImages({})
+  mockDb.__setAgents([])
+})
 
 const sampleProperty: InferSelectModel<typeof properties> = {
   id: 'p1',
@@ -74,5 +96,26 @@ describe('getPropertiesWithImagesBatch', () => {
     } as any)
     const result = await getPropertiesWithImagesBatch(Promise.resolve([sampleProperty]))
     expect(result[0].images).toHaveLength(1)
+  })
+
+  it("attaches the listing agent's phone so cards can offer WhatsApp", async () => {
+    mockDb.__setAgents([{ id: 'a1', phone: '081234567890' }])
+    const result = await getPropertiesWithImagesBatch(
+      Promise.resolve([{ ...sampleProperty, agentId: 'a1' }]),
+    )
+    expect(result[0].agentPhone).toBe('081234567890')
+  })
+
+  it('leaves agentPhone null when the listing has no agent', async () => {
+    const result = await getPropertiesWithImagesBatch(Promise.resolve([sampleProperty]))
+    expect(result[0].agentPhone).toBeNull()
+  })
+
+  it('leaves agentPhone null when the agent row has no number on file', async () => {
+    mockDb.__setAgents([{ id: 'a1', phone: null }])
+    const result = await getPropertiesWithImagesBatch(
+      Promise.resolve([{ ...sampleProperty, agentId: 'a1' }]),
+    )
+    expect(result[0].agentPhone).toBeNull()
   })
 })

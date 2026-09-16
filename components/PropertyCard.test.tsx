@@ -39,4 +39,28 @@ describe('PropertyCard', () => {
     expect(screen.getByText(/1\.0 M/)).toBeInTheDocument()
     expect(screen.getByText('Rp')).toBeInTheDocument()
   })
+
+  it('offers a WhatsApp enquiry when the listing agent has a number', () => {
+    renderWithSession(
+      <PropertyCard property={{ ...mockProperty, agentPhone: '081234567890' }} />,
+    )
+    const link = screen.getByRole('link', { name: /whatsapp/i })
+    expect(link).toHaveAttribute('href', expect.stringContaining('wa.me/6281234567890'))
+    expect(link).toHaveAttribute('target', '_blank')
+  })
+
+  it('pre-fills the enquiry with the listing title and its URL', () => {
+    renderWithSession(
+      <PropertyCard property={{ ...mockProperty, agentPhone: '081234567890' }} />,
+    )
+    const href = screen.getByRole('link', { name: /whatsapp/i }).getAttribute('href')!
+    const text = decodeURIComponent(new URL(href).searchParams.get('text')!)
+    expect(text).toContain('Test Property')
+    expect(text).toContain('/properti/1')
+  })
+
+  it('hides the WhatsApp button when no number is reachable', () => {
+    renderWithSession(<PropertyCard property={mockProperty} />)
+    expect(screen.queryByRole('link', { name: /whatsapp/i })).not.toBeInTheDocument()
+  })
 })

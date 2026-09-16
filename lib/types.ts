@@ -25,6 +25,8 @@ export interface Property {
 
 export interface PropertyWithImages extends Property {
   images: PropertyImage[]
+  /** Batched in by `getPropertiesWithImagesBatch` for the WhatsApp enquiry link. */
+  agentPhone?: string | null
 }
 
 export interface PropertyImage {

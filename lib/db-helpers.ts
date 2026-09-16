@@ -1,5 +1,5 @@
 import { db } from "@/db"
-import { properties, propertyImages, favorites } from "@/db/schema"
+import { properties, propertyImages, favorites, profiles } from "@/db/schema"
 import { inArray, eq } from "drizzle-orm"
 import type { PropertyWithImages } from "@/lib/types"
 import type { InferSelectModel } from "drizzle-orm"
@@ -32,6 +32,20 @@ export async function getPropertiesWithImagesBatch(
     .where(inArray(propertyImages.propertyId, ids))
     .orderBy(propertyImages.order)
 
+  // Second batched read rather than a join: listing cards offer a WhatsApp
+  // enquiry, and that needs the agent's number without an N+1 per card.
+  const agentIds = [
+    ...new Set(rows.map((r) => r.agentId).filter((id): id is string => id !== null)),
+  ]
+  const phoneByAgent = new Map<string, string | null>()
+  if (agentIds.length > 0) {
+    const agents = await db
+      .select({ id: profiles.id, phone: profiles.phone })
+      .from(profiles)
+      .where(inArray(profiles.id, agentIds))
+    for (const a of agents) phoneByAgent.set(a.id, a.phone)
+  }
+
   const imageMap = new Map<string, PropertyImageRow[]>()
   for (const img of images) {
     if (img.propertyId) {
@@ -44,5 +58,6 @@ export async function getPropertiesWithImagesBatch(
   return rows.map((prop) => ({
     ...prop,
     images: imageMap.get(prop.id) ?? [],
+    agentPhone: prop.agentId ? (phoneByAgent.get(prop.agentId) ?? null) : null,
   }))
 }

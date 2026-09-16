@@ -1,3 +1,6 @@
+/** Absolute origin for shareable links (WhatsApp enquiries, share sheets). */
+export const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"
+
 export const PROPERTY_TYPES = ["rumah", "apartemen", "tanah", "ruko"] as const
 
 export const PROPERTY_TYPE_LABELS: Record<string, string> = {
