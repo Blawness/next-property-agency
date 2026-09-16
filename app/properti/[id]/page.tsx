@@ -12,6 +12,7 @@ import PropertyMap from "@/components/PropertyMap"
 import PropertyGalleryClient from "@/components/PropertyGalleryClient"
 import PropertySpecs from "@/components/PropertySpecs"
 import AgentCard from "@/components/AgentCard"
+import MortgageCalculator from "@/components/MortgageCalculator"
 import PropertyLeadForm from "@/components/PropertyLeadForm"
 import { formatPriceFull, PROPERTY_TYPE_LABELS } from "@/lib/constants"
 import { BRAND } from "@/lib/brand"
@@ -236,6 +237,14 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                     </a>
                   </Button>
               </div>
+            </>
+          )}
+
+          {/* KPR only applies to a sale — a rental has nothing to finance. */}
+          {property.listingType === "jual" && (
+            <>
+              <Separator />
+              <MortgageCalculator price={property.price} />
             </>
           )}
 

@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PROPERTI NUSA
 
-## Getting Started
+Katalog properti Indonesia — rumah, apartemen, tanah, dan ruko — lengkap dengan
+peta, form lead, dan panel admin untuk agen.
 
-First, run the development server:
+Fork dari [`next-property-catalog`](https://github.com/Blawness/next-property-catalog).
+Core-nya sama (schema, auth, API, admin, peta); yang berbeda adalah brand,
+palet, tipografi, plus simulasi KPR dan tombol WhatsApp.
+
+## Menjalankan
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka <http://localhost:3001>. Port 3001 dipilih supaya bisa nyala berbarengan
+dengan proyek asalnya.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Salin kredensial ke `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variabel | Keterangan |
+|---|---|
+| `DATABASE_URL` | Neon Postgres (pooled) |
+| `DATABASE_URL_DIRECT` | koneksi langsung, dipakai drizzle-kit |
+| `NEXTAUTH_SECRET` | rahasia NextAuth — `openssl rand -base64 32` |
+| `NEXTAUTH_URL` | origin aplikasi, mis. `http://localhost:3001` |
+| `NEXT_PUBLIC_APP_URL` | origin publik untuk link yang dibagikan |
+| `UPLOADTHING_TOKEN` | token upload gambar |
 
-## Learn More
+> Saat ini `DATABASE_URL` masih menunjuk ke database yang sama dengan proyek
+> asal, jadi listing-nya kelihatan di dua situs dan perubahan schema kena
+> dua-duanya. Arahkan ke project Neon terpisah sebelum salah satu aplikasi butuh
+> kolom yang tidak dipakai yang lain.
 
-To learn more about Next.js, take a look at the following resources:
+## Perintah
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm dev        # dev server (port 3001)
+pnpm build      # build produksi
+pnpm lint       # ESLint
+pnpm typecheck  # tsc --noEmit
+pnpm test       # Jest
+pnpm seed       # isi database dengan data contoh
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Mengganti brand
 
-## Deploy on Vercel
+Semua teks brand ada di [`lib/brand.ts`](lib/brand.ts) — nama, wordmark,
+tagline, judul halaman, statistik, dan kontak. Ganti di satu file itu saja.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Warna dan radius ada di [`app/globals.css`](app/globals.css); font diatur di
+[`app/layout.tsx`](app/layout.tsx).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Isi `BRAND.contact.whatsapp` untuk menyalakan nomor kantor sebagai fallback
+tombol WhatsApp ketika agen listing belum punya nomor.
+
+## Dokumentasi
+
+[`AGENTS.md`](AGENTS.md) — arsitektur, skema database, daftar route, dan
+konvensi yang perlu diikuti sebelum mengubah kode.
