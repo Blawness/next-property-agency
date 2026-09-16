@@ -1,10 +1,7 @@
 import Reveal from "@/components/Reveal"
+import { BRAND } from "@/lib/brand"
 
-const DEFAULT_STATS = [
-  { n: "20+", label: "served clients" },
-  { n: "30", label: "our database" },
-  { n: "99%", label: "quality property" },
-] as const
+const DEFAULT_STATS = BRAND.stats
 
 interface AboutStat {
   n: string
@@ -24,39 +21,27 @@ export default function AboutSection({ stats = DEFAULT_STATS }: AboutSectionProp
       <div>
         <Reveal>
           <h2 className="m-0 font-sans text-[clamp(2.5rem,5vw,3.9rem)] leading-none font-bold tracking-[-0.02em] text-foreground">
-            About Us
+            {BRAND.about.heading}
           </h2>
         </Reveal>
         <Reveal delay={120}>
           <p className="mt-[82px] max-w-[690px] font-sans text-[20px] leading-[34px] text-pretty text-foreground">
-            TAP Catalog is a federal network of commercial real estate agencies.
-            We help companies from startups to coorporations – to find rent, buy, and
-            property showcase. Our team takes care of the search, negotiations, legal
-            verification, and transaction support until the contract is signed.
+            {BRAND.about.body}
           </p>
         </Reveal>
       </div>
 
       <div className="hidden md:block" aria-hidden />
 
-      {/*
-        Building silhouette rendered as a transparent PNG via background-image
-        (matches mockup HTML technique). The image is 945×531px; we render it at its
-        natural size and offset to show the building on the right.
-      */}
       <Reveal
         delay={200}
-        className="w-[260px] sm:w-[320px] md:w-[400px] h-[320px] sm:h-[400px] md:h-[500px] mt-12 md:mt-0 md:absolute md:right-[-80px] md:top-[180px] bg-no-repeat"
+        className="mt-12 md:mt-0 md:absolute md:right-0 md:top-[180px] md:w-[400px] lg:w-[460px]"
       >
-        <div
-          role="img"
-          aria-label="Commercial tower"
-          className="h-full w-full bg-no-repeat"
-          style={{
-            backgroundImage: "url('/mockup-assets/about us component.png')",
-            backgroundSize: "945.3px 531.4px",
-            backgroundPosition: "-301.7px -30.4px",
-          }}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={BRAND.about.image}
+          alt={BRAND.about.heading}
+          className="h-[320px] w-full rounded-sm object-cover sm:h-[400px] md:h-[500px]"
         />
       </Reveal>
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Mulish } from "next/font/google"
+import { Archivo, Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import Navbar from "@/components/Navbar"
@@ -7,11 +7,18 @@ import ConditionalFooter from "@/components/ConditionalFooter"
 import Providers from "@/components/Providers"
 import { BRAND } from "@/lib/brand"
 
-const mulish = Mulish({
+// Archivo carries the headings — a grotesk with enough weight at 700/800 to
+// hold the editorial layout together. Inter stays out of the way in body copy.
+const archivo = Archivo({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  style: ["normal", "italic"],
-  variable: "--font-mulish",
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-archivo",
+})
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-inter",
 })
 
 export const metadata: Metadata = {
@@ -21,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={mulish.variable}>
+    <html lang="id" className={`${archivo.variable} ${inter.variable}`}>
       <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <Providers>
           <Navbar />

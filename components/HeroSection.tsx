@@ -40,7 +40,7 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative overflow-hidden h-[78vh] min-h-[560px] max-h-[820px] bg-[#1a0d05]"
+      className="relative overflow-hidden h-[78vh] min-h-[560px] max-h-[820px] bg-[#2E1C10]"
     >
       {!reducedMotion && (
         <video
@@ -94,14 +94,14 @@ export default function HeroSection() {
         <div className="mt-auto mb-[76px] flex flex-wrap items-center justify-center gap-[clamp(2rem,5vw,5.5rem)]">
           <Link
             href="/properti"
-            className="inline-flex items-center gap-2.5 h-11 px-[26px] rounded-full font-sans text-[19px] font-bold tracking-[0.05em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg shadow-black/20"
+            className="inline-flex items-center gap-2.5 h-11 px-[26px] rounded-sm font-sans text-[19px] font-bold tracking-[0.05em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg shadow-black/20"
           >
             Book now
             <ChevronRight size={17} strokeWidth={2.1} />
           </Link>
           <a
             href="#contact"
-            className="inline-flex items-center justify-center h-11 px-7 rounded-full font-sans text-[19px] font-bold tracking-[0.05em] uppercase bg-[#111] text-white hover:bg-black/80 transition-colors shadow-lg shadow-black/20"
+            className="inline-flex items-center justify-center h-11 px-7 rounded-sm font-sans text-[19px] font-bold tracking-[0.05em] uppercase bg-accent text-accent-foreground hover:bg-accent/85 transition-colors shadow-lg shadow-black/20"
           >
             For seller
           </a>

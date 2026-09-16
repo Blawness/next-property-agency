@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { BRAND } from "@/lib/brand"
 
 interface BrandMarkProps {
   size?: "sm" | "md" | "lg"
@@ -8,9 +9,9 @@ interface BrandMarkProps {
 }
 
 const SIZE_MAP = {
-  sm: { box: 24, tap: 16, catalog: 9, gap: 8 },
-  md: { box: 32, tap: 22, catalog: 11, gap: 10 },
-  lg: { box: 44, tap: 30, catalog: 13, gap: 12 },
+  sm: { box: 24, lead: 16, trail: 9, gap: 8 },
+  md: { box: 32, lead: 22, trail: 11, gap: 10 },
+  lg: { box: 44, lead: 30, trail: 13, gap: 12 },
 } as const
 
 export default function BrandMark({ size = "md", className, inverted = false }: BrandMarkProps) {
@@ -23,7 +24,7 @@ export default function BrandMark({ size = "md", className, inverted = false }: 
       <span
         aria-hidden
         className={cn(
-          "inline-flex items-center justify-center rounded-lg shrink-0",
+          "inline-flex items-center justify-center rounded-sm shrink-0",
           inverted ? "bg-primary-foreground" : "bg-primary",
         )}
         style={{ width: s.box, height: s.box }}
@@ -51,18 +52,18 @@ export default function BrandMark({ size = "md", className, inverted = false }: 
             "font-extrabold tracking-tight",
             inverted ? "text-primary-foreground" : "text-foreground",
           )}
-          style={{ fontSize: s.tap }}
+          style={{ fontSize: s.lead }}
         >
-          TAP
+          {BRAND.wordmark.lead}
         </span>
         <span
           className={cn(
             "font-semibold uppercase tracking-[0.2em]",
             inverted ? "text-primary-foreground/70" : "text-muted-foreground",
           )}
-          style={{ fontSize: s.catalog }}
+          style={{ fontSize: s.trail }}
         >
-          CATALOG
+          {BRAND.wordmark.trail}
         </span>
       </span>
     </span>

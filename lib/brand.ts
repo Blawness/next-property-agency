@@ -1,33 +1,36 @@
 export const BRAND = {
-  name: "TAP CATALOG",
+  name: "PROPERTI NUSA",
 
-  fullName: "TAP CATALOG — Katalog Properti Indonesia",
+  // BrandMark renders the name as two weights; keep these in sync with `name`.
+  wordmark: { lead: "PROPERTI", trail: "NUSA" },
+
+  fullName: "PROPERTI NUSA — Katalog Properti Indonesia",
 
   tagline: "Katalog Properti #1 Indonesia",
 
   description: "Katalog properti terlengkap di Indonesia — rumah, apartemen, tanah, dan ruko",
 
-  heroImageAlt: "TAP CATALOG — Katalog Properti Indonesia",
+  heroImageAlt: "PROPERTI NUSA — Katalog Properti Indonesia",
 
   pageTitle: {
-    home: "TAP CATALOG – Katalog Properti Indonesia",
-    catalog: "Katalog Properti — TAP CATALOG",
-    map: "Peta Properti — TAP CATALOG",
-    login: "Masuk — TAP CATALOG",
-    register: "Daftar — TAP CATALOG",
-    propertyNotFound: "Properti Tidak Ditemukan — TAP CATALOG",
+    home: "PROPERTI NUSA – Katalog Properti Indonesia",
+    catalog: "Katalog Properti — PROPERTI NUSA",
+    map: "Peta Properti — PROPERTI NUSA",
+    login: "Masuk — PROPERTI NUSA",
+    register: "Daftar — PROPERTI NUSA",
+    propertyNotFound: "Properti Tidak Ditemukan — PROPERTI NUSA",
     catalogHeading: "Katalog Properti",
   },
 
   pageDescription: {
     home: "Temukan rumah, apartemen, tanah, dan ruko terbaik di seluruh Indonesia",
     catalog: "Telusuri katalog properti terverifikasi di seluruh Indonesia",
-    register: "Buat akun TAP CATALOG gratis",
-    login: "Masuk ke akun TAP CATALOG kamu",
+    register: "Buat akun PROPERTI NUSA gratis",
+    login: "Masuk ke akun PROPERTI NUSA kamu",
   },
 
-  loginDescription: "Masuk ke akun TAP CATALOG kamu",
-  registerDescription: "Buat akun TAP CATALOG gratis",
+  loginDescription: "Masuk ke akun PROPERTI NUSA kamu",
+  registerDescription: "Buat akun PROPERTI NUSA gratis",
 
   exploreTypes: {
     heading: "Jelajahi Tipe Properti",
@@ -79,10 +82,10 @@ export const BRAND = {
   },
 
   about: {
-    heading: "Tentang TAP CATALOG",
+    heading: "Tentang PROPERTI NUSA",
     subtitle:
       "Katalog properti terlengkap untuk menemukan rumah, apartemen, tanah, dan ruko di seluruh Indonesia.",
-    body: "TAP CATALOG adalah katalog properti modern yang mempertemukan pembeli, penyewa, dan agen terpercaya di seluruh Indonesia. Kami menyediakan ribuan listing terverifikasi — lengkap dengan foto, spesifikasi, dan lokasi — sehingga Anda dapat membuat keputusan properti dengan percaya diri.",
+    body: "PROPERTI NUSA adalah katalog properti modern yang mempertemukan pembeli, penyewa, dan agen terpercaya di seluruh Indonesia. Kami menyediakan ribuan listing terverifikasi — lengkap dengan foto, spesifikasi, dan lokasi — sehingga Anda dapat membuat keputusan properti dengan percaya diri.",
     image:
       "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&h=1100&fit=crop&auto=format&q=80",
   },

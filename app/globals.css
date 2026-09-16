@@ -5,9 +5,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-mulish), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-mulish), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-mulish), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -38,6 +38,8 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-gold: var(--gold);
+  --color-warm: var(--warm);
+  --color-ink: var(--ink);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,39 +50,46 @@
 }
 
 :root {
-  --background: oklch(0.99 0.005 80);
-  --foreground: oklch(0.18 0.005 60);
-  --card: oklch(0.99 0.005 80);
-  --card-foreground: oklch(0.18 0.005 60);
-  --popover: oklch(0.99 0.005 80);
-  --popover-foreground: oklch(0.18 0.005 60);
-  --primary: #723511;
-  --primary-foreground: oklch(0.99 0.005 80);
-  --secondary: oklch(0.95 0.008 70);
-  --secondary-foreground: oklch(0.18 0.005 60);
-  --muted: oklch(0.95 0.005 75);
-  --muted-foreground: oklch(0.45 0.008 60);
-  --accent: oklch(0.18 0.005 60);
-  --accent-foreground: oklch(0.99 0.005 80);
+  /* Palette — deep brown / warm brown / sand gold / terracotta on off-white.
+     Roles differ from the swatch names: terracotta drives calls to action,
+     deep brown carries every dark surface, sand gold is highlight only. */
+  --background: #F9F9F9;
+  --foreground: #1B1B1B;
+  --card: #FFFFFF;
+  --card-foreground: #1B1B1B;
+  --popover: #FFFFFF;
+  --popover-foreground: #1B1B1B;
+  --primary: #C06A14;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0EAE2;
+  --secondary-foreground: #1B1B1B;
+  --muted: #F1EDE8;
+  --muted-foreground: #6B5B4D;
+  --accent: #4A2E1C;
+  --accent-foreground: #F5EFE9;
   --destructive: oklch(0.55 0.20 25);
-  --border: oklch(0.88 0.008 70);
-  --input: oklch(0.94 0.008 70);
-  --ring: #723511;
-  --radius: 0.875rem;
-  --gold: oklch(0.72 0.09 78);
-  --sidebar: oklch(0.965 0.005 80);
-  --sidebar-foreground: oklch(0.18 0.005 60);
-  --sidebar-primary: #723511;
-  --sidebar-primary-foreground: oklch(0.99 0.005 80);
-  --sidebar-accent: oklch(0.95 0.008 70);
-  --sidebar-accent-foreground: oklch(0.18 0.005 60);
-  --sidebar-border: oklch(0.88 0.008 70);
-  --sidebar-ring: #723511;
-  --chart-1: #723511;
-  --chart-2: oklch(0.18 0.005 60);
-  --chart-3: oklch(0.45 0.008 60);
-  --chart-4: oklch(0.65 0.005 65);
-  --chart-5: oklch(0.85 0.005 72);
+  --border: #E3DBD1;
+  --input: #EDE6DE;
+  --ring: #C06A14;
+  /* Editorial: near-square corners. The upstream catalog used 0.875rem —
+     this single value is what makes every card read as a different site. */
+  --radius: 0.25rem;
+  --gold: #D6A76A;
+  --warm: #8A5526;
+  --ink: #1B1B1B;
+  --sidebar: #4A2E1C;
+  --sidebar-foreground: #F0E7DE;
+  --sidebar-primary: #D6A76A;
+  --sidebar-primary-foreground: #1B1B1B;
+  --sidebar-accent: #5E3D28;
+  --sidebar-accent-foreground: #F9F9F9;
+  --sidebar-border: #6B4630;
+  --sidebar-ring: #D6A76A;
+  --chart-1: #C06A14;
+  --chart-2: #4A2E1C;
+  --chart-3: #8A5526;
+  --chart-4: #D6A76A;
+  --chart-5: #1B1B1B;
 }
 
 @layer base {

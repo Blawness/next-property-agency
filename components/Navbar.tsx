@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import BrandMark from "@/components/BrandMark"
 import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
@@ -84,13 +85,8 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/mockup-assets/logo web tap catalog.png"
-            alt={BRAND.name}
-            style={{ display: "block", width: 154, height: 48 }}
-          />
+        <Link href="/" className="shrink-0" aria-label={BRAND.name}>
+          <BrandMark size="md" />
         </Link>
 
         <nav

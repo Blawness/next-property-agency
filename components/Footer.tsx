@@ -7,7 +7,7 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer id="kontak" className="bg-primary text-primary-foreground">
+    <footer id="kontak" className="bg-accent text-accent-foreground">
       <div
         aria-hidden
         className="h-px"
@@ -22,7 +22,7 @@ export default function Footer() {
             <Link href="/" className="mb-4 inline-flex">
               <BrandMark size="md" inverted />
             </Link>
-            <p className="max-w-xs text-sm leading-relaxed text-primary-foreground/70">
+            <p className="max-w-xs text-sm leading-relaxed text-accent-foreground/70">
               {BRAND.footer.tagline}
             </p>
             <div className="mt-5 flex gap-2.5">
@@ -35,7 +35,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/20 text-primary-foreground/70 transition-colors hover:border-gold hover:text-gold"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-accent-foreground/20 text-accent-foreground/70 transition-colors hover:border-gold hover:text-gold"
                 >
                   <Icon size={15} />
                 </a>
@@ -44,7 +44,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-foreground">
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-accent-foreground">
               Jelajahi
             </h3>
             <ul className="space-y-2.5">
@@ -52,7 +52,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-primary-foreground/70 transition-colors hover:text-gold"
+                    className="text-sm text-accent-foreground/70 transition-colors hover:text-gold"
                   >
                     {link.label}
                   </Link>
@@ -62,7 +62,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-foreground">
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-accent-foreground">
               Perusahaan
             </h3>
             <ul className="space-y-2.5">
@@ -70,7 +70,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-primary-foreground/70 transition-colors hover:text-gold"
+                    className="text-sm text-accent-foreground/70 transition-colors hover:text-gold"
                   >
                     {link.label}
                   </Link>
@@ -80,10 +80,10 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-foreground">
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-accent-foreground">
               Kontak
             </h3>
-            <ul className="space-y-3 text-sm text-primary-foreground/70">
+            <ul className="space-y-3 text-sm text-accent-foreground/70">
               <li className="flex items-start gap-2.5">
                 <MapPin size={14} className="mt-0.5 shrink-0 text-gold" />
                 <span className="whitespace-pre-line leading-[1.5]">
@@ -100,11 +100,11 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-primary-foreground/15 pt-6 sm:flex-row">
-          <p className="text-xs text-primary-foreground/60">
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-accent-foreground/15 pt-6 sm:flex-row">
+          <p className="text-xs text-accent-foreground/60">
             &copy; {year} {BRAND.name}. All rights reserved.
           </p>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/50">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-accent-foreground/50">
             {BRAND.tagline}
           </p>
         </div>
