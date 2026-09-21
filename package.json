@@ -18,6 +18,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "seed": "tsx db/seed.ts",
+    "seed:listings": "tsx db/seed-listings.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },

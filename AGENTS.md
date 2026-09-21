@@ -10,7 +10,11 @@ pnpm build      # production build
 pnpm lint       # ESLint
 pnpm typecheck  # tsc --noEmit
 pnpm test       # Jest (jsdom, setup via jest.setup.js)
-pnpm seed       # seed the database via db/seed.ts
+pnpm seed       # DESTRUCTIVE — db/seed.ts truncates profiles, properties,
+                # images and favorites first. Never run it against the shared
+                # database; it would take the admin account with it.
+pnpm seed:listings  # additive — inserts realistic listings for existing
+                # agents, skipping any title already present. Safe to re-run.
 ```
 
 Verify in this order: `lint → typecheck → test → build`.
