@@ -160,6 +160,15 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   own menu, and reports a failed copy rather than looking like it worked.
 - **KPR maths** lives in `lib/mortgage.ts` as a pure function; the component is
   presentation only.
+- **A streamed `notFound()` returns HTTP 200, and that is correct.** Dynamic
+  routes like `/properti/[id]` and `/agen/[id]` answer 200 for a missing id
+  while rendering the not-found UI, because headers are already sent once
+  streaming begins. Next injects `<meta name="robots" content="noindex">`, so
+  these are not indexed — verified, not assumed. Do not "fix" this: a real 404
+  would need an existence check in `proxy.ts` before the body streams, i.e. a
+  database query on every listing and agent request. See
+  `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/loading.md`
+  under Status Codes.
 - **Lead notification is best-effort.** `POST /api/leads` commits the row, then
   emails. A mail failure is logged and the request still returns ok — answering
   500 after a successful insert would only make the visitor submit again and
