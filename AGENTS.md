@@ -139,10 +139,16 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   So it *is* shared across instances in production, and only tests and local
   runs without a database fall back to memory. Guards login at 5 attempts /
   15 min.
-- **WhatsApp links** go through `buildWhatsAppLink` for a listing enquiry and
-  `buildAgentWhatsAppLink` for an agent profile (`lib/whatsapp.ts`). Never
+- **WhatsApp links** go through `buildWhatsAppLink` for a listing enquiry,
+  `buildAgentWhatsAppLink` for an agent profile (`lib/whatsapp.ts`), and
+  `buildWhatsAppShareLink` for forwarding a listing to someone else
+  (`lib/share.ts` — no recipient, so WhatsApp opens its contact picker). Never
   hand-roll a `wa.me` href: an Indonesian `08xx` has to become `628xx` or the
   chat will not open.
+- **`navigator.share` and `navigator.clipboard` are both optional.** The first
+  is absent on most desktops, the second throws outside HTTPS and in some
+  in-app browsers. `ShareButton` reads them at click time, falls back to its
+  own menu, and reports a failed copy rather than looking like it worked.
 - **KPR maths** lives in `lib/mortgage.ts` as a pure function; the component is
   presentation only.
 - **Lead notification is best-effort.** `POST /api/leads` commits the row, then

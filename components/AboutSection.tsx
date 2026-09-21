@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Reveal from "@/components/Reveal"
 import { BRAND } from "@/lib/brand"
 
@@ -37,12 +38,15 @@ export default function AboutSection({ stats = DEFAULT_STATS }: AboutSectionProp
         delay={200}
         className="mt-12 md:mt-0 md:absolute md:right-0 md:top-[180px] md:w-[400px] lg:w-[460px]"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={BRAND.about.image}
-          alt={BRAND.about.heading}
-          className="h-[320px] w-full rounded-sm object-cover sm:h-[400px] md:h-[500px]"
-        />
+        <div className="relative h-[320px] w-full overflow-hidden rounded-sm sm:h-[400px] md:h-[500px]">
+          <Image
+            src={BRAND.about.image}
+            alt={BRAND.about.heading}
+            fill
+            sizes="(max-width: 768px) 100vw, 460px"
+            className="object-cover"
+          />
+        </div>
       </Reveal>
 
       <div className="col-span-full mt-[clamp(2rem,4vw,4rem)] flex flex-col flex-wrap items-center justify-center gap-x-[clamp(2rem,6vw,7.5rem)] gap-y-12 py-8 sm:flex-row">

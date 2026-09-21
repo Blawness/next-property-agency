@@ -13,8 +13,9 @@ import PropertyGalleryClient from "@/components/PropertyGalleryClient"
 import PropertySpecs from "@/components/PropertySpecs"
 import AgentCard from "@/components/AgentCard"
 import MortgageCalculator from "@/components/MortgageCalculator"
+import ShareButton from "@/components/ShareButton"
 import PropertyLeadForm from "@/components/PropertyLeadForm"
-import { formatPriceFull, PROPERTY_TYPE_LABELS } from "@/lib/constants"
+import { formatPriceFull, PROPERTY_TYPE_LABELS, SITE_URL } from "@/lib/constants"
 import { BRAND } from "@/lib/brand"
 
 export const revalidate = 300
@@ -161,12 +162,20 @@ export default async function PropertyDetailPage({ params }: PageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="space-y-3">
-            <p className="font-sans text-3xl font-bold text-primary sm:text-4xl">
-              {formattedPrice}
-              {property.listingType === "sewa" && (
-                <span className="ml-1 text-base font-normal text-muted-foreground">/bulan</span>
-              )}
-            </p>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <p className="font-sans text-3xl font-bold text-primary sm:text-4xl">
+                {formattedPrice}
+                {property.listingType === "sewa" && (
+                  <span className="ml-1 text-base font-normal text-muted-foreground">/bulan</span>
+                )}
+              </p>
+              <ShareButton
+                title={property.title}
+                price={property.price}
+                listingType={property.listingType}
+                url={`${SITE_URL}/properti/${property.id}`}
+              />
+            </div>
             <div className="flex flex-wrap gap-2">
               <Badge variant={property.listingType === "jual" ? "default" : "secondary"} className="rounded-full">
                 {property.listingType === "jual" ? "Dijual" : "Disewa"}
