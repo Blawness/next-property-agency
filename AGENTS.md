@@ -113,8 +113,11 @@ passed from server components into client components.
 - **`getPropertiesWithImagesBatch`** (`lib/db-helpers.ts`) is the only way to
   load listings for a grid. It batches images *and* agent phone numbers, so
   adding a per-card field must not become a query per card.
-- **Rate limiter is in-memory** (`lib/rate-limit.ts`) — resets on restart, not
-  shared across instances. Guards login at 5 attempts / 15 min.
+- **Rate limiter** (`lib/rate-limit.ts`) picks its driver at import time: the
+  `rate_limits` table when `DATABASE_URL` is set, an in-process Map otherwise.
+  So it *is* shared across instances in production, and only tests and local
+  runs without a database fall back to memory. Guards login at 5 attempts /
+  15 min.
 - **WhatsApp links** go through `buildWhatsAppLink` (`lib/whatsapp.ts`). Never
   hand-roll a `wa.me` href: an Indonesian `08xx` has to become `628xx` or the
   chat will not open.
