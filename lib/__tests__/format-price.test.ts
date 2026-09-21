@@ -2,10 +2,17 @@ import { formatPriceCompact, formatPriceCompactValue, formatPriceFull } from '@/
 
 describe('formatPriceCompact', () => {
   it('formats a billion-scale price with the M suffix', () => {
-    expect(formatPriceCompact('1500000000', 'jual')).toBe('Rp 1.5 M')
+    expect(formatPriceCompact('1500000000', 'jual')).toBe('Rp 1,5 M')
   })
   it('formats a million-scale price with the Jt suffix', () => {
     expect(formatPriceCompact('750000000', 'jual')).toBe('Rp 750 Jt')
+  })
+  it('keeps a fractional million honest instead of rounding it whole', () => {
+    expect(formatPriceCompact('3500000', 'jual')).toBe('Rp 3,5 Jt')
+    expect(formatPriceCompact('1400000', 'jual')).toBe('Rp 1,4 Jt')
+  })
+  it('drops the decimal when the million is whole', () => {
+    expect(formatPriceCompact('9000000', 'jual')).toBe('Rp 9 Jt')
   })
   it('formats a sub-million price with toLocaleString', () => {
     expect(formatPriceCompact('500000', 'jual')).toBe('Rp 500.000')
@@ -28,7 +35,7 @@ describe('formatPriceCompactValue', () => {
   it('splits into prefix/value/suffix for a billion-scale price', () => {
     expect(formatPriceCompactValue('2500000000', 'jual')).toEqual({
       prefix: 'Rp',
-      value: '2.5 M',
+      value: '2,5 M',
       suffix: '',
     })
   })
@@ -57,10 +64,23 @@ describe('formatPriceCompactValue', () => {
 
 describe('formatPriceFull', () => {
   it('formats a billion-scale price in Miliar', () => {
-    expect(formatPriceFull('1500000000', 'jual')).toBe('Rp 1.50 Miliar')
+    expect(formatPriceFull('1500000000', 'jual')).toBe('Rp 1,50 Miliar')
   })
   it('formats a million-scale price in Juta', () => {
     expect(formatPriceFull('750000000', 'jual')).toBe('Rp 750 Juta')
+  })
+  it('keeps a fractional million honest instead of rounding it whole', () => {
+    // Rp 3.500.000 used to render as "Rp 4 Juta" — a 14% overstatement on
+    // exactly the range monthly rents fall into.
+    expect(formatPriceFull('3500000', 'sewa')).toBe('Rp 3,5 Juta/bulan')
+    expect(formatPriceFull('1400000', 'jual')).toBe('Rp 1,4 Juta')
+    expect(formatPriceFull('2500000', 'jual')).toBe('Rp 2,5 Juta')
+  })
+  it('drops the decimal when the million is whole', () => {
+    expect(formatPriceFull('9000000', 'jual')).toBe('Rp 9 Juta')
+  })
+  it('writes billions with an Indonesian decimal comma', () => {
+    expect(formatPriceFull('3200000000', 'jual')).toBe('Rp 3,20 Miliar')
   })
   it('appends /bulan for sewa listings', () => {
     expect(formatPriceFull('750000000', 'sewa')).toBe('Rp 750 Juta/bulan')

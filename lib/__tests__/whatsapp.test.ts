@@ -59,7 +59,7 @@ describe("buildWhatsAppLink", () => {
     const href = buildWhatsAppLink({ ...listing, agentPhone: "081234567890" })
     const text = decodeURIComponent(new URL(href!).searchParams.get("text")!)
     expect(text).toContain("Rumah Minimalis Bintaro")
-    expect(text).toContain("Rp 1.50 Miliar")
+    expect(text).toContain("Rp 1,50 Miliar")
     expect(text).toContain("https://properti-nusa.id/properti/abc")
   })
 

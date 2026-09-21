@@ -27,14 +27,32 @@ export const CITIES = [
 // rendering an em-dash placeholder. This prevents "Rp NaN" from ever reaching
 // the public catalog if a row's price column is ever set to a non-numeric value
 // (e.g. via a future API change, a manual DB edit, or a soft-delete path).
+/**
+ * Indonesian writes decimals with a comma and thousands with a period, while
+ * the JS fixed-decimal helper always emits a dot — which in this locale reads
+ * as a thousands separator, so "Rp 1.50 Miliar" could be taken for a far
+ * larger number.
+ *
+ * `max` also carries the accuracy fix: millions used to round to whole, so
+ * Rp 3.500.000 rendered as "Rp 4 Juta" and Rp 1.400.000 as "Rp 1 Juta" — the
+ * exact range monthly rents sit in. A whole value still prints without a
+ * decimal when `min` is 0.
+ */
+function idNumber(value: number, min: number, max: number): string {
+  return value.toLocaleString("id-ID", {
+    minimumFractionDigits: min,
+    maximumFractionDigits: max,
+  })
+}
+
 function safePriceLabel(price: string, listingType: string, suffixPerType: string): string {
   const num = Number.parseInt(price, 10)
   if (!Number.isFinite(num) || num < 0) return "—"
   const body =
     num >= 1_000_000_000
-      ? `${(num / 1_000_000_000).toFixed(1)} M`
+      ? `${idNumber(num / 1_000_000_000, 0, 1)} M`
       : num >= 1_000_000
-        ? `${(num / 1_000_000).toFixed(0)} Jt`
+        ? `${idNumber(num / 1_000_000, 0, 1)} Jt`
         : num.toLocaleString("id-ID")
   return `Rp ${body}${listingType === "sewa" ? suffixPerType : ""}`
 }
@@ -54,9 +72,9 @@ export function formatPriceCompactValue(price: string, listingType: string): {
   }
   const value =
     num >= 1_000_000_000
-      ? `${(num / 1_000_000_000).toFixed(1)} M`
+      ? `${idNumber(num / 1_000_000_000, 0, 1)} M`
       : num >= 1_000_000
-        ? `${(num / 1_000_000).toFixed(0)} Jt`
+        ? `${idNumber(num / 1_000_000, 0, 1)} Jt`
         : num.toLocaleString("id-ID")
   return { prefix: "Rp", value, suffix: listingType === "sewa" ? "/bln" : "" }
 }
@@ -66,9 +84,9 @@ export function formatPriceFull(price: string, listingType: string): string {
   if (!Number.isFinite(num) || num < 0) return "—"
   const base =
     num >= 1_000_000_000
-      ? `Rp ${(num / 1_000_000_000).toFixed(2)} Miliar`
+      ? `Rp ${idNumber(num / 1_000_000_000, 2, 2)} Miliar`
       : num >= 1_000_000
-        ? `Rp ${(num / 1_000_000).toFixed(0)} Juta`
+        ? `Rp ${idNumber(num / 1_000_000, 0, 1)} Juta`
         : `Rp ${num.toLocaleString("id-ID")}`
   return listingType === "sewa" ? `${base}/bulan` : base
 }

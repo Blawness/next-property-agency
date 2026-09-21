@@ -34,10 +34,15 @@ describe('PropertyCard', () => {
     expect(screen.getByText('Test Property')).toBeInTheDocument()
   })
 
-  it('formats price correctly', () => {
+  it('formats a whole billion without a trailing decimal', () => {
     renderWithSession(<PropertyCard property={mockProperty} />)
-    expect(screen.getByText(/1\.0 M/)).toBeInTheDocument()
+    expect(screen.getByText('1 M')).toBeInTheDocument()
     expect(screen.getByText('Rp')).toBeInTheDocument()
+  })
+
+  it('keeps the decimal on a fractional billion, with an Indonesian comma', () => {
+    renderWithSession(<PropertyCard property={{ ...mockProperty, price: '1500000000' }} />)
+    expect(screen.getByText('1,5 M')).toBeInTheDocument()
   })
 
   it('offers a WhatsApp enquiry when the listing agent has a number', () => {

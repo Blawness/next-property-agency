@@ -13,7 +13,7 @@ describe("buildShareText", () => {
   })
 
   it("carries the formatted price", () => {
-    expect(buildShareText(listing)).toContain("Rp 3.20 Miliar")
+    expect(buildShareText(listing)).toContain("Rp 3,20 Miliar")
   })
 
   it("marks a rental as per month", () => {
