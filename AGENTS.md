@@ -41,6 +41,13 @@ Required in `.env.local`:
   it to build shareable links, so WhatsApp enquiries point at the wrong host if
   it is stale
 
+Optional:
+- `RESEND_API_KEY` — lead notification email. Unset, `lib/notify.ts` logs and
+  skips, so local work needs no account.
+- `LEAD_NOTIFY_FROM` — sender address, defaults to `onboarding@resend.dev`.
+  That default only delivers to the Resend account owner; a real sender needs a
+  domain verified in Resend.
+
 ## Architecture
 
 **PROPERTI NUSA** is an Indonesian property listing site (rumah, apartemen,
@@ -109,7 +116,7 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 | `/admin` | Dashboard stats |
 | `/admin/properti`, `/admin/properti/create`, `/admin/properti/[id]/edit` | Property CRUD |
 | `/admin/agent` | Agent management |
-| `/admin/leads`, `/admin/aktivitas` | Leads inbox and admin action log |
+| `/admin/leads`, `/admin/aktivitas` | Leads inbox (WhatsApp reply per lead) and admin action log |
 
 ### Key shared types (`lib/types.ts`)
 `PropertyWithImages` (`Property` + `images` + optional `agentPhone`) is the shape
@@ -138,6 +145,13 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   chat will not open.
 - **KPR maths** lives in `lib/mortgage.ts` as a pure function; the component is
   presentation only.
+- **Lead notification is best-effort.** `POST /api/leads` commits the row, then
+  emails. A mail failure is logged and the request still returns ok — answering
+  500 after a successful insert would only make the visitor submit again and
+  duplicate the lead.
+- **`leads.phone` is required by the API, nullable in the database.** Rows
+  written before migration 0009 have none, and `leads.email` is now optional —
+  phone is the contact that matters in this market.
 - **Admin role** is set with SQL: `UPDATE profiles SET role = 'admin' WHERE email = '…'`.
   It rides the JWT session and is enforced in `app/admin/layout.tsx`.
 - **Image domains** allowed: `images.unsplash.com`, `utfs.io`, `*.ufsedge.com`,

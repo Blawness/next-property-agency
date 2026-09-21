@@ -21,6 +21,7 @@ export default function PropertyLeadForm({ propertyId, propertyTitle }: Property
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({
     name: "",
+    phone: "",
     email: "",
     message: `Halo, saya tertarik dengan "${propertyTitle}". Bisa info lebih lanjut?`,
   })
@@ -42,7 +43,7 @@ export default function PropertyLeadForm({ propertyId, propertyTitle }: Property
       }
       setSent(true)
       toast.success("Pertanyaan terkirim! Agen kami akan menghubungi Anda.")
-      setForm((prev) => ({ ...prev, name: "", email: "" }))
+      setForm((prev) => ({ ...prev, name: "", phone: "", email: "" }))
     } catch (err) {
       toast.error(err instanceof Error && err.message ? err.message : "Gagal mengirim. Coba lagi.")
     } finally {
@@ -51,10 +52,10 @@ export default function PropertyLeadForm({ propertyId, propertyTitle }: Property
   }
 
   return (
-    <div className="rounded-3xl border border-border/40 bg-secondary/60 p-6">
+    <div className="rounded-sm border border-border/40 bg-secondary/60 p-6">
       <h2 className="font-sans text-xl font-semibold text-foreground">Tanya Tentang Properti Ini</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Tinggalkan kontak Anda — kami balas dalam satu hari kerja.
+        Tinggalkan nomor WhatsApp Anda — agen kami balas dalam satu hari kerja.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-5 space-y-4">
@@ -72,17 +73,30 @@ export default function PropertyLeadForm({ propertyId, propertyTitle }: Property
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="lead-email">Email</Label>
+            <Label htmlFor="lead-phone">Nomor WhatsApp</Label>
             <Input
-              id="lead-email"
-              type="email"
+              id="lead-phone"
+              type="tel"
               required
-              placeholder="nama@email.com"
+              inputMode="tel"
+              placeholder="0812 3456 7890"
               className="rounded-xl bg-background"
-              value={form.email}
-              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+              value={form.phone}
+              onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
             />
           </div>
+        </div>
+
+        <div className="space-y-1">
+          <Label htmlFor="lead-email">Email (opsional)</Label>
+          <Input
+            id="lead-email"
+            type="email"
+            placeholder="nama@email.com"
+            className="rounded-xl bg-background"
+            value={form.email}
+            onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+          />
         </div>
 
         <div className="space-y-1">

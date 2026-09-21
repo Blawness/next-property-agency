@@ -5,13 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Phone } from "lucide-react"
+import { Mail, Phone, MessageCircle } from "lucide-react"
+import { normalizeWhatsAppNumber } from "@/lib/whatsapp"
 import { toast } from "sonner"
 
 interface Lead {
   id: string
   name: string
-  email: string
+  phone: string | null
+  email: string | null
   message: string
   propertyId: string | null
   propertyTitle: string | null
@@ -102,11 +104,38 @@ export default function AdminLeadsPage() {
                           <p className="font-medium text-foreground">{lead.name}</p>
                           <Badge variant={config.variant}>{config.label}</Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
-                          <span className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
-                            {lead.email}
-                          </span>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground mb-2">
+                          {lead.phone &&
+                            (() => {
+                              // Reply straight from the inbox — copying the
+                              // number by hand is where follow-ups get dropped.
+                              const wa = normalizeWhatsAppNumber(lead.phone)
+                              return wa ? (
+                                <a
+                                  href={`https://wa.me/${wa}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1 font-medium text-primary hover:underline"
+                                >
+                                  <MessageCircle className="h-3 w-3" />
+                                  {lead.phone}
+                                </a>
+                              ) : (
+                                <span className="flex items-center gap-1">
+                                  <Phone className="h-3 w-3" />
+                                  {lead.phone}
+                                </span>
+                              )
+                            })()}
+                          {lead.email && (
+                            <a
+                              href={`mailto:${lead.email}`}
+                              className="flex items-center gap-1 hover:underline"
+                            >
+                              <Mail className="h-3 w-3" />
+                              {lead.email}
+                            </a>
+                          )}
                           <span>{formatDate(lead.createdAt)}</span>
                         </div>
                         {lead.propertyTitle && (
