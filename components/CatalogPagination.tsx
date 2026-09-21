@@ -1,14 +1,15 @@
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import type { RawCatalogParams } from "@/lib/catalog-query"
 
 interface CatalogPaginationProps {
   page: number
   totalPages: number
-  filters: Record<string, string | undefined>
+  filters: RawCatalogParams
 }
 
-function buildHref(filters: Record<string, string | undefined>, page: number): string {
+function buildHref(filters: RawCatalogParams, page: number): string {
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(filters)) {
     if (key !== "page" && value) params.set(key, value)

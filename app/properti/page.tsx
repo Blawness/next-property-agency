@@ -1,6 +1,6 @@
 import { db } from "@/db"
 import { properties } from "@/db/schema"
-import { eq, asc, desc, and, gte, lte, ilike, or, isNull, count } from "drizzle-orm"
+import { asc, desc, count } from "drizzle-orm"
 import PropertyCard from "@/components/PropertyCard"
 import PropertyFilter from "@/components/PropertyFilter"
 import CatalogPagination from "@/components/CatalogPagination"
@@ -13,16 +13,20 @@ import type { PropertyWithImages } from "@/lib/types"
 import { getPropertiesWithImagesBatch, getFavoritePropertyIds } from "@/lib/db-helpers"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { type SortKey } from "@/lib/constants"
 import {
-  PROPERTY_TYPES,
-  LISTING_TYPES,
-  isSortKey,
-  escapeLikePattern,
-  parseMinBedrooms,
-  type SortKey,
-} from "@/lib/constants"
+  parseCatalogFilters,
+  catalogConditions,
+  CATALOG_PAGE_SIZE,
+  MAP_MARKER_LIMIT,
+  type CatalogFilters,
+  type RawCatalogParams,
+} from "@/lib/catalog-query"
 import { SlidersHorizontal, SearchX } from "lucide-react"
 import SectionHeading from "@/components/SectionHeading"
+import CatalogViewToggle from "@/components/CatalogViewToggle"
+import MapView from "@/components/MapView"
+import MapCoverageNotice from "@/components/MapCoverageNotice"
 import Reveal from "@/components/Reveal"
 
 export const revalidate = 60
@@ -38,10 +42,9 @@ interface PageProps {
     q?: string
     sort?: string
     page?: string
+    view?: string
   }>
 }
-
-const PAGE_SIZE = 24
 
 const ORDER_BY: Record<SortKey, ReturnType<typeof desc>> = {
   terbaru: desc(properties.createdAt),
@@ -50,60 +53,45 @@ const ORDER_BY: Record<SortKey, ReturnType<typeof desc>> = {
 }
 
 async function getProperties(
-  filters: Awaited<PageProps["searchParams"]>,
-): Promise<{ items: PropertyWithImages[]; total: number; page: number }> {
-  const conditions = [eq(properties.status, "active"), isNull(properties.deletedAt)]
-
-  if (filters.type && PROPERTY_TYPES.includes(filters.type as typeof PROPERTY_TYPES[number])) {
-    conditions.push(eq(properties.type, filters.type as typeof PROPERTY_TYPES[number]))
-  }
-  if (filters.listingType && LISTING_TYPES.includes(filters.listingType as typeof LISTING_TYPES[number])) {
-    conditions.push(eq(properties.listingType, filters.listingType as typeof LISTING_TYPES[number]))
-  }
-  if (filters.city) {
-    conditions.push(ilike(properties.city, `%${filters.city}%`))
-  }
-  if (filters.minPrice) {
-    conditions.push(gte(properties.price, filters.minPrice))
-  }
-  if (filters.maxPrice) {
-    conditions.push(lte(properties.price, filters.maxPrice))
-  }
-
-  const minBedrooms = parseMinBedrooms(filters.minBedrooms)
-  if (minBedrooms !== null) {
-    conditions.push(gte(properties.bedrooms, minBedrooms))
-  }
-
-  const term = filters.q?.trim()
-  if (term) {
-    const pattern = `%${escapeLikePattern(term)}%`
-    conditions.push(
-      or(
-        ilike(properties.title, pattern),
-        ilike(properties.city, pattern),
-        ilike(properties.address, pattern),
-      )!,
-    )
-  }
-
-  const page = Math.max(1, parseInt(filters.page ?? "1", 10) || 1)
-  const orderBy = ORDER_BY[isSortKey(filters.sort) ? filters.sort : "terbaru"]
+  filters: CatalogFilters,
+): Promise<{ items: PropertyWithImages[]; total: number }> {
+  const where = catalogConditions(filters)
 
   const [items, totalRow] = await Promise.all([
     getPropertiesWithImagesBatch(
       db
         .select()
         .from(properties)
-        .where(and(...conditions))
-        .orderBy(orderBy)
-        .limit(PAGE_SIZE)
-        .offset((page - 1) * PAGE_SIZE),
+        .where(where)
+        .orderBy(ORDER_BY[filters.sort])
+        .limit(CATALOG_PAGE_SIZE)
+        .offset((filters.page - 1) * CATALOG_PAGE_SIZE),
     ),
-    db.select({ n: count() }).from(properties).where(and(...conditions)),
+    db.select({ n: count() }).from(properties).where(where),
   ])
 
-  return { items, total: totalRow[0]?.n ?? 0, page }
+  return { items, total: totalRow[0]?.n ?? 0 }
+}
+
+/**
+ * Pins for the map. Same filters as the list, but deliberately not paginated —
+ * drawing only page one would under-report what the search found. Capped
+ * instead, since every marker is shipped to the browser.
+ */
+async function getMapPins(filters: CatalogFilters) {
+  const [pins, totalRow] = await Promise.all([
+    getPropertiesWithImagesBatch(
+      db
+        .select()
+        .from(properties)
+        .where(catalogConditions(filters, { requireCoords: true }))
+        .orderBy(ORDER_BY[filters.sort])
+        .limit(MAP_MARKER_LIMIT),
+    ),
+    db.select({ n: count() }).from(properties).where(catalogConditions(filters)),
+  ])
+
+  return { pins, matching: totalRow[0]?.n ?? 0 }
 }
 
 const SKELETON_CARDS = Array.from({ length: 6 })
@@ -123,11 +111,18 @@ function PropertyGridSkeleton() {
   )
 }
 
-async function PropertyGrid({ filters }: { filters: Awaited<PageProps["searchParams"]> }) {
-  const [{ items, total, page }, session] = await Promise.all([
+async function PropertyGrid({
+  filters,
+  raw,
+}: {
+  filters: CatalogFilters
+  raw: RawCatalogParams
+}) {
+  const [{ items, total }, session] = await Promise.all([
     getProperties(filters),
     getServerSession(authOptions),
   ])
+  const page = filters.page
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()
 
   if (items.length === 0) {
@@ -149,8 +144,8 @@ async function PropertyGrid({ filters }: { filters: Awaited<PageProps["searchPar
     )
   }
 
-  const totalPages = Math.ceil(total / PAGE_SIZE)
-  const start = (page - 1) * PAGE_SIZE + 1
+  const totalPages = Math.ceil(total / CATALOG_PAGE_SIZE)
+  const start = (page - 1) * CATALOG_PAGE_SIZE + 1
   const end = start + items.length - 1
 
   return (
@@ -166,13 +161,47 @@ async function PropertyGrid({ filters }: { filters: Awaited<PageProps["searchPar
           </Reveal>
         ))}
       </div>
-      <CatalogPagination page={page} totalPages={totalPages} filters={filters} />
+      <CatalogPagination page={page} totalPages={totalPages} filters={raw} />
     </div>
   )
 }
 
+async function PropertyMapPanel({ filters }: { filters: CatalogFilters }) {
+  const { pins, matching } = await getMapPins(filters)
+
+  if (matching === 0) {
+    return (
+      <div className="flex h-[60vh] min-h-[420px] flex-col items-center justify-center gap-3 rounded-sm border border-border text-center">
+        <SearchX size={28} strokeWidth={1.5} className="text-primary" />
+        <p className="font-sans text-lg font-semibold text-foreground">
+          Tidak ada properti ditemukan
+        </p>
+        <Button variant="outline" size="sm" className="rounded-sm" asChild>
+          <Link href="/properti?view=peta">Reset Filter</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <MapCoverageNotice pinned={pins.length} matching={matching} />
+      <div className="overflow-hidden rounded-sm border border-border">
+        <div className="h-[60vh] min-h-[420px]">
+          <MapView properties={pins} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MapSkeleton() {
+  return <Skeleton className="h-[60vh] min-h-[420px] w-full rounded-sm" />
+}
+
 export default async function PropertiPage({ searchParams }: PageProps) {
-  const filters = await searchParams
+  const raw = await searchParams
+  const filters = parseCatalogFilters(raw)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -208,9 +237,18 @@ export default async function PropertiPage({ searchParams }: PageProps) {
           </div>
         </aside>
         <div className="flex-1 min-w-0">
-          <Suspense fallback={<PropertyGridSkeleton />}>
-            <PropertyGrid filters={filters} />
-          </Suspense>
+          <div className="mb-5 flex justify-end">
+            <CatalogViewToggle view={filters.view} filters={raw} />
+          </div>
+          {filters.view === "peta" ? (
+            <Suspense fallback={<MapSkeleton />}>
+              <PropertyMapPanel filters={filters} />
+            </Suspense>
+          ) : (
+            <Suspense fallback={<PropertyGridSkeleton />}>
+              <PropertyGrid filters={filters} raw={raw} />
+            </Suspense>
+          )}
         </div>
       </div>
     </div>

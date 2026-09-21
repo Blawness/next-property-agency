@@ -106,9 +106,9 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 | Path | Purpose |
 |------|---------|
 | `/` | Homepage — featured active listings |
-| `/properti` | Catalog with filters, sort and pagination |
+| `/properti` | Catalog with filters, sort and pagination; `?view=peta` swaps the grid for the map |
 | `/properti/[id]` | Detail — gallery, map, KPR simulation (sale listings), lead form, agent card |
-| `/peta` | Map view of all listings |
+| `/peta` | 308 to `/properti?view=peta` (a `next.config.ts` redirect, not a route) |
 | `/agen` | Agent index — grid of every agent with their active listing count; linked from the Navbar |
 | `/agen/[id]` | Public agent profile — bio, WhatsApp, and that agent's active listings |
 | `/masuk`, `/daftar` | Sign in / sign up (buyer only; agents are created by an admin) |
@@ -134,6 +134,15 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
 - **`getPropertiesWithImagesBatch`** (`lib/db-helpers.ts`) is the only way to
   load listings for a grid. It batches images *and* agent phone numbers, so
   adding a per-card field must not become a query per card.
+- **The catalog filter lives in one place.** `lib/catalog-query.ts` parses the
+  URL (`parseCatalogFilters`) and builds the WHERE clause (`catalogConditions`);
+  the list and the map both read it, so a filter can never apply to one and not
+  the other. Add a filter there, not in the page.
+- **The map is not paginated.** The list is capped at `CATALOG_PAGE_SIZE`, the
+  map at `MAP_MARKER_LIMIT` with no offset — drawing only the current page's
+  pins would under-report what a search found. Listings without lat/lng cannot
+  be drawn at all, so `MapCoverageNotice` says how many are missing rather than
+  letting the map quietly show fewer.
 - **Rate limiter** (`lib/rate-limit.ts`) picks its driver at import time: the
   `rate_limits` table when `DATABASE_URL` is set, an in-process Map otherwise.
   So it *is* shared across instances in production, and only tests and local
