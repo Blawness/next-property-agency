@@ -29,6 +29,7 @@ const NAV_LINKS = [
   { href: "/#about",   label: "About us",   id: "about" },
   { href: "/#how",     label: "How we work", id: "how" },
   { href: "/properti", label: "Listings",   id: "listings" },
+  { href: "/agen",     label: "Agen",       id: "agents" },
   { href: "/#contact", label: "Contacts",   id: "contact" },
 ]
 
@@ -75,6 +76,7 @@ export default function Navbar() {
   const isLinkActive = (id: string) => {
     if (pathname.startsWith("/admin")) return false
     if (id === "listings") return pathname.startsWith("/properti") || pathname.startsWith("/peta")
+    if (id === "agents") return pathname.startsWith("/agen")
     // The remaining links point at homepage sections, so they can only be
     // active on the homepage itself; "home" stands in until the observer
     // reports a section.

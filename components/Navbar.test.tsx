@@ -38,4 +38,20 @@ describe('Navbar active link', () => {
     const { container } = renderAt('/peta')
     expect(activeNavIds(container)).toEqual(['listings'])
   })
+
+  it('marks only Agen active on the agent index', () => {
+    const { container } = renderAt('/agen')
+    expect(activeNavIds(container)).toEqual(['agents'])
+  })
+
+  it('marks only Agen active on an agent profile', () => {
+    const { container } = renderAt('/agen/a1')
+    expect(activeNavIds(container)).toEqual(['agents'])
+  })
+
+  it('renders a link to the agent index', () => {
+    const { container } = renderAt('/')
+    const agen = container.querySelector('[data-nav="agents"]')
+    expect(agen).toHaveAttribute('href', '/agen')
+  })
 })

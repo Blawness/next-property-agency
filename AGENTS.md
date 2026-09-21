@@ -98,7 +98,7 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 | `/properti` | Catalog with filters, sort and pagination |
 | `/properti/[id]` | Detail — gallery, map, KPR simulation (sale listings), lead form, agent card |
 | `/peta` | Map view of all listings |
-| `/agen` | Agent index — grid of every agent with their active listing count |
+| `/agen` | Agent index — grid of every agent with their active listing count; linked from the Navbar |
 | `/agen/[id]` | Public agent profile — bio, WhatsApp, and that agent's active listings |
 | `/masuk`, `/daftar` | Sign in / sign up (buyer only; agents are created by an admin) |
 | `/profil` | Profile and favorites |
@@ -132,9 +132,6 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   `buildAgentWhatsAppLink` for an agent profile (`lib/whatsapp.ts`). Never
   hand-roll a `wa.me` href: an Indonesian `08xx` has to become `628xx` or the
   chat will not open.
-- **`/agen` has no link into it yet** — the only route in is the agent name on a
-  listing's AgentCard. Add a Navbar or Footer entry when the index should be
-  discoverable.
 - **KPR maths** lives in `lib/mortgage.ts` as a pure function; the component is
   presentation only.
 - **Admin role** is set with SQL: `UPDATE profiles SET role = 'admin' WHERE email = '…'`.
