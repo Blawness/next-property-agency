@@ -155,6 +155,14 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   (`lib/share.ts` — no recipient, so WhatsApp opens its contact picker). Never
   hand-roll a `wa.me` href: an Indonesian `08xx` has to become `628xx` or the
   chat will not open.
+- **Navbar links go through `components/navbar/NavLink.tsx`**, which picks
+  `<Link>` for routes and a plain `<a>` for `/#section` hash links. Both were
+  plain anchors once, so every visit to `/properti` or `/agen` reloaded the
+  whole app shell. Keep the choice in that one component rather than in the
+  desktop bar and the mobile drawer separately. `isNavLinkActive` in
+  `components/navbar/nav-links.ts` is pure and unit-tested; the older
+  render-and-look-for-bold tests in `components/Navbar.test.tsx` stay as a
+  behavioural safety net.
 - **`navigator.share` and `navigator.clipboard` are both optional.** The first
   is absent on most desktops, the second throws outside HTTPS and in some
   in-app browsers. `ShareButton` reads them at click time, falls back to its
