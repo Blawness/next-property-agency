@@ -24,6 +24,7 @@ import { db } from "@/db"
 import { profiles } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
+import { isSessionStale } from "@/lib/password-reset"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
 export const authOptions: NextAuthOptions = {
@@ -66,15 +67,38 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
         token.role = user.role
         token.image = user.image as string | undefined
+        // Freshly minted at sign-in — nothing to invalidate yet, and `iat` is
+        // not set until the token is encoded.
+        return token
       }
+
       if (trigger === "update" && session?.image !== undefined) {
         token.image = session.image as string
       }
+
+      // A password reset has to end sessions that were already open, or an
+      // intruder simply keeps the one they have. Sessions are JWTs with no
+      // server-side store, so the only way to notice is to compare the token's
+      // issue time against the account. That costs one indexed primary-key read
+      // per session read; throwing is what NextAuth turns into a cleared
+      // session cookie (see core/routes/session.js).
+      if (token.id) {
+        const [row] = await db
+          .select({ passwordChangedAt: profiles.passwordChangedAt })
+          .from(profiles)
+          .where(eq(profiles.id, token.id as string))
+          .limit(1)
+
+        if (isSessionStale(row?.passwordChangedAt, token.iat as number | undefined)) {
+          throw new Error("Session predates a password change")
+        }
+      }
+
       return token
     },
     session({ session, token }) {

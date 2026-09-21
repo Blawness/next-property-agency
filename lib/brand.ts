@@ -17,6 +17,8 @@ export const BRAND = {
     catalog: "Katalog Properti — PROPERTI NUSA",
     map: "Peta Properti — PROPERTI NUSA",
     login: "Masuk — PROPERTI NUSA",
+    forgotPassword: "Lupa Password — PROPERTI NUSA",
+    resetPassword: "Atur Ulang Password — PROPERTI NUSA",
     register: "Daftar — PROPERTI NUSA",
     propertyNotFound: "Properti Tidak Ditemukan — PROPERTI NUSA",
     catalogHeading: "Katalog Properti",

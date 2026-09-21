@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth"
 import { eq, count, inArray } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 import bcrypt from "bcryptjs"
+import { generateTempPassword } from "@/lib/password-reset"
 import { z } from "zod"
 
 const createAgentSchema = z.object({
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email sudah terdaftar." }, { status: 409 })
     }
 
-    const tempPassword = Math.random().toString(36).slice(-8)
+    const tempPassword = generateTempPassword()
     const passwordHash = await bcrypt.hash(tempPassword, 10)
 
     const [agent] = await db

@@ -20,17 +20,17 @@ jest.mock('../../../../db', () => ({
 
 jest.mock('../../../../lib/notify', () => {
   const actual = jest.requireActual('../../../../lib/notify')
-  return { ...actual, sendLeadNotification: jest.fn(async () => ({ sent: true })) }
+  return { ...actual, sendMail: jest.fn(async () => ({ sent: true })) }
 })
 
 import { POST } from '@/app/api/leads/route'
 import { rateLimit } from '@/lib/rate-limit'
-import { sendLeadNotification } from '@/lib/notify'
+import { sendMail } from '@/lib/notify'
 import { db } from '@/db'
 import { NextRequest } from 'next/server'
 
 const mockRateLimit = rateLimit as jest.Mock
-const mockSend = sendLeadNotification as jest.Mock
+const mockSend = sendMail as jest.Mock
 
 function makeReq(body: unknown): NextRequest {
   return new NextRequest(

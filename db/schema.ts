@@ -32,6 +32,10 @@ export const profiles = pgTable("profiles", {
   // sibling site sharing this database — are unaffected.
   title: text("title"),
   bio: text("bio"),
+  // Sessions are JWTs with no server-side store, so a password change cannot
+  // revoke them directly. The JWT callback compares its issue time against
+  // this, which is what actually logs an intruder out after a reset.
+  passwordChangedAt: timestamp("password_changed_at"),
   createdAt: timestamp("created_at").defaultNow(),
 })
 
@@ -145,3 +149,26 @@ export const leads = pgTable("leads", {
 }, (table) => ({
   createdAtIdx: index("leads_created_at_idx").on(table.createdAt),
 }))
+
+export const passwordResetTokens = pgTable(
+  "password_reset_tokens",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    // SHA-256 of the token, never the token itself. This database is shared
+    // with a sibling project, so read access to this table must not be enough
+    // to take over an account.
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    usedAt: timestamp("used_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    tokenHashIdx: index("password_reset_tokens_token_hash_idx").on(table.tokenHash),
+    userIdx: index("password_reset_tokens_user_id_idx").on(table.userId),
+  }),
+)

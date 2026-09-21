@@ -86,8 +86,8 @@ the enquiry button, and an empty value hides the button rather than pointing
 buyers at a number nobody answers.
 
 ### Database (`db/schema.ts`)
-Seven tables: `profiles`, `properties`, `property_images`, `favorites`, `leads`,
-`admin_actions`, `rate_limits`.
+Eight tables: `profiles`, `properties`, `property_images`, `favorites`, `leads`,
+`admin_actions`, `rate_limits`, `password_reset_tokens`.
 
 Enums: `role` (buyer|agent|admin), `property_type` (rumah|apartemen|tanah|ruko),
 `listing_type` (jual|sewa), `status` (active|sold|rented|archived).
@@ -98,7 +98,7 @@ profile. Both nullable, so the sibling site sharing this database is unaffected
 two columns its schema does not declare and write a `DROP COLUMN` migration.
 Add the same two nullable columns there before generating anything.
 
-Migrations live in `drizzle/` (0000–0008) and are already applied to the shared
+Migrations live in `drizzle/` (0000–0010) and are already applied to the shared
 database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 `pnpm exec drizzle-kit migrate`.
 
@@ -112,6 +112,7 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 | `/agen` | Agent index — grid of every agent with their active listing count; linked from the Navbar |
 | `/agen/[id]` | Public agent profile — bio, WhatsApp, and that agent's active listings |
 | `/masuk`, `/daftar` | Sign in / sign up (buyer only; agents are created by an admin) |
+| `/lupa-password`, `/atur-ulang-password` | Password reset — request a link, then set a new password |
 | `/profil` | Profile and favorites |
 | `/admin` | Dashboard stats |
 | `/admin/properti`, `/admin/properti/create`, `/admin/properti/[id]/edit` | Property CRUD |
@@ -176,6 +177,20 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
 - **`leads.phone` is required by the API, nullable in the database.** Rows
   written before migration 0009 have none, and `leads.email` is now optional —
   phone is the contact that matters in this market.
+- **Password reset never confirms whether an address is registered.**
+  `POST /api/auth/forgot-password` returns the same body either way; telling
+  them apart would make it a way to enumerate accounts. Reset tokens are stored
+  as a SHA-256 hash, live one hour, and are spent on first use.
+- **A password change ends other sessions**, via `profiles.passwordChangedAt`.
+  Sessions are JWTs with no server-side store, so the `jwt` callback compares
+  the token's `iat` against that column and throws when it is older — NextAuth
+  turns a throw there into a cleared session cookie (see
+  `node_modules/next-auth/core/routes/session.js`). This costs one indexed
+  primary-key read per session read, and it is what stops an intruder keeping
+  the session they already had.
+- **Generate secrets with `generateTempPassword` / `generateResetToken`**
+  (`lib/password-reset.ts`), never `Math.random()` — its output is predictable,
+  and these values grant account access.
 - **Admin role** is set with SQL: `UPDATE profiles SET role = 'admin' WHERE email = '…'`.
   It rides the JWT session and is enforced in `app/admin/layout.tsx`.
 - **Image domains** allowed: `images.unsplash.com`, `utfs.io`, `*.ufsedge.com`,

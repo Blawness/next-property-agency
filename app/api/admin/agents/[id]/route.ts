@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth"
 import { eq } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 import { z } from "zod"
+import bcrypt from "bcryptjs"
+import { generateTempPassword } from "@/lib/password-reset"
 
 const updateAgentSchema = z.object({
   name: z.string().min(2).optional(),
@@ -13,6 +15,9 @@ const updateAgentSchema = z.object({
   avatarUrl: z.string().url().optional().nullable(),
   title: z.string().max(80).optional().nullable(),
   bio: z.string().max(1200).optional().nullable(),
+  // When true the other fields are ignored: this is the "agent cannot reach
+  // their email" escape hatch, not a normal edit.
+  resetPassword: z.literal(true).optional(),
 })
 
 export async function PATCH(
@@ -40,6 +45,23 @@ export async function PATCH(
         { error: "Validasi gagal", details: parsed.error.flatten() },
         { status: 400 },
       )
+    }
+
+    if (parsed.data.resetPassword) {
+      const tempPassword = generateTempPassword()
+      await db
+        .update(profiles)
+        .set({
+          passwordHash: await bcrypt.hash(tempPassword, 10),
+          // Ends every session the agent had open, same as a self-service
+          // reset — otherwise handing out a new password changes nothing for
+          // whoever is already signed in.
+          passwordChangedAt: new Date(),
+        })
+        .where(eq(profiles.id, id))
+
+      // Shown to the admin once, never stored in readable form.
+      return NextResponse.json({ ok: true, tempPassword })
     }
 
     const updateData: Record<string, string | null> = {}

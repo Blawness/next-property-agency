@@ -116,12 +116,13 @@ export function buildLeadEmail(lead: LeadEmailInput): {
 }
 
 /**
- * Fire-and-forget: the lead row is already committed by the time this runs, so
- * a mail failure must never surface as a failed request — the visitor would
- * just submit again and duplicate the lead. Without RESEND_API_KEY it logs and
- * returns, which is what keeps dev and tests working with no account.
+ * Sends mail, and never throws. Callers decide what a failure means: a lead
+ * notification shrugs it off because the row is already saved, while a password
+ * reset tells the user to try again. Without RESEND_API_KEY it reports
+ * `no-api-key` rather than failing, which keeps dev and tests working with no
+ * account — and lets a caller log the link instead.
  */
-export async function sendLeadNotification(
+export async function sendMail(
   recipients: string[],
   email: { subject: string; text: string; html: string },
 ): Promise<{ sent: boolean; reason?: string }> {
@@ -144,12 +145,49 @@ export async function sendLeadNotification(
     })
 
     if (error) {
-      console.error("[notify] Resend rejected the lead notification:", error)
+      console.error(`[notify] Resend rejected "${email.subject}":`, error)
       return { sent: false, reason: "rejected" }
     }
     return { sent: true }
   } catch (err) {
-    console.error("[notify] lead notification failed:", err)
+    console.error(`[notify] sending "${email.subject}" failed:`, err)
     return { sent: false, reason: "threw" }
   }
+}
+
+export interface PasswordResetEmailInput {
+  name: string
+  /** Absolute URL carrying the one-time token. */
+  resetUrl: string
+}
+
+export function buildPasswordResetEmail({ name, resetUrl }: PasswordResetEmailInput): {
+  subject: string
+  text: string
+  html: string
+} {
+  const subject = `Atur ulang password ${BRAND.name}`
+  const text = [
+    `Halo ${name},`,
+    "",
+    `Kami menerima permintaan untuk mengatur ulang password akun ${BRAND.name} Anda.`,
+    "Buka tautan berikut untuk membuat password baru. Tautan ini berlaku 1 jam dan hanya bisa dipakai sekali.",
+    "",
+    resetUrl,
+    "",
+    "Jika Anda tidak meminta ini, abaikan email ini — password Anda tidak berubah.",
+  ].join("\n")
+
+  const html = `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;color:#1B1B1B">
+  <h2 style="margin:0 0 16px;font-size:18px">Atur ulang password</h2>
+  <p style="margin:0 0 12px">Halo ${escapeHtml(name)},</p>
+  <p style="margin:0 0 16px">Kami menerima permintaan untuk mengatur ulang password akun ${escapeHtml(BRAND.name)} Anda.</p>
+  <p style="margin:0 0 20px">
+    <a href="${escapeHtml(resetUrl)}" style="display:inline-block;background:#C06A14;color:#fff;padding:10px 18px;border-radius:4px;text-decoration:none;font-weight:600">Buat password baru</a>
+  </p>
+  <p style="margin:0 0 16px;font-size:13px;color:#6B5B4D">Tautan berlaku 1 jam dan hanya bisa dipakai sekali.</p>
+  <p style="margin:0;font-size:13px;color:#6B5B4D">Jika Anda tidak meminta ini, abaikan email ini — password Anda tidak berubah.</p>
+</div>`
+
+  return { subject, text, html }
 }

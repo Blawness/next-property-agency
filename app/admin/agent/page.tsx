@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Plus, Pencil, Trash2, Upload } from "lucide-react"
+import { Plus, Pencil, Trash2, Upload, KeyRound } from "lucide-react"
 import { toast } from "sonner"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { UploadButton } from "@uploadthing/react"
@@ -45,6 +45,7 @@ export default function AdminAgentsPage() {
   const [formError, setFormError] = useState("")
   const [formSaving, setFormSaving] = useState(false)
   const [createdPassword, setCreatedPassword] = useState("")
+  const [resetResult, setResetResult] = useState<{ name: string; password: string } | null>(null)
   const [formAvatarUrl, setFormAvatarUrl] = useState("")
 
   const fetchAgents = useCallback(() => {
@@ -140,6 +141,23 @@ export default function AdminAgentsPage() {
     fetchAgents()
   }
 
+  const handleResetPassword = async (id: string, name: string) => {
+    if (!confirm(`Buat password sementara baru untuk ${name}? Semua sesi ${name} akan berakhir.`)) {
+      return
+    }
+    const res = await fetch(`/api/admin/agents/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resetPassword: true }),
+    })
+    if (!res.ok) {
+      toast.error("Gagal mengatur ulang password")
+      return
+    }
+    const data = await res.json()
+    setResetResult({ name, password: data.tempPassword })
+  }
+
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Hapus agent "${name}"? Properti mereka akan dialihkan ke admin.`)) return
     await fetch(`/api/admin/agents/${id}`, { method: "DELETE" })
@@ -215,8 +233,17 @@ export default function AdminAgentsPage() {
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(agent)}>
+                    <Button size="icon" variant="ghost" onClick={() => openEdit(agent)} title="Edit">
                       <Pencil size={14} />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      title="Atur ulang password"
+                      aria-label={`Atur ulang password ${agent.fullName}`}
+                      onClick={() => handleResetPassword(agent.id, agent.fullName)}
+                    >
+                      <KeyRound size={14} />
                     </Button>
                     <Button
                       size="icon"
@@ -233,6 +260,27 @@ export default function AdminAgentsPage() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={resetResult !== null} onOpenChange={(open) => !open && setResetResult(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Password sementara dibuat</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <p className="text-muted-foreground">
+              Sampaikan password ini ke{" "}
+              <span className="font-medium text-foreground">{resetResult?.name}</span> lewat jalur
+              yang aman, dan minta mereka menggantinya setelah masuk.
+            </p>
+            <code className="block rounded-sm border border-border bg-secondary px-3 py-2 font-mono text-[15px] text-foreground">
+              {resetResult?.password}
+            </code>
+            <p className="text-xs text-muted-foreground">
+              Hanya ditampilkan sekali. Semua sesi lama agen ini sudah berakhir.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
@@ -348,12 +396,17 @@ export default function AdminAgentsPage() {
             </div>
 
             {createdPassword && (
-              <div className="bg-brown-50 border border-brown-200 rounded-lg p-3 text-sm">
-                <p className="font-semibold text-brown-800">Agent berhasil dibuat!</p>
-                <p className="text-brown-700 mt-1">
-                  Password sementara: <code className="bg-brown-100 px-1 rounded">{createdPassword}</code>
+              <div className="rounded-sm border border-border bg-secondary p-3 text-sm">
+                <p className="font-semibold text-foreground">Agent berhasil dibuat!</p>
+                <p className="mt-1 text-foreground">
+                  Password sementara:{" "}
+                  <code className="rounded-sm bg-background px-1.5 py-0.5 font-mono">
+                    {createdPassword}
+                  </code>
                 </p>
-                <p className="text-brown-600 text-xs mt-1">Simpan password ini. Tidak akan ditampilkan lagi.</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Simpan password ini. Tidak akan ditampilkan lagi.
+                </p>
               </div>
             )}
 

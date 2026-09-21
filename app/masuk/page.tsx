@@ -86,6 +86,14 @@ export default function MasukPage() {
                 className="rounded-xl border-border focus-visible:ring-primary"
               />
             </div>
+            <div className="flex justify-end">
+              <Link
+                href="/lupa-password"
+                className="text-[13px] text-muted-foreground underline underline-offset-4 hover:text-primary"
+              >
+                Lupa password?
+              </Link>
+            </div>
             {error && <p className="text-[13px] text-destructive">{error}</p>}
             <Button type="submit" className="btn-press w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground hover:bg-primary/90" disabled={loading}>
               {loading ? "Memproses..." : "Masuk"}

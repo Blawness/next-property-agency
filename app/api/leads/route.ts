@@ -4,7 +4,7 @@ import { leads, properties, profiles } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 import { normalizeWhatsAppNumber } from "@/lib/whatsapp"
-import { buildLeadEmail, leadRecipients, sendLeadNotification } from "@/lib/notify"
+import { buildLeadEmail, leadRecipients, sendMail } from "@/lib/notify"
 import { BRAND } from "@/lib/brand"
 import { SITE_URL } from "@/lib/constants"
 import { z } from "zod"
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     // request now would only make the visitor submit again and duplicate it.
     try {
       const recipients = leadRecipients({ agentEmail, officeEmail: BRAND.contact.email })
-      await sendLeadNotification(
+      await sendMail(
         recipients,
         buildLeadEmail({
           name,
