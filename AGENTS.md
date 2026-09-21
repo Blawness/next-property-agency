@@ -81,7 +81,13 @@ Seven tables: `profiles`, `properties`, `property_images`, `favorites`, `leads`,
 Enums: `role` (buyer|agent|admin), `property_type` (rumah|apartemen|tanah|ruko),
 `listing_type` (jual|sewa), `status` (active|sold|rented|archived).
 
-Migrations live in `drizzle/` (0000–0007) and are already applied to the shared
+`profiles.title` and `profiles.bio` (migration 0008) back the public agent
+profile. Both nullable, so the sibling site sharing this database is unaffected
+— but if you ever run `drizzle-kit generate` from *that* repo, drizzle will see
+two columns its schema does not declare and write a `DROP COLUMN` migration.
+Add the same two nullable columns there before generating anything.
+
+Migrations live in `drizzle/` (0000–0008) and are already applied to the shared
 database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 `pnpm exec drizzle-kit migrate`.
 
@@ -92,6 +98,8 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 | `/properti` | Catalog with filters, sort and pagination |
 | `/properti/[id]` | Detail — gallery, map, KPR simulation (sale listings), lead form, agent card |
 | `/peta` | Map view of all listings |
+| `/agen` | Agent index — grid of every agent with their active listing count |
+| `/agen/[id]` | Public agent profile — bio, WhatsApp, and that agent's active listings |
 | `/masuk`, `/daftar` | Sign in / sign up (buyer only; agents are created by an admin) |
 | `/profil` | Profile and favorites |
 | `/admin` | Dashboard stats |
@@ -101,7 +109,9 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 
 ### Key shared types (`lib/types.ts`)
 `PropertyWithImages` (`Property` + `images` + optional `agentPhone`) is the shape
-passed from server components into client components.
+passed from server components into client components. `PublicAgent` is the
+agent shape the public pages use, carrying a count of *visible* listings —
+active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
 
 ### Path alias
 `@/` maps to the project root (`tsconfig.json`).
@@ -118,9 +128,13 @@ passed from server components into client components.
   So it *is* shared across instances in production, and only tests and local
   runs without a database fall back to memory. Guards login at 5 attempts /
   15 min.
-- **WhatsApp links** go through `buildWhatsAppLink` (`lib/whatsapp.ts`). Never
+- **WhatsApp links** go through `buildWhatsAppLink` for a listing enquiry and
+  `buildAgentWhatsAppLink` for an agent profile (`lib/whatsapp.ts`). Never
   hand-roll a `wa.me` href: an Indonesian `08xx` has to become `628xx` or the
   chat will not open.
+- **`/agen` has no link into it yet** — the only route in is the agent name on a
+  listing's AgentCard. Add a Navbar or Footer entry when the index should be
+  discoverable.
 - **KPR maths** lives in `lib/mortgage.ts` as a pure function; the component is
   presentation only.
 - **Admin role** is set with SQL: `UPDATE profiles SET role = 'admin' WHERE email = '…'`.

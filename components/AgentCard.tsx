@@ -4,12 +4,15 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Phone, Calendar, Heart } from "lucide-react"
+import Link from "next/link"
 import { useFavorites } from "@/hooks/useFavorites"
 import { buildWhatsAppLink } from "@/lib/whatsapp"
 import { SITE_URL } from "@/lib/constants"
 import { BRAND } from "@/lib/brand"
 
 interface Agent {
+  /** Null when the listing predates agent assignment — the name then is plain text. */
+  id?: string | null
   fullName: string
   phone: string | null
   avatarUrl?: string | null
@@ -63,7 +66,18 @@ export default function AgentCard({
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <p className="font-sans text-base font-semibold text-foreground truncate">{agent.fullName}</p>
+                {agent.id ? (
+                  <Link
+                    href={`/agen/${agent.id}`}
+                    className="block truncate font-sans text-base font-semibold text-foreground transition-colors hover:text-primary"
+                  >
+                    {agent.fullName}
+                  </Link>
+                ) : (
+                  <p className="truncate font-sans text-base font-semibold text-foreground">
+                    {agent.fullName}
+                  </p>
+                )}
                 {agent.phone && (
                   <p className="text-sm text-muted-foreground truncate">{agent.phone}</p>
                 )}

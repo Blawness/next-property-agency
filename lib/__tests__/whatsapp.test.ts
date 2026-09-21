@@ -1,4 +1,8 @@
-import { normalizeWhatsAppNumber, buildWhatsAppLink } from "@/lib/whatsapp"
+import {
+  normalizeWhatsAppNumber,
+  buildWhatsAppLink,
+  buildAgentWhatsAppLink,
+} from "@/lib/whatsapp"
 
 describe("normalizeWhatsAppNumber", () => {
   it("rewrites a leading 0 to Indonesia's country code", () => {
@@ -107,5 +111,30 @@ describe("buildWhatsAppLink", () => {
     const text = decodeURIComponent(new URL(href!).searchParams.get("text")!)
     expect(text).toContain("Rumah Minimalis Bintaro")
     expect(text).not.toContain("undefined")
+  })
+})
+
+describe("buildAgentWhatsAppLink", () => {
+  it("dials the agent on their normalised number", () => {
+    const href = buildAgentWhatsAppLink({ agentName: "Ahmad Rahman", phone: "081234567890" })
+    expect(href!.startsWith("https://wa.me/6281234567890?text=")).toBe(true)
+  })
+
+  it("greets the agent by name", () => {
+    const href = buildAgentWhatsAppLink({ agentName: "Ahmad Rahman", phone: "+6281234567890" })
+    const text = decodeURIComponent(new URL(href!).searchParams.get("text")!)
+    expect(text).toContain("Ahmad Rahman")
+  })
+
+  it("asks about property in general, not about one listing", () => {
+    const href = buildAgentWhatsAppLink({ agentName: "Ahmad Rahman", phone: "081234567890" })
+    const text = decodeURIComponent(new URL(href!).searchParams.get("text")!)
+    expect(text).toContain("properti")
+    expect(text).not.toContain("Rp")
+  })
+
+  it("returns null when the agent has no usable number", () => {
+    expect(buildAgentWhatsAppLink({ agentName: "Ahmad Rahman", phone: null })).toBeNull()
+    expect(buildAgentWhatsAppLink({ agentName: "Ahmad Rahman", phone: "-" })).toBeNull()
   })
 })

@@ -63,3 +63,24 @@ export function buildWhatsAppLink({
 
   return `https://wa.me/${number}?text=${encodeURIComponent(lines.join("\n"))}`
 }
+
+export interface AgentWhatsAppLinkInput {
+  agentName: string
+  phone: string | null | undefined
+}
+
+/**
+ * The enquiry from an agent's own profile page, where there is no listing to
+ * quote — a general "help me find something" rather than "tell me about this
+ * one". Null when the agent has no dialable number, same as the listing link.
+ */
+export function buildAgentWhatsAppLink({
+  agentName,
+  phone,
+}: AgentWhatsAppLinkInput): string | null {
+  const number = normalizeWhatsAppNumber(phone)
+  if (!number) return null
+
+  const text = `Halo ${agentName}, saya sedang mencari properti dan ingin berkonsultasi. Bisa dibantu?`
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`
+}

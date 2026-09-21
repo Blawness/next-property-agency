@@ -28,6 +28,10 @@ export const profiles = pgTable("profiles", {
   phone: text("phone"),
   avatarUrl: text("avatar_url"),
   role: roleEnum("role").default("buyer"),
+  // Shown on the public agent profile. Nullable so existing rows — and the
+  // sibling site sharing this database — are unaffected.
+  title: text("title"),
+  bio: text("bio"),
   createdAt: timestamp("created_at").defaultNow(),
 })
 

@@ -13,6 +13,8 @@ const createAgentSchema = z.object({
   email: z.string().email(),
   phone: z.string().optional(),
   avatarUrl: z.string().url().optional(),
+  title: z.string().max(80).optional(),
+  bio: z.string().max(1200).optional(),
 })
 
 export async function GET() {
@@ -29,6 +31,8 @@ export async function GET() {
         email: profiles.email,
         phone: profiles.phone,
         avatarUrl: profiles.avatarUrl,
+        title: profiles.title,
+        bio: profiles.bio,
         createdAt: profiles.createdAt,
       })
       .from(profiles)
@@ -84,7 +88,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { name, email, phone, avatarUrl } = parsed.data
+    const { name, email, phone, avatarUrl, title, bio } = parsed.data
 
     const existing = await db
       .select()
@@ -107,6 +111,8 @@ export async function POST(req: NextRequest) {
         passwordHash,
         phone: phone || null,
         avatarUrl: avatarUrl || null,
+        title: title || null,
+        bio: bio || null,
         role: "agent",
       })
       .returning()

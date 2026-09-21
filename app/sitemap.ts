@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next"
 import { db } from "@/db"
 import { properties } from "@/db/schema"
 import { eq, desc, and, isNull } from "drizzle-orm"
+import { getPublicAgents } from "@/lib/db-helpers"
 
 const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
 
@@ -16,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/`, changeFrequency: "daily", priority: 1.0 },
     { url: `${BASE}/properti`, changeFrequency: "hourly", priority: 0.9 },
     { url: `${BASE}/peta`, changeFrequency: "daily", priority: 0.7 },
+    { url: `${BASE}/agen`, changeFrequency: "weekly", priority: 0.7 },
   ]
 
   const propertyRoutes: MetadataRoute.Sitemap = rows.map((r) => ({
@@ -25,5 +27,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  return [...staticRoutes, ...propertyRoutes]
+  const agents = await getPublicAgents()
+  const agentRoutes: MetadataRoute.Sitemap = agents.map((a) => ({
+    url: `${BASE}/agen/${a.id}`,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }))
+
+  return [...staticRoutes, ...propertyRoutes, ...agentRoutes]
 }

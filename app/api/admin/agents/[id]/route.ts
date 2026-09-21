@@ -11,6 +11,8 @@ const updateAgentSchema = z.object({
   name: z.string().min(2).optional(),
   phone: z.string().optional(),
   avatarUrl: z.string().url().optional().nullable(),
+  title: z.string().max(80).optional().nullable(),
+  bio: z.string().max(1200).optional().nullable(),
 })
 
 export async function PATCH(
@@ -44,6 +46,8 @@ export async function PATCH(
     if (parsed.data.name !== undefined) updateData.fullName = parsed.data.name
     if (parsed.data.phone !== undefined) updateData.phone = parsed.data.phone || null
     if (parsed.data.avatarUrl !== undefined) updateData.avatarUrl = parsed.data.avatarUrl
+    if (parsed.data.title !== undefined) updateData.title = parsed.data.title || null
+    if (parsed.data.bio !== undefined) updateData.bio = parsed.data.bio || null
 
     if (Object.keys(updateData).length > 0) {
       await db.update(profiles).set(updateData).where(eq(profiles.id, id))

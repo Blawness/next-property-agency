@@ -44,3 +44,16 @@ export interface Profile {
   role: UserRole | null
   createdAt: Date | null
 }
+
+/** An agent as the public site sees them, with their visible listing count. */
+export interface PublicAgent {
+  id: string
+  fullName: string
+  title: string | null
+  bio: string | null
+  phone: string | null
+  avatarUrl: string | null
+  createdAt: Date | null
+  /** Active, non-deleted listings only — what a visitor can actually click. */
+  listingCount: number
+}

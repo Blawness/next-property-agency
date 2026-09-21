@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -24,6 +25,8 @@ interface Agent {
   email: string
   phone: string | null
   avatarUrl: string | null
+  title: string | null
+  bio: string | null
   propertyCount: number
 }
 
@@ -32,6 +35,8 @@ export default function AdminAgentsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
+  const [formTitle, setFormTitle] = useState("")
+  const [formBio, setFormBio] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [formName, setFormName] = useState("")
@@ -64,6 +69,8 @@ export default function AdminAgentsPage() {
     setFormError("")
     setCreatedPassword("")
     setFormAvatarUrl("")
+    setFormTitle("")
+    setFormBio("")
     setDialogOpen(true)
   }
 
@@ -75,6 +82,8 @@ export default function AdminAgentsPage() {
     setFormError("")
     setCreatedPassword("")
     setFormAvatarUrl(agent.avatarUrl ?? "")
+    setFormTitle(agent.title ?? "")
+    setFormBio(agent.bio ?? "")
     setDialogOpen(true)
   }
 
@@ -87,7 +96,13 @@ export default function AdminAgentsPage() {
       const res = await fetch(`/api/admin/agents/${editId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName, phone: formPhone, avatarUrl: formAvatarUrl || null }),
+        body: JSON.stringify({
+          name: formName,
+          phone: formPhone,
+          avatarUrl: formAvatarUrl || null,
+          title: formTitle || null,
+          bio: formBio || null,
+        }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -100,7 +115,14 @@ export default function AdminAgentsPage() {
       const res = await fetch("/api/admin/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: formName, email: formEmail, phone: formPhone, avatarUrl: formAvatarUrl || null }),
+        body: JSON.stringify({
+          name: formName,
+          email: formEmail,
+          phone: formPhone,
+          avatarUrl: formAvatarUrl || null,
+          title: formTitle || undefined,
+          bio: formBio || undefined,
+        }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -247,6 +269,32 @@ export default function AdminAgentsPage() {
                 onChange={(e) => setFormPhone(e.target.value)}
                 placeholder="+6281234567890"
               />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="agentTitle">Jabatan (opsional)</Label>
+              <Input
+                id="agentTitle"
+                value={formTitle}
+                onChange={(e) => setFormTitle(e.target.value)}
+                maxLength={80}
+                placeholder="Spesialis Tanah & Kavling"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="agentBio">Bio (opsional)</Label>
+              <Textarea
+                id="agentBio"
+                value={formBio}
+                onChange={(e) => setFormBio(e.target.value)}
+                maxLength={1200}
+                rows={4}
+                placeholder="Pengalaman, area yang dikuasai, dan cara kerja agen ini."
+              />
+              <p className="text-xs text-muted-foreground">
+                Tampil di halaman profil publik agen.
+              </p>
             </div>
 
             <div className="space-y-1">

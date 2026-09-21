@@ -1,7 +1,7 @@
 import { db } from "@/db"
 import { properties, propertyImages, favorites, profiles } from "@/db/schema"
-import { inArray, eq } from "drizzle-orm"
-import type { PropertyWithImages } from "@/lib/types"
+import { inArray, eq, and, isNull, count } from "drizzle-orm"
+import type { PropertyWithImages, PublicAgent } from "@/lib/types"
 import type { InferSelectModel } from "drizzle-orm"
 
 type PropertyRow = InferSelectModel<typeof properties>
@@ -60,4 +60,82 @@ export async function getPropertiesWithImagesBatch(
     images: imageMap.get(prop.id) ?? [],
     agentPhone: prop.agentId ? (phoneByAgent.get(prop.agentId) ?? null) : null,
   }))
+}
+
+/**
+ * Agents as the public site lists them, newest listing-carriers included.
+ * The count is of *visible* listings — active and not soft-deleted — so a
+ * profile never promises properties a visitor cannot open. One grouped count
+ * query rather than one per agent.
+ */
+export async function getPublicAgents(): Promise<PublicAgent[]> {
+  const rows = await db
+    .select({
+      id: profiles.id,
+      fullName: profiles.fullName,
+      title: profiles.title,
+      bio: profiles.bio,
+      phone: profiles.phone,
+      avatarUrl: profiles.avatarUrl,
+      createdAt: profiles.createdAt,
+    })
+    .from(profiles)
+    .where(eq(profiles.role, "agent"))
+    .orderBy(profiles.fullName)
+
+  if (rows.length === 0) return []
+
+  const counts = await db
+    .select({ agentId: properties.agentId, n: count() })
+    .from(properties)
+    .where(
+      and(
+        inArray(
+          properties.agentId,
+          rows.map((r) => r.id),
+        ),
+        eq(properties.status, "active"),
+        isNull(properties.deletedAt),
+      ),
+    )
+    .groupBy(properties.agentId)
+
+  const countByAgent = new Map<string, number>()
+  for (const row of counts) {
+    if (row.agentId) countByAgent.set(row.agentId, row.n)
+  }
+
+  return rows.map((r) => ({ ...r, listingCount: countByAgent.get(r.id) ?? 0 }))
+}
+
+/** One agent by id, or null when the id is not an agent (a buyer, or missing). */
+export async function getPublicAgent(id: string): Promise<PublicAgent | null> {
+  const [row] = await db
+    .select({
+      id: profiles.id,
+      fullName: profiles.fullName,
+      title: profiles.title,
+      bio: profiles.bio,
+      phone: profiles.phone,
+      avatarUrl: profiles.avatarUrl,
+      createdAt: profiles.createdAt,
+    })
+    .from(profiles)
+    .where(and(eq(profiles.id, id), eq(profiles.role, "agent")))
+    .limit(1)
+
+  if (!row) return null
+
+  const [tally] = await db
+    .select({ n: count() })
+    .from(properties)
+    .where(
+      and(
+        eq(properties.agentId, id),
+        eq(properties.status, "active"),
+        isNull(properties.deletedAt),
+      ),
+    )
+
+  return { ...row, listingCount: tally?.n ?? 0 }
 }
