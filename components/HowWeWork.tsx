@@ -14,7 +14,7 @@ export default function HowWeWork() {
               <span aria-hidden className="h-px w-8 bg-gold" />
               Proses
             </p>
-            <h2 className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em]">
+            <h2 data-split className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em]">
               {heading}
             </h2>
           </Reveal>

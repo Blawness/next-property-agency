@@ -39,7 +39,7 @@ export default async function PopularCities() {
               <span aria-hidden className="h-px w-8 bg-gold" />
               Lokasi
             </p>
-            <h2 className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em] text-foreground">
+            <h2 data-split className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em] text-foreground">
               {BRAND.popularCities.heading}
             </h2>
           </div>
@@ -60,13 +60,15 @@ export default async function PopularCities() {
                 href={`/properti?city=${city.name}`}
                 className="group relative block h-full w-full overflow-hidden"
               >
-                <Image
-                  src={city.image}
-                  alt={city.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.06]"
-                />
+                <div data-parallax>
+                  <Image
+                    src={city.image}
+                    alt={city.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.06]"
+                  />
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-[#140A04]/85 via-[#140A04]/45 via-45% to-transparent transition-opacity duration-700 group-hover:opacity-90" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 sm:p-6">
                   <div>

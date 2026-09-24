@@ -230,6 +230,14 @@
   transform-origin: center;
 }
 
+/* A HomeMotion parallax layer: bleeds 10% past its frame top and bottom so
+   it can drift without showing an edge. The frame must clip (overflow-hidden). */
+[data-parallax] {
+  position: absolute;
+  inset: -10% 0;
+  will-change: transform;
+}
+
 /* Slow push-in on the hero still, the way a residence film opens */
 @keyframes hero-kenburns {
   from { transform: scale(1.08); }

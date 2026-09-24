@@ -58,7 +58,7 @@ export default function ContactSection() {
             <span aria-hidden className="h-px w-8 bg-gold" />
             Kontak
           </p>
-          <h2 className="m-0 font-serif text-[clamp(3rem,6vw,5.5rem)] font-light italic leading-[0.98] tracking-[-0.01em]">
+          <h2 data-split className="m-0 font-serif text-[clamp(3rem,6vw,5.5rem)] font-light italic leading-[0.98] tracking-[-0.01em]">
             {BRAND.contactSection.heading}
           </h2>
           <p className="mt-8 max-w-[40ch] text-[16px] leading-[1.85] text-muted-foreground text-pretty">

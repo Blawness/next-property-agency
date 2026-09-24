@@ -7,6 +7,7 @@ import Reveal from "@/components/Reveal"
 import ManifestoBand from "@/components/ManifestoBand"
 import HomeListingCard from "@/components/HomeListingCard"
 import HeroSection from "@/components/HeroSection"
+import HomeMotion from "@/components/HomeMotion"
 import AboutSection from "@/components/AboutSection"
 import HowWeWork from "@/components/HowWeWork"
 import ExploreTypes from "@/components/ExploreTypes"
@@ -44,6 +45,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <HomeMotion />
       <HeroSection />
       <AboutSection secondaryImage={firstListingImage ?? null} />
       <HowWeWork />
@@ -60,7 +62,7 @@ export default async function HomePage() {
               <span aria-hidden className="h-px w-8 bg-gold" />
               Koleksi
             </p>
-            <h2 className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em] text-foreground">
+            <h2 data-split className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em] text-foreground">
               Properti <span className="italic">Pilihan</span>
             </h2>
             <p className="mt-6 max-w-[46ch] text-[16px] leading-[1.85] text-muted-foreground">
@@ -104,7 +106,14 @@ export default async function HomePage() {
       </section>
 
       <PopularCities />
-      <ContactSection />
+      {/* The brown behind the contact block is the footer's: HomeMotion
+          clips the block into a card as the footer rises, and the card
+          should sit on the colour it is about to become. */}
+      <div className="bg-accent">
+        <div data-footer-clip>
+          <ContactSection />
+        </div>
+      </div>
     </div>
   )
 }

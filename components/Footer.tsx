@@ -7,7 +7,7 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer id="kontak" className="bg-accent text-accent-foreground">
+    <footer id="kontak" data-footer className="bg-accent text-accent-foreground">
       <div
         aria-hidden
         className="h-px"
@@ -16,9 +16,9 @@ export default function Footer() {
             "linear-gradient(90deg, transparent, oklch(0.72 0.09 78 / 0.55), transparent)",
         }}
       />
-      <div className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] pt-[clamp(4rem,8vw,6rem)] pb-10">
+      <div data-footer-content className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] pt-[clamp(4rem,8vw,6rem)] pb-10">
         <div className="mb-14 flex flex-col gap-8 border-b border-accent-foreground/15 pb-14 lg:flex-row lg:items-end lg:justify-between">
-          <p className="m-0 font-serif text-[clamp(2.5rem,5.5vw,5rem)] font-light leading-[1] tracking-[-0.01em]">
+          <p data-split className="m-0 font-serif text-[clamp(2.5rem,5.5vw,5rem)] font-light leading-[1] tracking-[-0.01em]">
             {BRAND.footer.closing.lead}{" "}
             <span className="italic text-gold">{BRAND.footer.closing.trail}</span>
           </p>

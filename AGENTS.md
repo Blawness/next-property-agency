@@ -87,6 +87,18 @@ On `/` the navbar is transparent while the hero is behind it
 with `-mt-16`. Anything that becomes the first homepage section must do the
 same, or the bar will float white-on-white.
 
+Scroll motion on `/` is `components/HomeMotion.tsx`: Lenis smooth scrolling
+plus GSAP ScrollTrigger, mounted by the homepage alone so the catalogue, map
+and admin keep native scrolling. Sections stay server components and opt in
+with data attributes — `data-parallax` (an image layer drifting in a frame
+that clips), `data-split` (letters flip in; `="words"` for long lines),
+`data-hero-zoom` / `data-hero-fade`, and `data-footer-clip` (the last
+section, clipped into a card as the footer rises). `#home` is a 220svh scroll
+area with the hero screen pinned inside it while the photo zooms; it collapses
+to one screen under `prefers-reduced-motion`, where HomeMotion does nothing.
+The contact section sits on a `bg-accent` wrapper so the card shrinks onto the
+footer's colour; whatever becomes the last homepage section needs the same.
+
 Homepage listings use `HomeListingCard` (tall photo, serif title, quiet
 price); `PropertyCard` stays on the catalogue and agent pages, where a denser
 card suits scanning a long grid. The manifesto band's photograph is
