@@ -6,12 +6,8 @@ import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { BRAND } from "@/lib/brand"
 
-const HERO_VIDEO_SOURCES = [
-  { src: "/hero.av1.mp4", type: 'video/mp4; codecs="av01.0.05M.08"' },
-  { src: "/hero.webm", type: 'video/webm; codecs="vp9"' },
-] as const
-const HERO_POSTER =
-  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000&q=80"
+const HERO_VIDEO_SOURCES = BRAND.hero.video
+const HERO_POSTER = BRAND.hero.poster
 
 function subscribeReducedMotion(callback: () => void) {
   if (typeof window === "undefined") return () => {}
@@ -88,18 +84,18 @@ export default function HeroSection() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(18,10,4,0.55) 0%, rgba(18,10,4,0.10) 28%, rgba(18,10,4,0.15) 50%, rgba(18,10,4,0.82) 100%)",
+            "linear-gradient(180deg, rgba(18,10,4,0.55) 0%, rgba(18,10,4,0.12) 24%, rgba(18,10,4,0.38) 48%, rgba(18,10,4,0.88) 100%)",
         }}
       />
       <div aria-hidden className="hero-grain absolute inset-0" />
 
       <div className="relative mx-auto flex h-full max-w-[1440px] flex-col justify-end px-[clamp(1.25rem,5vw,4.5rem)] pb-[clamp(2.5rem,7vh,5rem)]">
-        <p className="hero-animate-badge mb-6 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-white/75">
+        <p className="hero-animate-badge mb-6 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.45)]">
           <span aria-hidden className="hero-animate-line h-px w-10 bg-gold" />
           {hero.eyebrow}
         </p>
 
-        <h1 className="hero-animate-h1 m-0 max-w-[22ch] font-serif text-[clamp(2.75rem,7.2vw,6.75rem)] font-light leading-[0.98] tracking-[-0.01em] text-balance">
+        <h1 className="hero-animate-h1 m-0 max-w-[22ch] font-serif text-[clamp(2.75rem,7.2vw,6.75rem)] font-light leading-[0.98] tracking-[-0.01em] text-balance [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]">
           <span className="block">{hero.headline.lead}</span>
           <span className="block italic text-[#EBD3B0]">{hero.headline.trail}</span>
         </h1>
