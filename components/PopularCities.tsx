@@ -67,7 +67,7 @@ export default async function PopularCities() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.06]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#140A04]/80 via-[#140A04]/15 to-transparent transition-opacity duration-700 group-hover:opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#140A04]/85 via-[#140A04]/45 via-45% to-transparent transition-opacity duration-700 group-hover:opacity-90" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 sm:p-6">
                   <div>
                     <p className="font-serif text-[clamp(1.5rem,2.4vw,2.25rem)] font-light leading-none text-white">

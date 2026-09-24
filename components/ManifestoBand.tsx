@@ -11,7 +11,7 @@ export default function ManifestoBand() {
   return (
     <section aria-label="Manifesto" className="relative h-[80svh] min-h-[520px] overflow-hidden bg-accent">
       <Image src={BRAND.manifesto.image} alt="" fill sizes="100vw" className="object-cover" />
-      <div aria-hidden className="absolute inset-0 bg-[#140A04]/55" />
+      <div aria-hidden className="absolute inset-0 bg-[#140A04]/60" />
 
       <div className="relative mx-auto flex h-full max-w-[1100px] flex-col items-center justify-center px-[clamp(1.25rem,5vw,4.5rem)] text-center text-white">
         <Reveal effect="drift">

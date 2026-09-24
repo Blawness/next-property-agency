@@ -13,9 +13,15 @@ export function useOverHero(pathname: string): boolean {
 
   useEffect(() => {
     if (!onHome) return
-    const hero = document.getElementById("home")
+    // Look the hero up on every check rather than once: the homepage streams
+    // in behind app/loading.tsx, so on first run the navbar can mount before
+    // the hero exists. Until it does, the viewport height stands in for it —
+    // the hero is always the first section and a full screen tall.
     const update = () => {
-      const bottom = hero ? hero.getBoundingClientRect().bottom : 0
+      const hero = document.getElementById("home")
+      const bottom = hero
+        ? hero.getBoundingClientRect().bottom
+        : window.innerHeight - window.scrollY
       setOver(bottom > 64)
     }
     update()

@@ -44,6 +44,15 @@ export const BRAND = {
     primaryCta: "Jelajahi Koleksi",
     secondaryCta: "Jadwalkan Konsultasi",
     imageAlt: "Siluet kota saat senja",
+    // Swap the footage here: AV1 first, VP9 as the fallback, and a still that
+    // shows while the video loads and for visitors who prefer reduced motion.
+    // Frame it so the lower third is calm — the headline sits there.
+    video: [
+      { src: "/hero.av1.mp4", type: 'video/mp4; codecs="av01.0.05M.08"' },
+      { src: "/hero.webm", type: 'video/webm; codecs="vp9"' },
+    ],
+    poster:
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000&q=80",
   },
 
   // Full-bleed quote band between the process and the collection.
