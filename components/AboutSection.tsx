@@ -11,56 +11,83 @@ interface AboutStat {
 
 interface AboutSectionProps {
   stats?: ReadonlyArray<AboutStat>
+  /** A second, smaller photograph layered over the main one — usually a live listing. */
+  secondaryImage?: string | null
 }
 
-export default function AboutSection({ stats = DEFAULT_STATS }: AboutSectionProps = {}) {
+export default function AboutSection({
+  stats = DEFAULT_STATS,
+  secondaryImage = null,
+}: AboutSectionProps = {}) {
   return (
     <section
       id="about"
-      className="relative min-h-[768px] px-[clamp(1.5rem,5vw,4.5rem)] pt-[clamp(6rem,13vw,11rem)] pb-0 grid grid-cols-1 md:[grid-template-columns:minmax(0,690px)_1fr] md:gap-x-[60px] md:items-start overflow-hidden"
+      className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] py-[clamp(6rem,12vw,10rem)]"
     >
-      <div>
-        <Reveal>
-          <h2 className="m-0 font-sans text-[clamp(2.5rem,5vw,3.9rem)] leading-none font-bold tracking-[-0.02em] text-foreground">
-            {BRAND.about.heading}
-          </h2>
-        </Reveal>
-        <Reveal delay={120}>
-          <p className="mt-[82px] max-w-[690px] font-sans text-[20px] leading-[34px] text-pretty text-foreground">
-            {BRAND.about.body}
-          </p>
-        </Reveal>
+      <div className="grid grid-cols-1 gap-y-16 lg:grid-cols-12 lg:gap-x-12">
+        <div className="lg:col-span-6 lg:pt-8">
+          <Reveal effect="drift">
+            <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-muted-foreground">
+              <span className="font-serif text-[15px] italic tracking-normal text-primary">01</span>
+              <span aria-hidden className="h-px w-8 bg-gold" />
+              {BRAND.about.heading}
+            </p>
+          </Reveal>
+          <Reveal effect="drift" delay={120}>
+            <h2 className="m-0 font-serif text-[clamp(2.25rem,4.4vw,4rem)] font-light leading-[1.08] tracking-[-0.01em] text-foreground text-balance">
+              {BRAND.about.statement}
+            </h2>
+          </Reveal>
+          <Reveal effect="drift" delay={240}>
+            <p className="mt-10 max-w-[52ch] text-[16px] leading-[1.85] text-muted-foreground text-pretty">
+              {BRAND.about.body}
+            </p>
+          </Reveal>
+        </div>
+
+        <div className="relative lg:col-span-5 lg:col-start-8">
+          <Reveal effect="unveil">
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
+              <Image
+                src={BRAND.about.image}
+                alt={BRAND.about.heading}
+                fill
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-cover"
+              />
+            </div>
+          </Reveal>
+          {secondaryImage && (
+            <Reveal
+              effect="unveil"
+              delay={300}
+              className="absolute -bottom-10 -left-6 w-[42%] border-[6px] border-background shadow-xl sm:-left-12 lg:-left-20"
+            >
+              <div className="relative aspect-square w-full overflow-hidden bg-muted">
+                <Image src={secondaryImage} alt="" fill sizes="240px" className="object-cover" />
+              </div>
+            </Reveal>
+          )}
+        </div>
       </div>
 
-      <div className="hidden md:block" aria-hidden />
-
-      <Reveal
-        delay={200}
-        className="mt-12 md:mt-0 md:absolute md:right-0 md:top-[180px] md:w-[400px] lg:w-[460px]"
-      >
-        <div className="relative h-[320px] w-full overflow-hidden rounded-sm sm:h-[400px] md:h-[500px]">
-          <Image
-            src={BRAND.about.image}
-            alt={BRAND.about.heading}
-            fill
-            sizes="(max-width: 768px) 100vw, 460px"
-            className="object-cover"
-          />
-        </div>
-      </Reveal>
-
-      <div className="col-span-full mt-[clamp(2rem,4vw,4rem)] flex flex-col flex-wrap items-center justify-center gap-x-[clamp(2rem,6vw,7.5rem)] gap-y-12 py-8 sm:flex-row">
+      <dl className="mt-[clamp(5rem,9vw,8rem)] grid grid-cols-1 border-t border-border sm:grid-cols-3">
         {stats.map((s, i) => (
-          <Reveal key={s.label} delay={i * 120} className="flex flex-col items-center gap-[22px]">
-            <span className="font-sans text-[clamp(3.5rem,7.5vw,7.5rem)] leading-[0.8] font-light tracking-[-0.03em] text-foreground">
-              {s.n}
-            </span>
-            <span className="font-sans text-[20px] whitespace-nowrap text-foreground">
+          <Reveal
+            key={s.label}
+            effect="drift"
+            delay={i * 140}
+            className="flex flex-col gap-3 border-b border-border py-8 sm:border-b-0 sm:border-l sm:px-8 sm:first:border-l-0 sm:first:pl-0"
+          >
+            <dt className="order-2 text-[11px] font-medium uppercase tracking-[0.28em] text-muted-foreground">
               {s.label}
-            </span>
+            </dt>
+            <dd className="order-1 m-0 font-serif text-[clamp(3rem,5.5vw,5rem)] font-light leading-none text-foreground">
+              {s.n}
+            </dd>
           </Reveal>
         ))}
-      </div>
+      </dl>
     </section>
   )
 }

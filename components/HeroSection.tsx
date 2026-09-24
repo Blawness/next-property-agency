@@ -3,7 +3,8 @@
 import { useRef, useState, useSyncExternalStore } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
+import { BRAND } from "@/lib/brand"
 
 const HERO_VIDEO_SOURCES = [
   { src: "/hero.av1.mp4", type: 'video/mp4; codecs="av01.0.05M.08"' },
@@ -36,12 +37,29 @@ export default function HeroSection() {
     getReducedMotion,
     getServerSnapshot,
   )
+  const { hero } = BRAND
 
   return (
+    // -mt-16 slides the hero up under the sticky navbar, which turns
+    // transparent while it sits over this section (see Navbar).
     <section
       id="home"
-      className="relative overflow-hidden h-[78vh] min-h-[560px] max-h-[820px] bg-[#2E1C10]"
+      className="relative -mt-16 h-[100svh] min-h-[640px] overflow-hidden bg-[#1E130B] text-white"
     >
+      {(reducedMotion || !videoReady) && (
+        <div className="absolute inset-0 hero-kenburns">
+          <Image
+            src={HERO_POSTER}
+            alt={hero.imageAlt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: "center 42%" }}
+          />
+        </div>
+      )}
+
       {!reducedMotion && (
         <video
           ref={videoRef}
@@ -53,7 +71,7 @@ export default function HeroSection() {
           poster={HERO_POSTER}
           onLoadedData={() => setVideoReady(true)}
           aria-hidden
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[1500ms] ${
             videoReady ? "opacity-100" : "opacity-0"
           }`}
           style={{ objectPosition: "center 42%" }}
@@ -64,49 +82,55 @@ export default function HeroSection() {
         </video>
       )}
 
-      {(reducedMotion || !videoReady) && (
-        <Image
-          src={HERO_POSTER}
-          alt="City skyline at dusk"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-          style={{ objectPosition: "center 42%" }}
-        />
-      )}
-
+      {/* Top shade keeps the navbar legible; the heavier bottom one carries the copy. */}
       <div
         aria-hidden
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(20,8,2,0.55) 0%, rgba(20,8,2,0.45) 30%, rgba(20,8,2,0.20) 55%, rgba(20,8,2,0) 75%)",
+            "linear-gradient(180deg, rgba(18,10,4,0.55) 0%, rgba(18,10,4,0.10) 28%, rgba(18,10,4,0.15) 50%, rgba(18,10,4,0.82) 100%)",
         }}
       />
+      <div aria-hidden className="hero-grain absolute inset-0" />
 
-      <div className="relative h-full flex flex-col items-center pt-[105px]">
-        <h1 className="m-0 text-center font-sans text-white leading-[1.05] tracking-[-0.015em] text-balance text-[clamp(2rem,5.2vw,3.94rem)] drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)]">
-          <span className="block font-light italic">Discover Your Mission</span>
-          <span className="block font-bold">Build Our Passion</span>
+      <div className="relative mx-auto flex h-full max-w-[1440px] flex-col justify-end px-[clamp(1.25rem,5vw,4.5rem)] pb-[clamp(2.5rem,7vh,5rem)]">
+        <p className="hero-animate-badge mb-6 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-white/75">
+          <span aria-hidden className="hero-animate-line h-px w-10 bg-gold" />
+          {hero.eyebrow}
+        </p>
+
+        <h1 className="hero-animate-h1 m-0 max-w-[22ch] font-serif text-[clamp(2.75rem,7.2vw,6.75rem)] font-light leading-[0.98] tracking-[-0.01em] text-balance">
+          <span className="block">{hero.headline.lead}</span>
+          <span className="block italic text-[#EBD3B0]">{hero.headline.trail}</span>
         </h1>
 
-        <div className="mt-auto mb-[76px] flex flex-wrap items-center justify-center gap-[clamp(2rem,5vw,5.5rem)]">
-          <Link
-            href="/properti"
-            className="inline-flex items-center gap-2.5 h-11 px-[26px] rounded-sm font-sans text-[19px] font-bold tracking-[0.05em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg shadow-black/20"
-          >
-            Book now
-            <ChevronRight size={17} strokeWidth={2.1} />
-          </Link>
-          <a
-            href="#contact"
-            className="inline-flex items-center justify-center h-11 px-7 rounded-sm font-sans text-[19px] font-bold tracking-[0.05em] uppercase bg-accent text-accent-foreground hover:bg-accent/85 transition-colors shadow-lg shadow-black/20"
-          >
-            For seller
-          </a>
+        <div className="mt-10 flex flex-col gap-8 border-t border-white/20 pt-8 md:flex-row md:items-end md:justify-between">
+          <p className="hero-animate-sub max-w-md text-[15px] leading-relaxed text-white/75 text-pretty">
+            {hero.subtitle}
+          </p>
+
+          <div className="hero-animate-search flex flex-wrap items-center gap-x-8 gap-y-4">
+            <Link
+              href="/properti"
+              className="group inline-flex h-12 items-center gap-3 bg-[#F3EDE4] px-7 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#1B1B1B] transition-colors duration-500 hover:bg-gold"
+            >
+              {hero.primaryCta}
+              <ArrowRight size={15} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+            </Link>
+            <a
+              href="#contact"
+              className="relative text-[12px] font-semibold uppercase tracking-[0.2em] text-white after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-full after:origin-right after:bg-white/60 after:transition-transform after:duration-500 hover:after:origin-left hover:after:scale-x-0"
+            >
+              {hero.secondaryCta}
+            </a>
+          </div>
         </div>
       </div>
+
+      <span
+        aria-hidden
+        className="hero-scroll-cue absolute bottom-5 left-1/2 hidden h-8 w-px bg-white/50 lg:block"
+      />
     </section>
   )
 }

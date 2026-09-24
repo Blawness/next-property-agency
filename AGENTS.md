@@ -74,6 +74,17 @@ calculator result), `--gold` is highlight only. `--radius` is `0.25rem`.
 
 Typography is Archivo for headings (`font-heading`, `font-display`) over Inter
 for body (`font-sans`), wired up in `app/layout.tsx`.
+The homepage alone adds Cormorant Garamond (`font-serif`) for its display
+lines, and `--ivory` for its alternating bands — the landing reads as a
+residence brochure, the rest of the app as a catalogue. Its sections share one
+editorial pattern: a numbered eyebrow (`01`–`05`), a light serif heading, and
+`Reveal effect="drift"` / `"unveil"` for slower entrances than the app's
+default `rise`.
+
+On `/` the navbar is transparent while the hero is behind it
+(`components/navbar/useOverHero.ts`); the hero pulls itself up under the bar
+with `-mt-16`. Anything that becomes the first homepage section must do the
+same, or the bar will float white-on-white.
 
 ### Brand config (`lib/brand.ts`)
 Every brand string — name, wordmark halves, taglines, page titles, stats,

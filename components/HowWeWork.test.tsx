@@ -1,18 +1,20 @@
 import { render, screen } from '@testing-library/react'
 import HowWeWork from '@/components/HowWeWork'
+import { BRAND } from '@/lib/brand'
 
 describe('HowWeWork', () => {
-  it('renders heading and 4 mockup-literal step titles', () => {
+  it('renders the heading and every step from the brand config', () => {
     render(<HowWeWork />)
-    expect(screen.getByText('How We Work')).toBeInTheDocument()
-    expect(screen.getByText('Free Consultation')).toBeInTheDocument()
-    expect(screen.getByText('Search & Selection')).toBeInTheDocument()
-    expect(screen.getByText('Data Verification')).toBeInTheDocument()
-    expect(screen.getByText('Finishing')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: BRAND.howWeWork.heading })).toBeInTheDocument()
+    for (const step of BRAND.howWeWork.steps) {
+      expect(screen.getByRole('heading', { level: 3, name: step.title })).toBeInTheDocument()
+    }
   })
 
-  it('renders 4 svg icons', () => {
-    const { container } = render(<HowWeWork />)
-    expect(container.querySelectorAll('svg').length).toBeGreaterThanOrEqual(4)
+  it('numbers the steps in order', () => {
+    render(<HowWeWork />)
+    expect(screen.getAllByRole('listitem')).toHaveLength(BRAND.howWeWork.steps.length)
+    expect(screen.getByText('01')).toBeInTheDocument()
+    expect(screen.getByText('04')).toBeInTheDocument()
   })
 })

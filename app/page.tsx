@@ -3,6 +3,8 @@ import { db } from "@/db"
 import { properties, profiles } from "@/db/schema"
 import { eq, desc, and, isNull, sql } from "drizzle-orm"
 import { ArrowRight } from "lucide-react"
+import Reveal from "@/components/Reveal"
+import ManifestoBand from "@/components/ManifestoBand"
 import PropertyCard from "@/components/PropertyCard"
 import HeroSection from "@/components/HeroSection"
 import AboutSection from "@/components/AboutSection"
@@ -48,9 +50,9 @@ async function getAboutStats() {
   const formatN = (n: number) => (n >= 1000 ? `${Math.floor(n / 100) / 10}k+` : `${n}+`)
 
   return [
-    { n: formatN(Number(listingRow[0]?.n ?? 0)), label: "active listings" },
-    { n: formatN(Number(cityRow[0]?.n ?? 0)), label: "cities covered" },
-    { n: formatN(Number(agentRow[0]?.n ?? 0)), label: "trusted agents" },
+    { n: formatN(Number(listingRow[0]?.n ?? 0)), label: "Listing aktif" },
+    { n: formatN(Number(cityRow[0]?.n ?? 0)), label: "Kota" },
+    { n: formatN(Number(agentRow[0]?.n ?? 0)), label: "Agen terpercaya" },
   ] as const
 }
 
@@ -62,67 +64,70 @@ export default async function HomePage() {
   ])
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()
 
+  // Live listing photos stand in for stock imagery wherever there are some.
+  const listingImages = featured
+    .map((p) => (p.images.find((i) => i.isPrimary) ?? p.images[0])?.url)
+    .filter((url): url is string => Boolean(url))
+
   return (
     <div>
       <HeroSection />
-      <AboutSection stats={stats} />
+      <AboutSection stats={stats} secondaryImage={listingImages[0] ?? null} />
       <HowWeWork />
+      <ManifestoBand image={listingImages[1] ?? listingImages[0] ?? BRAND.about.image} />
 
-      <section className="container mx-auto px-4 py-16 sm:py-20">
-        <div className="mb-10 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
+      <section id="listing" className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] py-[clamp(6rem,11vw,9rem)]">
+        <Reveal
+          effect="drift"
+          className="mb-[clamp(3rem,6vw,5rem)] flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end"
+        >
           <div>
-            <p className="mb-3 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-              <span aria-hidden className="h-px w-6 bg-gold/70" />
-              {BRAND.exploreTypes.heading}
+            <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-muted-foreground">
+              <span className="font-serif text-[15px] italic tracking-normal text-primary">03</span>
+              <span aria-hidden className="h-px w-8 bg-gold" />
+              Koleksi
             </p>
-            <h2 className="font-sans text-2xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Cari Properti Sesuai Kebutuhan
+            <h2 className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em] text-foreground">
+              Properti <span className="italic">Pilihan</span>
             </h2>
-          </div>
-        </div>
-        <ExploreTypes />
-      </section>
-
-      <section id="listing" className="container mx-auto px-4 py-16 sm:py-20">
-        <div className="mb-10 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
-          <div>
-            <p className="mb-3 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-              <span aria-hidden className="h-px w-6 bg-gold/70" />
-              Listing
-            </p>
-            <h2 className="font-sans text-2xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Properti Pilihan
-            </h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+            <p className="mt-6 max-w-[46ch] text-[16px] leading-[1.85] text-muted-foreground">
               Listing terbaru dari agen terpercaya di seluruh Indonesia.
             </p>
           </div>
           {featured.length > 0 && (
             <Link
               href="/properti"
-              className="group inline-flex items-center gap-1.5 self-start rounded-full border border-primary px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground sm:self-auto"
+              className="group inline-flex items-center gap-3 border-b border-foreground/40 pb-2 text-[12px] font-semibold uppercase tracking-[0.2em] text-foreground transition-colors hover:border-primary hover:text-primary"
             >
-              Lihat semua
+              Lihat semua koleksi
               <ArrowRight
-                size={13}
-                className="transition-transform group-hover:translate-x-0.5"
+                size={15}
+                strokeWidth={1.5}
+                className="transition-transform duration-500 group-hover:translate-x-1"
               />
             </Link>
           )}
+        </Reveal>
+
+        <ExploreTypes />
+
+        <div className="mt-[clamp(3rem,6vw,5rem)]">
+          {featured.length === 0 ? (
+            <div className="border border-dashed border-border py-16 text-center">
+              <p className="text-sm text-muted-foreground">
+                Belum ada listing aktif saat ini.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+              {featured.map((property, i) => (
+                <Reveal key={property.id} effect="drift" delay={(i % 3) * 120}>
+                  <PropertyCard property={property} initialFavorited={favoriteIds.has(property.id)} />
+                </Reveal>
+              ))}
+            </div>
+          )}
         </div>
-        {featured.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-            <p className="text-sm text-muted-foreground">
-              Belum ada listing aktif saat ini.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((property) => (
-              <PropertyCard key={property.id} property={property} initialFavorited={favoriteIds.has(property.id)} />
-            ))}
-          </div>
-        )}
       </section>
 
       <PopularCities />

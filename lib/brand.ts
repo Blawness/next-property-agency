@@ -34,6 +34,24 @@ export const BRAND = {
   loginDescription: "Masuk ke akun PROPERTI NUSA kamu",
   registerDescription: "Buat akun PROPERTI NUSA gratis",
 
+  // Homepage hero. The headline is two lines — the second is set in italic —
+  // so keep it as a pair rather than one string with a break in it.
+  hero: {
+    eyebrow: "Properti Pilihan di Seluruh Indonesia",
+    headline: { lead: "Ruang untuk hidup,", trail: "dirancang untuk dikenang." },
+    subtitle:
+      "Rumah, apartemen, tanah, dan ruko terverifikasi — dikurasi oleh agen yang mengenal setiap alamatnya.",
+    primaryCta: "Jelajahi Koleksi",
+    secondaryCta: "Jadwalkan Konsultasi",
+    imageAlt: "Siluet kota saat senja",
+  },
+
+  // Full-bleed quote band between the process and the collection.
+  manifesto: {
+    quote: "Properti terbaik tidak dijual dengan tergesa. Ia ditemukan, diperiksa, lalu dipilih dengan tenang.",
+    attribution: "Prinsip kerja PROPERTI NUSA",
+  },
+
   exploreTypes: {
     heading: "Jelajahi Tipe Properti",
   },
@@ -88,8 +106,14 @@ export const BRAND = {
     subtitle:
       "Katalog properti terlengkap untuk menemukan rumah, apartemen, tanah, dan ruko di seluruh Indonesia.",
     body: "PROPERTI NUSA adalah katalog properti modern yang mempertemukan pembeli, penyewa, dan agen terpercaya di seluruh Indonesia. Kami menyediakan ribuan listing terverifikasi — lengkap dengan foto, spesifikasi, dan lokasi — sehingga Anda dapat membuat keputusan properti dengan percaya diri.",
+    statement: "Setiap alamat punya cerita. Tugas kami memastikan ceritanya benar.",
     image:
       "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&h=1100&fit=crop&auto=format&q=80",
+  },
+
+  contactSection: {
+    heading: "Mari berbincang.",
+    body: "Ceritakan properti yang Anda cari — kami balas dengan daftar pilihan dalam satu hari kerja.",
   },
 
   contact: {

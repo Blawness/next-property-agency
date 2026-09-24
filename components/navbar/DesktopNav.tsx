@@ -4,7 +4,14 @@ import NavLink from "@/components/navbar/NavLink"
 import { NAV_LINKS } from "@/components/navbar/nav-links"
 import { cn } from "@/lib/utils"
 
-export default function DesktopNav({ isActive }: { isActive: (id: string) => boolean }) {
+export default function DesktopNav({
+  isActive,
+  light = false,
+}: {
+  isActive: (id: string) => boolean
+  /** White type, for when the bar sits transparent over the homepage hero */
+  light?: boolean
+}) {
   return (
     <nav
       aria-label="Primary"
@@ -17,7 +24,13 @@ export default function DesktopNav({ isActive }: { isActive: (id: string) => boo
           id={id}
           className={cn(
             "whitespace-nowrap transition-colors",
-            isActive(id) ? "text-primary font-bold" : "text-primary/45 hover:text-primary",
+            light
+              ? isActive(id)
+                ? "text-white font-bold"
+                : "text-white/65 hover:text-white"
+              : isActive(id)
+                ? "text-primary font-bold"
+                : "text-primary/45 hover:text-primary",
           )}
         >
           {label}
