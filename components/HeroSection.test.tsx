@@ -10,6 +10,11 @@ jest.mock('next/image', () => ({
   },
 }))
 
+const FOOTAGE = [
+  { src: '/hero.av1.mp4', type: 'video/mp4; codecs="av01.0.05M.08"' },
+  { src: '/hero.webm', type: 'video/webm; codecs="vp9"' },
+]
+
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -27,10 +32,11 @@ beforeAll(() => {
 })
 
 describe('HeroSection', () => {
-  it('renders both headline lines from the brand config', () => {
+  it('renders every headline part, script accent included, from the brand config', () => {
     render(<HeroSection />)
     expect(screen.getByText(BRAND.hero.headline.lead)).toBeInTheDocument()
     expect(screen.getByText(BRAND.hero.headline.trail)).toBeInTheDocument()
+    expect(screen.getByText(BRAND.hero.headline.accent)).toHaveClass('font-script')
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
   })
 
@@ -46,8 +52,14 @@ describe('HeroSection', () => {
     expect(secondary).toHaveAttribute('href', '#contact')
   })
 
+  it('shows the still and no video when there is no footage', () => {
+    render(<HeroSection video={[]} />)
+    expect(document.querySelector('video')).toBeNull()
+    expect(screen.getByAltText(BRAND.hero.imageAlt)).toHaveAttribute('src', BRAND.hero.poster)
+  })
+
   it('renders a video element with autoplay/loop/muted/playsInline', () => {
-    render(<HeroSection />)
+    render(<HeroSection video={FOOTAGE} />)
     const video = document.querySelector('video')
     expect(video).toBeInTheDocument()
     expect(video).toHaveAttribute('autoplay')
@@ -57,7 +69,7 @@ describe('HeroSection', () => {
   })
 
   it('exposes AV1 (mp4) primary and VP9 (webm) fallback sources', () => {
-    render(<HeroSection />)
+    render(<HeroSection video={FOOTAGE} />)
     const sources = document.querySelectorAll('video source')
     expect(sources).toHaveLength(2)
     expect(sources[0]).toHaveAttribute('src', '/hero.av1.mp4')

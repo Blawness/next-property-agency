@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { db } from "@/db"
-import { properties, profiles } from "@/db/schema"
-import { eq, desc, and, isNull, sql } from "drizzle-orm"
+import { properties } from "@/db/schema"
+import { eq, desc, and, isNull } from "drizzle-orm"
 import { ArrowRight } from "lucide-react"
 import Reveal from "@/components/Reveal"
 import ManifestoBand from "@/components/ManifestoBand"
@@ -30,35 +30,9 @@ async function getFeaturedProperties(): Promise<PropertyWithImages[]> {
   )
 }
 
-async function getAboutStats() {
-  const [listingRow, cityRow, agentRow] = await Promise.all([
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(properties)
-      .where(and(eq(properties.status, "active"), isNull(properties.deletedAt))),
-    db
-      .select({ n: sql<number>`count(distinct ${properties.city})::int` })
-      .from(properties)
-      .where(and(eq(properties.status, "active"), isNull(properties.deletedAt))),
-    db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(profiles)
-      .where(sql`${profiles.role} IN ('agent', 'admin')`),
-  ])
-
-  const formatN = (n: number) => (n >= 1000 ? `${Math.floor(n / 100) / 10}k+` : `${n}+`)
-
-  return [
-    { n: formatN(Number(listingRow[0]?.n ?? 0)), label: "Listing aktif" },
-    { n: formatN(Number(cityRow[0]?.n ?? 0)), label: "Kota" },
-    { n: formatN(Number(agentRow[0]?.n ?? 0)), label: "Agen terpercaya" },
-  ] as const
-}
-
 export default async function HomePage() {
-  const [featured, stats, session] = await Promise.all([
+  const [featured, session] = await Promise.all([
     getFeaturedProperties(),
-    getAboutStats(),
     getServerSession(authOptions),
   ])
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()
@@ -71,7 +45,7 @@ export default async function HomePage() {
   return (
     <div>
       <HeroSection />
-      <AboutSection stats={stats} secondaryImage={firstListingImage ?? null} />
+      <AboutSection secondaryImage={firstListingImage ?? null} />
       <HowWeWork />
       <ManifestoBand />
 

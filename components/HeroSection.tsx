@@ -6,8 +6,12 @@ import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { BRAND } from "@/lib/brand"
 
-const HERO_VIDEO_SOURCES = BRAND.hero.video
 const HERO_POSTER = BRAND.hero.poster
+
+interface HeroSectionProps {
+  /** Footage sources, AV1 first. Empty means the still carries the hero. */
+  video?: ReadonlyArray<{ src: string; type: string }>
+}
 
 function subscribeReducedMotion(callback: () => void) {
   if (typeof window === "undefined") return () => {}
@@ -25,7 +29,7 @@ function getServerSnapshot(): boolean {
   return false
 }
 
-export default function HeroSection() {
+export default function HeroSection({ video = BRAND.hero.video }: HeroSectionProps = {}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [videoReady, setVideoReady] = useState(false)
   const reducedMotion = useSyncExternalStore(
@@ -34,6 +38,7 @@ export default function HeroSection() {
     getServerSnapshot,
   )
   const { hero } = BRAND
+  const playsVideo = video.length > 0 && !reducedMotion
 
   return (
     // -mt-16 slides the hero up under the sticky navbar, which turns
@@ -42,7 +47,7 @@ export default function HeroSection() {
       id="home"
       className="relative -mt-16 h-[100svh] min-h-[640px] overflow-hidden bg-[#1E130B] text-white"
     >
-      {(reducedMotion || !videoReady) && (
+      {(!playsVideo || !videoReady) && (
         <div className="absolute inset-0 hero-kenburns">
           <Image
             src={HERO_POSTER}
@@ -56,7 +61,7 @@ export default function HeroSection() {
         </div>
       )}
 
-      {!reducedMotion && (
+      {playsVideo && (
         <video
           ref={videoRef}
           autoPlay
@@ -72,7 +77,7 @@ export default function HeroSection() {
           }`}
           style={{ objectPosition: "center 42%" }}
         >
-          {HERO_VIDEO_SOURCES.map((s) => (
+          {video.map((s) => (
             <source key={s.src} src={s.src} type={s.type} />
           ))}
         </video>
@@ -95,9 +100,15 @@ export default function HeroSection() {
           {hero.eyebrow}
         </p>
 
-        <h1 className="hero-animate-h1 m-0 max-w-[22ch] font-serif text-[clamp(2.75rem,7.2vw,6.75rem)] font-light leading-[0.98] tracking-[-0.01em] text-balance [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]">
+        {/* Poster scale: the size tracks the viewport height as well as its
+            width, so three lines still leave room for the copy on a short
+            laptop screen. The script word tucks up under the line above. */}
+        <h1 className="hero-animate-h1 m-0 font-serif text-[clamp(2.75rem,min(10vw,15svh),10rem)] font-light leading-[0.92] tracking-[-0.02em] text-balance [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]">
           <span className="block">{hero.headline.lead}</span>
-          <span className="block italic text-[#EBD3B0]">{hero.headline.trail}</span>
+          <span className="block">{hero.headline.trail}</span>
+          <span className="-mt-[0.12em] block pl-[1.4em] font-script text-[1.1em] font-normal leading-[1] tracking-normal text-[#EBD3B0]">
+            {hero.headline.accent}
+          </span>
         </h1>
 
         <div className="mt-10 flex flex-col gap-8 border-t border-white/20 pt-8 md:flex-row md:items-end md:justify-between">

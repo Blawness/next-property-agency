@@ -34,25 +34,28 @@ export const BRAND = {
   loginDescription: "Masuk ke akun PROPERTI NUSA kamu",
   registerDescription: "Buat akun PROPERTI NUSA gratis",
 
-  // Homepage hero. The headline is two lines — the second is set in italic —
-  // so keep it as a pair rather than one string with a break in it.
+  // Homepage hero. The headline is set poster-size over three lines, and
+  // `accent` — one word, no more — is set in script under the other two, so
+  // keep the parts separate rather than one string with breaks in it.
   hero: {
     eyebrow: "Properti Pilihan di Seluruh Indonesia",
-    headline: { lead: "Ruang untuk hidup,", trail: "dirancang untuk dikenang." },
+    headline: { lead: "Ruang untuk hidup,", trail: "dirancang untuk", accent: "dikenang." },
     subtitle:
       "Rumah, apartemen, tanah, dan ruko terverifikasi — dikurasi oleh agen yang mengenal setiap alamatnya.",
     primaryCta: "Jelajahi Koleksi",
     secondaryCta: "Jadwalkan Konsultasi",
-    imageAlt: "Siluet kota saat senja",
-    // Swap the footage here: AV1 first, VP9 as the fallback, and a still that
-    // shows while the video loads and for visitors who prefer reduced motion.
-    // Frame it so the lower third is calm — the headline sits there.
-    video: [
-      { src: "/hero.av1.mp4", type: 'video/mp4; codecs="av01.0.05M.08"' },
-      { src: "/hero.webm", type: 'video/webm; codecs="vp9"' },
-    ],
+    imageAlt: "Rumah di tengah hutan tropis",
+    // Footage, AV1 first and VP9 as the fallback; the still shows while it
+    // loads and for visitors who prefer reduced motion. Empty for now: the
+    // clip in public/ (an aerial of a ruko estate) reads commercial, not
+    // residential, so the still carries the hero until there is footage of a
+    // home. To bring it back:
+    //   { src: "/hero.av1.mp4", type: 'video/mp4; codecs="av01.0.05M.08"' },
+    //   { src: "/hero.webm", type: 'video/webm; codecs="vp9"' },
+    // Frame either so the lower third is calm — the headline sits there.
+    video: [] as ReadonlyArray<{ src: string; type: string }>,
     poster:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000&q=80",
+      "https://images.unsplash.com/photo-1646928229117-08e84cde1692?auto=format&fit=crop&w=2000&q=80",
   },
 
   // Full-bleed quote band between the process and the collection.
@@ -80,12 +83,6 @@ export const BRAND = {
       { name: "Semarang", image: "https://images.unsplash.com/photo-1657594873796-4a121883192a?w=800&h=600&fit=crop&auto=format" },
     ],
   },
-
-  stats: [
-    { n: "15.000+", label: "Properti Aktif" },
-    { n: "34", label: "Provinsi" },
-    { n: "500+", label: "Agen Terpercaya" },
-  ] as const,
 
   howWeWork: {
     heading: "Bagaimana Kami Bekerja",
@@ -121,7 +118,7 @@ export const BRAND = {
     body: "PROPERTI NUSA adalah katalog properti modern yang mempertemukan pembeli, penyewa, dan agen terpercaya di seluruh Indonesia. Kami menyediakan ribuan listing terverifikasi — lengkap dengan foto, spesifikasi, dan lokasi — sehingga Anda dapat membuat keputusan properti dengan percaya diri.",
     statement: "Setiap alamat punya cerita. Tugas kami memastikan ceritanya benar.",
     image:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&h=1100&fit=crop&auto=format&q=80",
+      "https://images.unsplash.com/photo-1692736933760-8a8a9b8c1b6f?w=900&h=1100&fit=crop&auto=format&q=80",
   },
 
   contactSection: {

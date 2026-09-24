@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Archivo, Cormorant_Garamond, Inter } from "next/font/google"
+import { Archivo, Cormorant_Garamond, Inter, Pinyon_Script } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import Navbar from "@/components/Navbar"
@@ -25,6 +25,15 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
 })
 
+// Pinyon Script sets the one accent word under the hero headline. Only the
+// homepage uses it, so it is not preloaded: other pages never fetch the file.
+const pinyon = Pinyon_Script({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-pinyon",
+  preload: false,
+})
+
 const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -38,7 +47,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${archivo.variable} ${cormorant.variable} ${inter.variable}`}>
+    <html lang="id" className={`${archivo.variable} ${cormorant.variable} ${pinyon.variable} ${inter.variable}`}>
       <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <Providers>
           <Navbar />
