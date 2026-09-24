@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import HeroSection from '@/components/HeroSection'
+import { BRAND } from '@/lib/brand'
 
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -26,28 +27,23 @@ beforeAll(() => {
 })
 
 describe('HeroSection', () => {
-  it('renders both headline lines', () => {
+  it('renders both headline lines from the brand config', () => {
     render(<HeroSection />)
-    expect(screen.getByText('Discover Your Mission')).toBeInTheDocument()
-    expect(screen.getByText('Build Our Passion')).toBeInTheDocument()
+    expect(screen.getByText(BRAND.hero.headline.lead)).toBeInTheDocument()
+    expect(screen.getByText(BRAND.hero.headline.trail)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
   })
 
-  it('renders Book now and For seller CTAs', () => {
+  it('links the primary CTA to the catalog', () => {
     render(<HeroSection />)
-    expect(screen.getByText('Book now')).toBeInTheDocument()
-    expect(screen.getByText('For seller')).toBeInTheDocument()
+    const primary = screen.getByText(BRAND.hero.primaryCta).closest('a')
+    expect(primary).toHaveAttribute('href', '/properti')
   })
 
-  it('links Book now to /properti (browse listings)', () => {
+  it('links the consultation CTA to #contact', () => {
     render(<HeroSection />)
-    const bookNow = screen.getByText('Book now').closest('a')
-    expect(bookNow).toHaveAttribute('href', '/properti')
-  })
-
-  it('links For seller to #contact', () => {
-    render(<HeroSection />)
-    const forSeller = screen.getByText('For seller').closest('a')
-    expect(forSeller).toHaveAttribute('href', '#contact')
+    const secondary = screen.getByText(BRAND.hero.secondaryCta).closest('a')
+    expect(secondary).toHaveAttribute('href', '#contact')
   })
 
   it('renders a video element with autoplay/loop/muted/playsInline', () => {

@@ -11,15 +11,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PlusCircle, ChevronDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-export default function UserMenu() {
+export default function UserMenu({ light = false }: { light?: boolean }) {
   const { data: session } = useSession()
 
   if (!session) {
     return (
       <Link
         href="/masuk"
-        className="hidden sm:flex items-center gap-1.5 rounded-xl border border-primary px-3.5 py-2 text-[12px] font-semibold tracking-wide text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+        className={cn(
+          "hidden sm:flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-semibold tracking-wide transition-colors",
+          light
+            ? "border-white/60 text-white hover:bg-white hover:text-foreground"
+            : "border-primary text-primary hover:bg-primary hover:text-primary-foreground",
+        )}
       >
         Masuk
       </Link>
@@ -40,7 +46,12 @@ export default function UserMenu() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <button
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              light ? "hover:bg-white/10" : "hover:bg-muted",
+            )}
+          >
             <div className="h-7 w-7 rounded-full bg-secondary border-2 border-border flex items-center justify-center shrink-0 overflow-hidden">
               {session.user.image ? (
                 <Image
@@ -56,7 +67,7 @@ export default function UserMenu() {
                 </span>
               )}
             </div>
-            <ChevronDown size={12} className="text-foreground/40 hidden sm:block" />
+            <ChevronDown size={12} className={cn("hidden sm:block", light ? "text-white/70" : "text-foreground/40")} />
           </button>
         </DropdownMenuTrigger>
 

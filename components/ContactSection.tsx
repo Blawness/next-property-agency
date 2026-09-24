@@ -1,14 +1,28 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
-import { Send } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { toast } from "sonner"
 import Reveal from "@/components/Reveal"
+import { BRAND } from "@/lib/brand"
+
+// POST /api/leads requires a dialable phone and a message of at least 10
+// characters. This form used to send neither, so every submission came back
+// 400; the fields and the minlength below mirror that schema.
+const MIN_MESSAGE_LENGTH = 10
+
+const EMPTY = { name: "", phone: "", email: "", message: "" }
+
+const FIELD =
+  "w-full border-0 border-b border-accent-foreground/25 bg-transparent px-0 py-4 text-[17px] text-accent-foreground outline-none transition-colors placeholder:text-accent-foreground/40 focus:border-gold"
 
 export default function ContactSection() {
   const [sent, setSent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" })
+  const [formData, setFormData] = useState(EMPTY)
+
+  const set = (key: keyof typeof EMPTY) => (value: string) =>
+    setFormData((prev) => ({ ...prev, [key]: value }))
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -21,92 +35,112 @@ export default function ContactSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error ?? "")
+      }
       setSent(true)
       toast.success("Pesan terkirim! Kami akan menghubungi Anda segera.")
-      setFormData({ name: "", email: "", message: "" })
-    } catch {
-      toast.error("Gagal mengirim pesan. Coba lagi.")
+      setFormData(EMPTY)
+    } catch (err) {
+      toast.error(err instanceof Error && err.message ? err.message : "Gagal mengirim pesan. Coba lagi.")
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <section id="contact" className="relative min-h-[768px]">
-      <Reveal className="absolute left-[clamp(1.5rem,5vw,4.5rem)] top-[clamp(6rem,11vw,10rem)] z-[2]">
-        <h2
-          className="m-0 font-sans text-[clamp(4rem,9vw,9rem)] leading-none font-extrabold tracking-[-0.03em]"
-          style={{
-            color: "#fff",
-            WebkitTextStroke: "4px var(--primary)",
-            paintOrder: "stroke fill",
-          }}
-        >
-          Contact
-        </h2>
-      </Reveal>
-
-      <Reveal
-        delay={150}
-        className="absolute left-0 right-0 top-[clamp(11rem,16vw,15.75rem)] bottom-0 bg-primary text-white"
-      >
-        <div
-          className="h-full w-full"
-          style={{
-            padding: "clamp(4rem, 8vw, 8.25rem) clamp(1.5rem, 5vw, 4.5rem) 56px",
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 560px)",
-            columnGap: "80px",
-            alignItems: "center",
-            rowGap: "clamp(2rem, 4vw, 3rem)",
-          }}
-        >
-        <div>
-          <p className="m-0 max-w-[440px] font-sans text-[clamp(1.25rem,1.7vw,1.625rem)] leading-[38px] font-light italic text-pretty text-white">
-            Tell us what you are looking for — we reply with a shortlist within one
-            working day.
+    <section id="contact" className="bg-accent text-accent-foreground">
+      <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-y-16 px-[clamp(1.25rem,5vw,4.5rem)] py-[clamp(6rem,11vw,9rem)] lg:grid-cols-12 lg:gap-x-12">
+        <Reveal effect="drift" className="lg:col-span-5">
+          <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-accent-foreground/60">
+            <span className="font-serif text-[15px] italic tracking-normal text-gold">05</span>
+            <span aria-hidden className="h-px w-8 bg-gold" />
+            Kontak
           </p>
-        </div>
+          <h2 className="m-0 font-serif text-[clamp(3rem,6vw,5.5rem)] font-light italic leading-[0.98] tracking-[-0.01em]">
+            {BRAND.contactSection.heading}
+          </h2>
+          <p className="mt-8 max-w-[40ch] text-[16px] leading-[1.85] text-accent-foreground/70 text-pretty">
+            {BRAND.contactSection.body}
+          </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <input
-            type="text"
-            placeholder="Full name"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-            className="h-14 px-[22px] rounded-xl border border-white/45 bg-transparent text-white text-[19px] outline-none placeholder:text-white/50 focus:border-white"
-          />
-          <input
-            type="email"
-            placeholder="Work email"
-            required
-            value={formData.email}
-            onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-            className="h-14 px-[22px] rounded-xl border border-white/45 bg-transparent text-white text-[19px] outline-none placeholder:text-white/50 focus:border-white"
-          />
-          <input
-            type="text"
-            placeholder="What are you looking for?"
-            required
-            value={formData.message}
-            onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
-            className="h-14 px-[22px] rounded-xl border border-white/45 bg-transparent text-white text-[19px] outline-none placeholder:text-white/50 focus:border-white"
-          />
-          <button
-            type="submit"
-            disabled={submitting}
-            className="h-14 border-0 rounded-xl bg-white text-primary font-sans text-[19px] font-bold tracking-[0.05em] uppercase cursor-pointer hover:bg-[#111] hover:text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            <span className="inline-flex items-center justify-center gap-2">
-              {submitting ? "Sending..." : sent ? "Thank you" : "Send request"}
-              <Send size={16} strokeWidth={2.1} />
-            </span>
-          </button>
-        </form>
-        </div>
-      </Reveal>
+          <dl className="mt-12 space-y-6 text-[14px] leading-relaxed">
+            <div>
+              <dt className="mb-1 text-[10px] font-medium uppercase tracking-[0.28em] text-gold">Email</dt>
+              <dd className="m-0">
+                <a href={`mailto:${BRAND.contact.email}`} className="text-accent-foreground/85 hover:text-white">
+                  {BRAND.contact.email}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="mb-1 text-[10px] font-medium uppercase tracking-[0.28em] text-gold">Jam kantor</dt>
+              <dd className="m-0 text-accent-foreground/85">{BRAND.contact.hours}</dd>
+            </div>
+          </dl>
+        </Reveal>
+
+        <Reveal effect="drift" delay={150} className="lg:col-span-6 lg:col-start-7 lg:self-end">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+            <div className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
+              <input
+                type="text"
+                aria-label="Nama lengkap"
+                placeholder="Nama lengkap"
+                required
+                minLength={2}
+                autoComplete="name"
+                value={formData.name}
+                onChange={(e) => set("name")(e.target.value)}
+                className={FIELD}
+              />
+              <input
+                type="tel"
+                aria-label="Nomor WhatsApp"
+                placeholder="Nomor WhatsApp"
+                required
+                inputMode="tel"
+                autoComplete="tel"
+                value={formData.phone}
+                onChange={(e) => set("phone")(e.target.value)}
+                className={FIELD}
+              />
+            </div>
+            <input
+              type="email"
+              aria-label="Email (opsional)"
+              placeholder="Email (opsional)"
+              autoComplete="email"
+              value={formData.email}
+              onChange={(e) => set("email")(e.target.value)}
+              className={FIELD}
+            />
+            <textarea
+              aria-label="Properti yang Anda cari"
+              placeholder="Properti seperti apa yang Anda cari?"
+              required
+              minLength={MIN_MESSAGE_LENGTH}
+              rows={3}
+              value={formData.message}
+              onChange={(e) => set("message")(e.target.value)}
+              className={`${FIELD} resize-none`}
+            />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="group mt-8 inline-flex h-14 items-center justify-between gap-6 self-start bg-[#F3EDE4] px-8 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#1B1B1B] transition-colors duration-500 hover:bg-gold disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitting ? "Mengirim…" : sent ? "Terima kasih" : "Kirim permintaan"}
+              <ArrowRight
+                size={16}
+                strokeWidth={1.5}
+                className="transition-transform duration-500 group-hover:translate-x-1"
+              />
+            </button>
+          </form>
+        </Reveal>
+      </div>
     </section>
   )
 }

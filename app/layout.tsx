@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Archivo, Inter } from "next/font/google"
+import { Archivo, Cormorant_Garamond, Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import Navbar from "@/components/Navbar"
@@ -15,6 +15,16 @@ const archivo = Archivo({
   variable: "--font-archivo",
 })
 
+// Cormorant carries the homepage's display lines — a high-contrast serif set
+// light and large, which is what makes the landing read as a residence
+// brochure rather than a catalogue. The rest of the app never uses it.
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
+})
+
 const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -28,7 +38,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${archivo.variable} ${inter.variable}`}>
+    <html lang="id" className={`${archivo.variable} ${cormorant.variable} ${inter.variable}`}>
       <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <Providers>
           <Navbar />

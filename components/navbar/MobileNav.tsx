@@ -16,7 +16,13 @@ import { NAV_LINKS } from "@/components/navbar/nav-links"
 import { BRAND } from "@/lib/brand"
 import { cn } from "@/lib/utils"
 
-export default function MobileNav({ isActive }: { isActive: (id: string) => boolean }) {
+export default function MobileNav({
+  isActive,
+  light = false,
+}: {
+  isActive: (id: string) => boolean
+  light?: boolean
+}) {
   const { data: session } = useSession()
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
@@ -27,7 +33,10 @@ export default function MobileNav({ isActive }: { isActive: (id: string) => bool
         <button
           type="button"
           aria-label="Buka menu navigasi"
-          className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-primary hover:bg-muted transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn(
+            "lg:hidden flex h-9 w-9 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            light ? "text-white hover:bg-white/10" : "text-primary hover:bg-muted",
+          )}
         >
           <Menu size={20} />
         </button>
