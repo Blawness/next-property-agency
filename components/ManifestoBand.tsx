@@ -4,13 +4,13 @@ import { BRAND } from "@/lib/brand"
 
 /**
  * A full-bleed photograph with one line of copy over it — the pause between
- * the process and the collection. The image is a live listing when there is
- * one, so the band never shows a stock photo of somewhere we do not sell.
+ * the process and the collection. The photograph is fixed in the brand config
+ * rather than taken from a listing, whose quality nobody controls here.
  */
-export default function ManifestoBand({ image }: { image: string }) {
+export default function ManifestoBand() {
   return (
     <section aria-label="Manifesto" className="relative h-[80svh] min-h-[520px] overflow-hidden bg-accent">
-      <Image src={image} alt="" fill sizes="100vw" className="object-cover" />
+      <Image src={BRAND.manifesto.image} alt="" fill sizes="100vw" className="object-cover" />
       <div aria-hidden className="absolute inset-0 bg-[#140A04]/55" />
 
       <div className="relative mx-auto flex h-full max-w-[1100px] flex-col items-center justify-center px-[clamp(1.25rem,5vw,4.5rem)] text-center text-white">

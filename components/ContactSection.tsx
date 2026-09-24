@@ -14,7 +14,7 @@ const MIN_MESSAGE_LENGTH = 10
 const EMPTY = { name: "", phone: "", email: "", message: "" }
 
 const FIELD =
-  "w-full border-0 border-b border-accent-foreground/25 bg-transparent px-0 py-4 text-[17px] text-accent-foreground outline-none transition-colors placeholder:text-accent-foreground/40 focus:border-gold"
+  "w-full border-0 border-b border-foreground/20 bg-transparent px-0 py-4 text-[17px] text-foreground outline-none transition-colors placeholder:text-foreground/40 focus:border-primary"
 
 export default function ContactSection() {
   const [sent, setSent] = useState(false)
@@ -50,33 +50,33 @@ export default function ContactSection() {
   }
 
   return (
-    <section id="contact" className="bg-accent text-accent-foreground">
+    <section id="contact" className="bg-background text-foreground">
       <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-y-16 px-[clamp(1.25rem,5vw,4.5rem)] py-[clamp(6rem,11vw,9rem)] lg:grid-cols-12 lg:gap-x-12">
         <Reveal effect="drift" className="lg:col-span-5">
-          <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-accent-foreground/60">
-            <span className="font-serif text-[15px] italic tracking-normal text-gold">05</span>
+          <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-muted-foreground">
+            <span className="font-serif text-[15px] italic tracking-normal text-primary">05</span>
             <span aria-hidden className="h-px w-8 bg-gold" />
             Kontak
           </p>
           <h2 className="m-0 font-serif text-[clamp(3rem,6vw,5.5rem)] font-light italic leading-[0.98] tracking-[-0.01em]">
             {BRAND.contactSection.heading}
           </h2>
-          <p className="mt-8 max-w-[40ch] text-[16px] leading-[1.85] text-accent-foreground/70 text-pretty">
+          <p className="mt-8 max-w-[40ch] text-[16px] leading-[1.85] text-muted-foreground text-pretty">
             {BRAND.contactSection.body}
           </p>
 
           <dl className="mt-12 space-y-6 text-[14px] leading-relaxed">
             <div>
-              <dt className="mb-1 text-[10px] font-medium uppercase tracking-[0.28em] text-gold">Email</dt>
+              <dt className="mb-1 text-[10px] font-medium uppercase tracking-[0.28em] text-primary">Email</dt>
               <dd className="m-0">
-                <a href={`mailto:${BRAND.contact.email}`} className="text-accent-foreground/85 hover:text-white">
+                <a href={`mailto:${BRAND.contact.email}`} className="text-foreground/85 hover:text-primary">
                   {BRAND.contact.email}
                 </a>
               </dd>
             </div>
             <div>
-              <dt className="mb-1 text-[10px] font-medium uppercase tracking-[0.28em] text-gold">Jam kantor</dt>
-              <dd className="m-0 text-accent-foreground/85">{BRAND.contact.hours}</dd>
+              <dt className="mb-1 text-[10px] font-medium uppercase tracking-[0.28em] text-primary">Jam kantor</dt>
+              <dd className="m-0 text-foreground/85">{BRAND.contact.hours}</dd>
             </div>
           </dl>
         </Reveal>
@@ -129,7 +129,7 @@ export default function ContactSection() {
             <button
               type="submit"
               disabled={submitting}
-              className="group mt-8 inline-flex h-14 items-center justify-between gap-6 self-start bg-[#F3EDE4] px-8 text-[12px] font-semibold uppercase tracking-[0.2em] text-[#1B1B1B] transition-colors duration-500 hover:bg-gold disabled:cursor-not-allowed disabled:opacity-60"
+              className="group mt-8 inline-flex h-14 items-center justify-between gap-6 self-start bg-accent px-8 text-[12px] font-semibold uppercase tracking-[0.2em] text-accent-foreground transition-colors duration-500 hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "Mengirim…" : sent ? "Terima kasih" : "Kirim permintaan"}
               <ArrowRight

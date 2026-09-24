@@ -86,6 +86,11 @@ On `/` the navbar is transparent while the hero is behind it
 with `-mt-16`. Anything that becomes the first homepage section must do the
 same, or the bar will float white-on-white.
 
+Homepage listings use `HomeListingCard` (tall photo, serif title, quiet
+price); `PropertyCard` stays on the catalogue and agent pages, where a denser
+card suits scanning a long grid. The manifesto band's photograph is
+`BRAND.manifesto.image`, deliberately not a listing photo.
+
 ### Brand config (`lib/brand.ts`)
 Every brand string — name, wordmark halves, taglines, page titles, stats,
 section copy, contact details — is centralised here. Import `BRAND` or

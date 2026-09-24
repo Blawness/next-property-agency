@@ -5,7 +5,7 @@ import { eq, desc, and, isNull, sql } from "drizzle-orm"
 import { ArrowRight } from "lucide-react"
 import Reveal from "@/components/Reveal"
 import ManifestoBand from "@/components/ManifestoBand"
-import PropertyCard from "@/components/PropertyCard"
+import HomeListingCard from "@/components/HomeListingCard"
 import HeroSection from "@/components/HeroSection"
 import AboutSection from "@/components/AboutSection"
 import HowWeWork from "@/components/HowWeWork"
@@ -16,7 +16,6 @@ import type { PropertyWithImages } from "@/lib/types"
 import { getPropertiesWithImagesBatch, getFavoritePropertyIds } from "@/lib/db-helpers"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { BRAND } from "@/lib/brand"
 
 export const revalidate = 60
 
@@ -64,17 +63,17 @@ export default async function HomePage() {
   ])
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()
 
-  // Live listing photos stand in for stock imagery wherever there are some.
-  const listingImages = featured
+  // The small inset photo in About is a live listing when there is one.
+  const firstListingImage = featured
     .map((p) => (p.images.find((i) => i.isPrimary) ?? p.images[0])?.url)
-    .filter((url): url is string => Boolean(url))
+    .find((url): url is string => Boolean(url))
 
   return (
     <div>
       <HeroSection />
-      <AboutSection stats={stats} secondaryImage={listingImages[0] ?? null} />
+      <AboutSection stats={stats} secondaryImage={firstListingImage ?? null} />
       <HowWeWork />
-      <ManifestoBand image={listingImages[1] ?? listingImages[0] ?? BRAND.about.image} />
+      <ManifestoBand />
 
       <section id="listing" className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] py-[clamp(6rem,11vw,9rem)]">
         <Reveal
@@ -119,10 +118,10 @@ export default async function HomePage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
               {featured.map((property, i) => (
                 <Reveal key={property.id} effect="drift" delay={(i % 3) * 120}>
-                  <PropertyCard property={property} initialFavorited={favoriteIds.has(property.id)} />
+                  <HomeListingCard property={property} initialFavorited={favoriteIds.has(property.id)} />
                 </Reveal>
               ))}
             </div>

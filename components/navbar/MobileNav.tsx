@@ -46,7 +46,7 @@ export default function MobileNav({
         <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
 
         <div className="flex items-center justify-between border-b border-border px-5 h-16">
-          <span className="font-sans text-[15px] font-bold text-primary">{BRAND.name}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-foreground">{BRAND.name}</span>
           <SheetClose asChild>
             <button
               type="button"
@@ -58,7 +58,7 @@ export default function MobileNav({
           </SheetClose>
         </div>
 
-        <nav aria-label="Mobile navigation" className="flex flex-col p-2">
+        <nav aria-label="Mobile navigation" className="flex flex-col px-5 py-4">
           {NAV_LINKS.map(({ href, label, id }) => {
             const active = isActive(id)
             return (
@@ -68,23 +68,23 @@ export default function MobileNav({
                 id={id}
                 onNavigate={close}
                 className={cn(
-                  "flex items-center justify-between rounded-xl px-4 py-3.5 text-[17px] font-medium transition-colors",
-                  active ? "bg-primary/8 text-primary font-bold" : "text-foreground/80 hover:bg-muted",
+                  "flex items-center justify-between border-b border-border py-4 font-serif text-[26px] font-light transition-colors",
+                  active ? "text-foreground font-normal" : "text-foreground/60 hover:text-foreground",
                 )}
               >
-                <span>{label}</span>
-                {active && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-primary" />}
+                <span className={active ? "italic" : undefined}>{label}</span>
+                {active && <span aria-hidden className="h-px w-6 bg-gold" />}
               </NavLink>
             )
           })}
         </nav>
 
         {!session && (
-          <div className="px-3 pb-4">
+          <div className="px-5 pb-6">
             <Link
               href="/masuk"
               onClick={close}
-              className="flex w-full items-center justify-center rounded-xl border border-primary px-4 py-3 text-[14px] font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+              className="flex h-12 w-full items-center justify-center border border-foreground/30 text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground transition-colors hover:bg-foreground hover:text-background"
             >
               Masuk
             </Link>

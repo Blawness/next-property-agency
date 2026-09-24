@@ -21,10 +21,10 @@ export default function UserMenu({ light = false }: { light?: boolean }) {
       <Link
         href="/masuk"
         className={cn(
-          "hidden sm:flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-semibold tracking-wide transition-colors",
+          "hidden sm:flex h-9 items-center border px-5 text-[11px] font-semibold uppercase tracking-[0.24em] transition-colors duration-300",
           light
-            ? "border-white/60 text-white hover:bg-white hover:text-foreground"
-            : "border-primary text-primary hover:bg-primary hover:text-primary-foreground",
+            ? "border-white/50 text-white hover:bg-white hover:text-foreground"
+            : "border-foreground/30 text-foreground hover:border-foreground hover:bg-foreground hover:text-background",
         )}
       >
         Masuk
@@ -37,7 +37,7 @@ export default function UserMenu({ light = false }: { light?: boolean }) {
       {session.user.role === "admin" ? (
         <Link
           href="/admin"
-          className="hidden sm:flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-[12px] font-semibold tracking-wide text-primary-foreground transition-colors hover:bg-primary/90"
+          className="hidden sm:flex h-9 items-center gap-2 bg-primary px-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <PlusCircle size={13} />
           Dashboard
