@@ -23,7 +23,7 @@ export default function AboutSection({ secondaryImage = null }: AboutSectionProp
             </p>
           </Reveal>
           <Reveal effect="drift" delay={120}>
-            <h2 className="m-0 font-serif text-[clamp(2.25rem,4.4vw,4rem)] font-light leading-[1.08] tracking-[-0.01em] text-foreground text-balance">
+            <h2 data-split className="m-0 font-serif text-[clamp(2.25rem,4.4vw,4rem)] font-light leading-[1.08] tracking-[-0.01em] text-foreground text-balance">
               {BRAND.about.statement}
             </h2>
           </Reveal>
@@ -37,13 +37,15 @@ export default function AboutSection({ secondaryImage = null }: AboutSectionProp
         <div className="relative lg:col-span-5 lg:col-start-8">
           <Reveal effect="unveil">
             <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
-              <Image
-                src={BRAND.about.image}
-                alt={BRAND.about.heading}
-                fill
-                sizes="(max-width: 1024px) 100vw, 40vw"
-                className="object-cover"
-              />
+              <div data-parallax>
+                <Image
+                  src={BRAND.about.image}
+                  alt={BRAND.about.heading}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
           </Reveal>
           {secondaryImage && (

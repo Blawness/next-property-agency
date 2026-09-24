@@ -57,14 +57,16 @@ export default function HomeListingCard({
       <Link href={`/properti/${property.id}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
           {image ? (
-            <Image
-              src={image.url}
-              alt={property.title}
-              fill
-              priority={priority}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.05]"
-            />
+            <div data-parallax>
+              <Image
+                src={image.url}
+                alt={property.title}
+                fill
+                priority={priority}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.05]"
+              />
+            </div>
           ) : (
             <div className="flex h-full w-full items-center justify-center text-[11px] uppercase tracking-[0.24em] text-muted-foreground/60">
               Foto menyusul
