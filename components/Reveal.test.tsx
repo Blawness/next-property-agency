@@ -31,4 +31,16 @@ describe('Reveal', () => {
     const el = container.firstChild as HTMLElement
     expect(el.style.transitionDelay).toBe('150ms')
   })
+
+  it('observes an unclipped wrapper for unveil, so the clip cannot hide it from the observer', () => {
+    const { container } = render(<Reveal effect="unveil">Photo</Reveal>)
+    const outer = container.firstChild as HTMLElement
+    const inner = outer.firstChild as HTMLElement
+    expect(outer.className).not.toContain('clip-path')
+    expect(inner.className).toContain('clip-path:inset(100%')
+    act(() => {
+      ioCallback([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver)
+    })
+    expect(inner.className).toContain('clip-path:inset(0')
+  })
 })

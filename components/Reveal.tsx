@@ -58,18 +58,23 @@ export default function Reveal({ children, className, delay = 0, effect = "rise"
   }, [])
 
   const e = EFFECTS[effect]
+  const animated = cn(e.base, "motion-reduce:transition-none", visible ? e.shown : e.hidden)
+
+  // Chromium's IntersectionObserver honours clip-path, so an element clipped
+  // to nothing never reports as visible and would stay hidden for good. The
+  // curtain therefore goes on an inner box while the outer one is observed.
+  if (effect === "unveil") {
+    return (
+      <div ref={ref} className={className}>
+        <div style={{ transitionDelay: `${delay}ms` }} className={cn(animated, "h-full")}>
+          {children}
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div
-      ref={ref}
-      style={{ transitionDelay: `${delay}ms` }}
-      className={cn(
-        e.base,
-        "motion-reduce:transition-none",
-        visible ? e.shown : e.hidden,
-        className,
-      )}
-    >
+    <div ref={ref} style={{ transitionDelay: `${delay}ms` }} className={cn(animated, className)}>
       {children}
     </div>
   )
