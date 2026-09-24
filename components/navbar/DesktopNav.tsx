@@ -15,7 +15,7 @@ export default function DesktopNav({
   return (
     <nav
       aria-label="Primary"
-      className="hidden items-center gap-7 text-[15px] font-medium lg:flex xl:gap-10 xl:text-[18px] 2xl:gap-[58px] 2xl:text-[21px]"
+      className="hidden items-center gap-8 text-[11px] uppercase tracking-[0.24em] lg:flex xl:gap-11"
     >
       {NAV_LINKS.map(({ href, label, id }) => (
         <NavLink
@@ -23,14 +23,18 @@ export default function DesktopNav({
           href={href}
           id={id}
           className={cn(
-            "whitespace-nowrap transition-colors",
+            // The gold rule under the active item does the work the old
+            // colour jump did; the weight change stays for the Navbar tests.
+            "relative whitespace-nowrap py-2 transition-colors duration-300",
+            "after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:bg-gold after:transition-transform after:duration-500",
+            isActive(id) ? "font-bold after:scale-x-100" : "font-medium after:scale-x-0 hover:after:scale-x-100",
             light
               ? isActive(id)
-                ? "text-white font-bold"
-                : "text-white/65 hover:text-white"
+                ? "text-white"
+                : "text-white/70 hover:text-white"
               : isActive(id)
-                ? "text-primary font-bold"
-                : "text-primary/45 hover:text-primary",
+                ? "text-foreground"
+                : "text-foreground/55 hover:text-foreground",
           )}
         >
           {label}

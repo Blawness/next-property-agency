@@ -5,12 +5,12 @@ export interface NavLink {
 }
 
 export const NAV_LINKS: NavLink[] = [
-  { href: "/#home", label: "Home", id: "home" },
-  { href: "/#about", label: "About us", id: "about" },
-  { href: "/#how", label: "How we work", id: "how" },
-  { href: "/properti", label: "Listings", id: "listings" },
+  { href: "/#home", label: "Beranda", id: "home" },
+  { href: "/#about", label: "Tentang", id: "about" },
+  { href: "/#how", label: "Proses", id: "how" },
+  { href: "/properti", label: "Properti", id: "listings" },
   { href: "/agen", label: "Agen", id: "agents" },
-  { href: "/#contact", label: "Contacts", id: "contact" },
+  { href: "/#contact", label: "Kontak", id: "contact" },
 ]
 
 /** Sections observed on the homepage; the rest of the links point at routes. */

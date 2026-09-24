@@ -50,6 +50,10 @@ export const BRAND = {
   manifesto: {
     quote: "Properti terbaik tidak dijual dengan tergesa. Ia ditemukan, diperiksa, lalu dipilih dengan tenang.",
     attribution: "Prinsip kerja PROPERTI NUSA",
+    // Chosen, not pulled from a listing: agent photos vary too much to carry a
+    // full-bleed band. Swap for the agency's own photography when there is some.
+    image:
+      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=2000&auto=format&fit=crop&q=80",
   },
 
   exploreTypes: {
@@ -138,6 +142,8 @@ export const BRAND = {
 
   footer: {
     tagline: "Katalog properti terpercaya di seluruh Indonesia",
+    // The large serif line that opens the footer, with its call to action.
+    closing: { lead: "Temukan alamat", trail: "berikutnya.", cta: "Lihat semua properti" },
     explore: [
       { label: "Rumah", href: "/properti?type=rumah" },
       { label: "Apartemen", href: "/properti?type=apartemen" },
