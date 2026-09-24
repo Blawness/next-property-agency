@@ -75,7 +75,8 @@ calculator result), `--gold` is highlight only. `--radius` is `0.25rem`.
 Typography is Archivo for headings (`font-heading`, `font-display`) over Inter
 for body (`font-sans`), wired up in `app/layout.tsx`.
 The homepage alone adds Cormorant Garamond (`font-serif`) for its display
-lines, and `--ivory` for its alternating bands — the landing reads as a
+lines, Pinyon Script (`font-script`, not preloaded) for the single accent word
+under the hero headline, and `--ivory` for its alternating bands — the landing reads as a
 residence brochure, the rest of the app as a catalogue. Its sections share one
 editorial pattern: a numbered eyebrow (`01`–`05`), a light serif heading, and
 `Reveal effect="drift"` / `"unveil"` for slower entrances than the app's
