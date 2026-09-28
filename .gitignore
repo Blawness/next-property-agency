@@ -49,3 +49,6 @@ references/
 # local analysis tooling output — keep on disk, not in git
 /.scan-report/
 /suggest-reports/
+
+# local preview servers for Claude Code (ports differ per machine)
+/.claude/launch.json
