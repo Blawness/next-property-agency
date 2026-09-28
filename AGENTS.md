@@ -92,10 +92,16 @@ plus GSAP ScrollTrigger, mounted by the homepage alone so the catalogue, map
 and admin keep native scrolling. Sections stay server components and opt in
 with data attributes — `data-parallax` (an image layer drifting in a frame
 that clips), `data-split` (letters flip in; `="words"` for long lines),
-`data-hero-zoom` / `data-hero-fade`, and `data-footer-clip` (the last
-section, clipped into a card as the footer rises). `#home` is a 220svh scroll
-area with the hero screen pinned inside it while the photo zooms; it collapses
-to one screen under `prefers-reduced-motion`, where HomeMotion does nothing.
+`data-hero-zoom` / `-drift` / `-fade` / `-dim`, `data-expand` (a photograph
+opening out from a window to full bleed), and `data-footer-clip` (the last
+section, clipped into a card as the footer rises). Keep new effects to
+transform and opacity; the footer's clip-path is the one repaint, and only
+for the last screen. `#home` is a 300svh scroll area with the hero screen
+pinned inside it, and `-mb-[100svh]` lets About (`relative z-10`, its own
+background) slide over the last screen of it like a curtain;
+`useOverHero` subtracts that margin so the navbar turns solid when About
+reaches it. Under `prefers-reduced-motion` the hero is one screen, nothing
+overlaps, and HomeMotion does nothing.
 The contact section sits on a `bg-accent` wrapper so the card shrinks onto the
 footer's colour; whatever becomes the last homepage section needs the same.
 

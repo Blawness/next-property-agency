@@ -44,8 +44,13 @@ export default function HeroSection({ video = BRAND.hero.video }: HeroSectionPro
     // -mt-16 slides the hero up under the sticky navbar, which turns
     // transparent while it sits over this section (see Navbar). The outer box
     // is the scroll distance: the screen inside stays pinned for it while
-    // HomeMotion zooms the photograph. Without motion it is one screen tall.
-    <div id="home" className="relative -mt-16 h-[220svh] motion-reduce:h-auto">
+    // HomeMotion zooms the photograph, and -mb-[100svh] lets the next section
+    // slide up over that pinned screen like a curtain. Without motion it is
+    // one screen tall and nothing overlaps.
+    <div
+      id="home"
+      className="relative -mt-16 -mb-[100svh] h-[300svh] motion-reduce:mb-0 motion-reduce:h-auto"
+    >
       <section className="sticky top-0 h-[100svh] min-h-[640px] overflow-hidden bg-[#1E130B] text-white">
         <div data-hero-zoom className="absolute inset-0 will-change-transform">
           {(!playsVideo || !videoReady) && (
@@ -85,6 +90,10 @@ export default function HeroSection({ video = BRAND.hero.video }: HeroSectionPro
           )}
         </div>
 
+        {/* Darkens as the next section covers the hero, so the photograph
+            recedes instead of simply being painted over. */}
+        <div data-hero-dim aria-hidden className="absolute inset-0 z-[1] bg-[#140A04] opacity-0" />
+
         {/* Top shade keeps the navbar legible; the heavier bottom one carries the copy. */}
         <div
           aria-hidden
@@ -106,8 +115,8 @@ export default function HeroSection({ video = BRAND.hero.video }: HeroSectionPro
               width, so three lines still leave room for the copy on a short
               laptop screen. The script word tucks up under the line above. */}
           <h1 className="hero-animate-h1 m-0 font-serif text-[clamp(2.75rem,min(10vw,15svh),10rem)] font-light leading-[0.92] tracking-[-0.02em] text-balance [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]">
-            <span className="block">{hero.headline.lead}</span>
-            <span className="block">{hero.headline.trail}</span>
+            <span data-hero-drift="left" className="block">{hero.headline.lead}</span>
+            <span data-hero-drift="right" className="block">{hero.headline.trail}</span>
             <span className="-mt-[0.12em] block pl-[1.4em] font-script text-[1.1em] font-normal leading-[1] tracking-normal text-[#EBD3B0]">
               {hero.headline.accent}
             </span>

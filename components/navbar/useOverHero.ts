@@ -17,10 +17,14 @@ export function useOverHero(pathname: string): boolean {
     // in behind app/loading.tsx, so on first run the navbar can mount before
     // the hero exists. Until it does, the viewport height stands in for it —
     // the hero is always the first section and a full screen tall.
+    // A negative bottom margin on the hero is the stretch the next section
+    // slides over it; the bar should turn solid when that section reaches it,
+    // not when the hero's own box ends a screen later.
     const update = () => {
       const hero = document.getElementById("home")
       const bottom = hero
-        ? hero.getBoundingClientRect().bottom
+        ? hero.getBoundingClientRect().bottom +
+          (parseFloat(getComputedStyle(hero).marginBottom) || 0)
         : window.innerHeight - window.scrollY
       setOver(bottom > 64)
     }

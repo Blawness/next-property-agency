@@ -40,4 +40,24 @@ describe('useOverHero', () => {
     })
     expect(result.current).toBe(false)
   })
+
+  it('turns solid when the section sliding over the hero reaches the bar', () => {
+    // The hero's negative bottom margin is how far the next section overlaps
+    // it, so that section's top — not the hero's box — is where it ends.
+    const hero = document.createElement('section')
+    hero.id = 'home'
+    hero.style.marginBottom = '-900px'
+    document.body.appendChild(hero)
+    let bottom = 1800
+    hero.getBoundingClientRect = () => ({ bottom }) as DOMRect
+
+    const { result } = renderHook(() => useOverHero('/'))
+    expect(result.current).toBe(true)
+
+    act(() => {
+      bottom = 940 // hero box still fills the screen; the next section is at 40px
+      window.dispatchEvent(new Event('scroll'))
+    })
+    expect(result.current).toBe(false)
+  })
 })
