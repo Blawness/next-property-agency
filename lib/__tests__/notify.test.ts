@@ -44,7 +44,7 @@ describe("buildLeadEmail", () => {
     email: "rina@example.com",
     message: "Apakah masih tersedia untuk kunjungan akhir pekan?",
     propertyTitle: "Rumah 2 Lantai Bintaro",
-    propertyUrl: "https://properti-nusa.id/properti/abc",
+    propertyUrl: "https://trihuni.id/properti/abc",
   }
 
   it("puts the enquirer and the listing in the subject", () => {
@@ -59,7 +59,7 @@ describe("buildLeadEmail", () => {
     expect(text).toContain("081234567890")
     expect(text).toContain("rina@example.com")
     expect(text).toContain("Apakah masih tersedia")
-    expect(text).toContain("https://properti-nusa.id/properti/abc")
+    expect(text).toContain("https://trihuni.id/properti/abc")
   })
 
   it("offers a ready-to-click WhatsApp link on the normalised number", () => {

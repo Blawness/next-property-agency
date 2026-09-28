@@ -3,14 +3,13 @@ import BrandMark from '@/components/BrandMark'
 import { BRAND } from '@/lib/brand'
 
 describe('BrandMark', () => {
-  it('renders both halves of the wordmark', () => {
+  it('renders the wordmark', () => {
     render(<BrandMark />)
-    expect(screen.getByText(BRAND.wordmark.lead)).toBeInTheDocument()
-    expect(screen.getByText(BRAND.wordmark.trail)).toBeInTheDocument()
+    expect(screen.getByText(BRAND.logo.wordmark)).toBeInTheDocument()
   })
 
-  it('renders an svg icon', () => {
-    const { container } = render(<BrandMark />)
-    expect(container.querySelector('svg')).toBeInTheDocument()
+  it('keeps the monogram out of the accessible name', () => {
+    render(<BrandMark />)
+    expect(screen.getByText(BRAND.logo.monogram)).toHaveAttribute('aria-hidden')
   })
 })

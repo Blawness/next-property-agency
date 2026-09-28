@@ -1,0 +1,6 @@
+<!-- Placeholder until the TRIHUNI logo arrives: the BrandMark square and its
+     monogram, drawn as shapes so it needs no font. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="6" fill="#C06A14"/>
+  <path d="M17 16h30v8H36v24h-8V24H17z" fill="#FFFFFF"/>
+</svg>

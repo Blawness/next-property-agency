@@ -1,38 +1,41 @@
 export const BRAND = {
-  name: "PROPERTI NUSA",
+  name: "TRIHUNI",
 
-  // BrandMark renders the name as two weights; keep these in sync with `name`.
-  wordmark: { lead: "PROPERTI", trail: "NUSA" },
+  // Placeholder mark until the agency's own logo arrives: BrandMark sets
+  // `monogram` in a square beside `wordmark`, and app/icon.svg draws the same
+  // square. Swapping in the real logo means replacing BrandMark's contents and
+  // those icon files, not touching the pages that use it.
+  logo: { wordmark: "TRIHUNI", monogram: "T" },
 
-  fullName: "PROPERTI NUSA — Katalog Properti Indonesia",
+  fullName: "TRIHUNI — Katalog Properti Indonesia",
 
   tagline: "Katalog Properti #1 Indonesia",
 
   description: "Katalog properti terlengkap di Indonesia — rumah, apartemen, tanah, dan ruko",
 
-  heroImageAlt: "PROPERTI NUSA — Katalog Properti Indonesia",
+  heroImageAlt: "TRIHUNI — Katalog Properti Indonesia",
 
   pageTitle: {
-    home: "PROPERTI NUSA – Katalog Properti Indonesia",
-    catalog: "Katalog Properti — PROPERTI NUSA",
-    map: "Peta Properti — PROPERTI NUSA",
-    login: "Masuk — PROPERTI NUSA",
-    forgotPassword: "Lupa Password — PROPERTI NUSA",
-    resetPassword: "Atur Ulang Password — PROPERTI NUSA",
-    register: "Daftar — PROPERTI NUSA",
-    propertyNotFound: "Properti Tidak Ditemukan — PROPERTI NUSA",
+    home: "TRIHUNI – Katalog Properti Indonesia",
+    catalog: "Katalog Properti — TRIHUNI",
+    map: "Peta Properti — TRIHUNI",
+    login: "Masuk — TRIHUNI",
+    forgotPassword: "Lupa Password — TRIHUNI",
+    resetPassword: "Atur Ulang Password — TRIHUNI",
+    register: "Daftar — TRIHUNI",
+    propertyNotFound: "Properti Tidak Ditemukan — TRIHUNI",
     catalogHeading: "Katalog Properti",
   },
 
   pageDescription: {
     home: "Temukan rumah, apartemen, tanah, dan ruko terbaik di seluruh Indonesia",
     catalog: "Telusuri katalog properti terverifikasi di seluruh Indonesia",
-    register: "Buat akun PROPERTI NUSA gratis",
-    login: "Masuk ke akun PROPERTI NUSA kamu",
+    register: "Buat akun TRIHUNI gratis",
+    login: "Masuk ke akun TRIHUNI kamu",
   },
 
-  loginDescription: "Masuk ke akun PROPERTI NUSA kamu",
-  registerDescription: "Buat akun PROPERTI NUSA gratis",
+  loginDescription: "Masuk ke akun TRIHUNI kamu",
+  registerDescription: "Buat akun TRIHUNI gratis",
 
   // Homepage hero. The headline is set poster-size over three lines, and
   // `accent` — one word, no more — is set in script under the other two, so
@@ -61,7 +64,7 @@ export const BRAND = {
   // Full-bleed quote band between the process and the collection.
   manifesto: {
     quote: "Properti terbaik tidak dijual dengan tergesa. Ia ditemukan, diperiksa, lalu dipilih dengan tenang.",
-    attribution: "Prinsip kerja PROPERTI NUSA",
+    attribution: "Prinsip kerja TRIHUNI",
     // Chosen, not pulled from a listing: agent photos vary too much to carry a
     // full-bleed band. Swap for the agency's own photography when there is some.
     image:
@@ -112,10 +115,10 @@ export const BRAND = {
   },
 
   about: {
-    heading: "Tentang PROPERTI NUSA",
+    heading: "Tentang TRIHUNI",
     subtitle:
       "Katalog properti terlengkap untuk menemukan rumah, apartemen, tanah, dan ruko di seluruh Indonesia.",
-    body: "PROPERTI NUSA adalah katalog properti modern yang mempertemukan pembeli, penyewa, dan agen terpercaya di seluruh Indonesia. Kami menyediakan ribuan listing terverifikasi — lengkap dengan foto, spesifikasi, dan lokasi — sehingga Anda dapat membuat keputusan properti dengan percaya diri.",
+    body: "TRIHUNI adalah katalog properti modern yang mempertemukan pembeli, penyewa, dan agen terpercaya di seluruh Indonesia. Kami menyediakan ribuan listing terverifikasi — lengkap dengan foto, spesifikasi, dan lokasi — sehingga Anda dapat membuat keputusan properti dengan percaya diri.",
     statement: "Setiap alamat punya cerita. Tugas kami memastikan ceritanya benar.",
     image:
       "https://images.unsplash.com/photo-1692736933760-8a8a9b8c1b6f?w=900&h=1100&fit=crop&auto=format&q=80",

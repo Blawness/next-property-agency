@@ -4,16 +4,21 @@ import { BRAND } from "@/lib/brand"
 interface BrandMarkProps {
   size?: "sm" | "md" | "lg"
   className?: string
-  /** Use off-white text + brown box (e.g. on dark/footer backgrounds) */
+  /** Use off-white text + light box (e.g. on dark/footer backgrounds) */
   inverted?: boolean
 }
 
 const SIZE_MAP = {
-  sm: { box: 24, lead: 16, trail: 9, gap: 8 },
-  md: { box: 32, lead: 22, trail: 11, gap: 10 },
-  lg: { box: 44, lead: 30, trail: 13, gap: 12 },
+  sm: { box: 24, monogram: 13, wordmark: 16, gap: 8 },
+  md: { box: 32, monogram: 17, wordmark: 22, gap: 10 },
+  lg: { box: 44, monogram: 23, wordmark: 30, gap: 12 },
 } as const
 
+/**
+ * Placeholder logo: the monogram in a square, then the name. The agency's own
+ * logo replaces what this renders; every page goes through this component, so
+ * nothing else has to change when it does.
+ */
 export default function BrandMark({ size = "md", className, inverted = false }: BrandMarkProps) {
   const s = SIZE_MAP[size]
   return (
@@ -24,47 +29,21 @@ export default function BrandMark({ size = "md", className, inverted = false }: 
       <span
         aria-hidden
         className={cn(
-          "inline-flex items-center justify-center rounded-sm shrink-0",
-          inverted ? "bg-primary-foreground" : "bg-primary",
+          "inline-flex shrink-0 items-center justify-center rounded-sm font-heading font-extrabold leading-none",
+          inverted ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground",
         )}
-        style={{ width: s.box, height: s.box }}
+        style={{ width: s.box, height: s.box, fontSize: s.monogram }}
       >
-        <svg
-          viewBox="0 0 24 24"
-          width={Math.round(s.box * 0.6)}
-          height={Math.round(s.box * 0.6)}
-          fill="none"
-        >
-          <path
-            d="M5 8 L19 8 L19 19 L5 19 Z"
-            className={inverted ? "stroke-primary" : "stroke-primary-foreground"}
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          <path d="M5 12 L19 12" className={inverted ? "stroke-primary" : "stroke-primary-foreground"} strokeWidth="2" />
-          <path d="M5 15.5 L19 15.5" className={inverted ? "stroke-primary" : "stroke-primary-foreground"} strokeWidth="2" />
-          <path d="M5 8 L12 4 L19 8" className={inverted ? "stroke-primary" : "stroke-primary-foreground"} strokeWidth="2" strokeLinejoin="round" />
-        </svg>
+        {BRAND.logo.monogram}
       </span>
-      <span className="flex items-baseline gap-1.5 leading-none">
-        <span
-          className={cn(
-            "font-extrabold tracking-tight",
-            inverted ? "text-primary-foreground" : "text-foreground",
-          )}
-          style={{ fontSize: s.lead }}
-        >
-          {BRAND.wordmark.lead}
-        </span>
-        <span
-          className={cn(
-            "font-semibold uppercase tracking-[0.2em]",
-            inverted ? "text-primary-foreground/70" : "text-muted-foreground",
-          )}
-          style={{ fontSize: s.trail }}
-        >
-          {BRAND.wordmark.trail}
-        </span>
+      <span
+        className={cn(
+          "font-extrabold leading-none tracking-tight",
+          inverted ? "text-primary-foreground" : "text-foreground",
+        )}
+        style={{ fontSize: s.wordmark }}
+      >
+        {BRAND.logo.wordmark}
       </span>
     </span>
   )

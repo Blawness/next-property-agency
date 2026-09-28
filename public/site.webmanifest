@@ -1,6 +1,6 @@
 {
-    "name": "PT Tiga Anak Propertindo",
-    "short_name": "TAP",
+    "name": "TRIHUNI",
+    "short_name": "TRIHUNI",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#6F3715",
-    "background_color": "#FAFAFA",
+    "theme_color": "#4A2E1C",
+    "background_color": "#F9F9F9",
     "display": "standalone"
 }

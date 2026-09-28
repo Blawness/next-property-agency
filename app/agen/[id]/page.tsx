@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!agent) return { title: brandTitle("Agen Tidak Ditemukan") }
 
   // brandTitle() already appends the brand — naming it again here gave
-  // "Ahmad Rahman — Agen PROPERTI NUSA — PROPERTI NUSA".
+  // "Ahmad Rahman — Agen TRIHUNI — TRIHUNI".
   const role = agent.title ?? `agen ${BRAND.name}`
   return {
     title: brandTitle(agent.title ? `${agent.fullName} — ${agent.title}` : agent.fullName),

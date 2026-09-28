@@ -4,7 +4,7 @@ const listing = {
   title: "Rumah 2 Lantai Cluster Discovery, Bintaro Sektor 9",
   price: "3200000000",
   listingType: "jual",
-  url: "https://properti-nusa.id/properti/abc",
+  url: "https://trihuni.id/properti/abc",
 }
 
 describe("buildShareText", () => {
@@ -26,7 +26,7 @@ describe("buildShareText", () => {
   })
 
   it("names the site, so a forwarded listing says where it came from", () => {
-    expect(buildShareText(listing)).toContain("PROPERTI NUSA")
+    expect(buildShareText(listing)).toContain("TRIHUNI")
   })
 
   it("survives a price that cannot be parsed", () => {

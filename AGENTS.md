@@ -50,7 +50,7 @@ Optional:
 
 ## Architecture
 
-**PROPERTI NUSA** is an Indonesian property listing site (rumah, apartemen,
+**TRIHUNI** is an Indonesian property listing site (rumah, apartemen,
 tanah, ruko) with an agency-facing admin.
 
 ### Stack
@@ -111,10 +111,17 @@ card suits scanning a long grid. The manifesto band's photograph is
 `BRAND.manifesto.image`, deliberately not a listing photo.
 
 ### Brand config (`lib/brand.ts`)
-Every brand string — name, wordmark halves, taglines, page titles, stats,
+Every brand string — name, logo text, taglines, page titles, stats,
 section copy, contact details — is centralised here. Import `BRAND` or
 `brandTitle()`. A rename touches this file and nothing else. Never hard-code a
 brand string in a component.
+
+The logo is a **placeholder** until the agency's own arrives: `BrandMark`
+sets `BRAND.logo.monogram` in a terracotta square beside
+`BRAND.logo.wordmark`, and `app/icon.svg` draws the same square (the PNGs in
+`app/apple-icon.png` and `public/` are rendered from it). The real logo
+replaces `BrandMark`'s contents and those icon files; the pages that render
+`BrandMark` need no change.
 
 `BRAND.contact.whatsapp` is deliberately empty: it is the office fallback for
 the enquiry button, and an empty value hides the button rather than pointing

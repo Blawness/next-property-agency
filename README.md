@@ -1,4 +1,4 @@
-# PROPERTI NUSA
+# TRIHUNI
 
 Katalog properti Indonesia — rumah, apartemen, tanah, dan ruko — lengkap dengan
 peta, form lead, dan panel admin untuk agen.

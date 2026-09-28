@@ -11,7 +11,7 @@ const listing = {
   title: "Rumah 2 Lantai Bintaro",
   price: "3200000000",
   listingType: "jual",
-  url: "https://properti-nusa.id/properti/abc",
+  url: "https://trihuni.id/properti/abc",
 }
 
 function setNavigator(props: Record<string, unknown>) {

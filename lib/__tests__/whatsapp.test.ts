@@ -46,7 +46,7 @@ describe("buildWhatsAppLink", () => {
     title: "Rumah Minimalis Bintaro",
     price: "1500000000",
     listingType: "jual" as const,
-    url: "https://properti-nusa.id/properti/abc",
+    url: "https://trihuni.id/properti/abc",
   }
 
   it("builds a wa.me link to the agent's normalised number", () => {
@@ -60,7 +60,7 @@ describe("buildWhatsAppLink", () => {
     const text = decodeURIComponent(new URL(href!).searchParams.get("text")!)
     expect(text).toContain("Rumah Minimalis Bintaro")
     expect(text).toContain("Rp 1,50 Miliar")
-    expect(text).toContain("https://properti-nusa.id/properti/abc")
+    expect(text).toContain("https://trihuni.id/properti/abc")
   })
 
   it("marks a rental price per month", () => {
