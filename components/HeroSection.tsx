@@ -59,7 +59,8 @@ export default function HeroSection({ video = BRAND.hero.video }: HeroSectionPro
                 src={HERO_POSTER}
                 alt={hero.imageAlt}
                 fill
-                priority
+                loading="eager"
+                fetchPriority="high"
                 sizes="100vw"
                 className="object-cover"
                 style={{ objectPosition: "center 42%" }}

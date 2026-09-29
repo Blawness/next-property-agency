@@ -46,9 +46,10 @@ export default function HomeMotion() {
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       // The navbar is 64px tall; anchor jumps land below it.
-      // Lenis's default lerp. 0.08 gave a longer glide, but the page kept
-      // moving after the wheel stopped and read as lag.
-      const lenis = new Lenis({ autoRaf: false, lerp: 0.1, anchors: { offset: -64 } })
+      // lerp 0.15, above Lenis's default 0.1. One wheel notch took ~0.9s to
+      // settle at 0.1 (and longer at 0.08): smooth, but it read as the page
+      // lagging behind the wheel. 0.15 keeps the glide and settles sooner.
+      const lenis = new Lenis({ autoRaf: false, lerp: 0.15, anchors: { offset: -64 } })
       lenis.on("scroll", ScrollTrigger.update)
       const tick = (time: number) => lenis.raf(time * 1000)
       gsap.ticker.add(tick)
@@ -149,11 +150,13 @@ export default function HomeMotion() {
           {
             yPercent: 0,
             autoAlpha: 1,
-            duration: 1,
+            duration: 0.6,
             ease: "power3.out",
-            stagger: 0.07,
+            stagger: 0.04,
             immediateRender: true,
-            scrollTrigger: { trigger: heading, start: "top 88%", once: true },
+            // Starts as the heading enters, not once it is well inside the
+            // screen, so the words are already rising when it comes into view.
+            scrollTrigger: { trigger: heading, start: "top bottom", once: true },
             onComplete: () => split.revert(),
           },
         )

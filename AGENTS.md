@@ -113,8 +113,20 @@ names `translate` and `opacity` (Tailwind v4's `translate-y-*` sets the
 restyles the whole page on every start and stop, costing 150–250 ms frames,
 so it is deliberately absent. Every homepage photograph is `loading="eager"`
 (they sit in homepage-only components): lazy ones were still downloading when
-a first-time visitor began to scroll, and popped in mid-glide. The hero keeps
-`priority`, so it still wins the network.
+a first-time visitor began to scroll, and popped in mid-glide. They are also
+`fetchPriority="low"`, and that part matters: React 19 writes a
+`<link rel="preload">` into the head for every server-rendered `<img>` that is
+neither lazy nor low priority, so eager alone put fifteen photographs in
+contention with the hero. The hero is `fetchPriority="high"` (Next 16
+deprecates `priority`). `HomeListingCard` asks for a source 2.25x its width —
+see the comment there — or the photos render soft.
+
+Other things found slow or laggy, and kept out: Lenis at `lerp` 0.1 or below
+(a wheel notch took ~0.9s to settle, so it runs at 0.15); `Reveal` at 1.1–1.4s
+triggered once 15% was on screen (the page outran its own content; now
+500–700ms and triggered just before entry); and `backdrop-blur` on the navbar
+and the card buttons, recomposited every frame over moving photographs on
+integrated GPUs, and barely visible behind a 95% opaque background.
 The contact section sits on a `bg-accent` wrapper so the card shrinks onto the
 footer's colour; whatever becomes the last homepage section needs the same.
 

@@ -22,6 +22,11 @@ interface RevealProps {
 // `translate` property, not `transform`). `transition-all` also watched
 // every other property the wrapper's children could change, and measured as a
 // real cost while the homepage scrolls.
+//
+// Short, and triggered just before the element enters the screen: at 1.1s and
+// 1.4s, and only once 15% of an element was already in view, the page scrolled
+// ahead of its own content and a visitor saw blank space where a section
+// was still fading in.
 const EFFECTS: Record<RevealEffect, { base: string; hidden: string; shown: string }> = {
   rise: {
     base: "transition-[translate,opacity] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
@@ -29,12 +34,12 @@ const EFFECTS: Record<RevealEffect, { base: string; hidden: string; shown: strin
     shown: "translate-y-0 opacity-100",
   },
   drift: {
-    base: "transition-[translate,opacity] duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+    base: "transition-[translate,opacity] duration-[500ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
     hidden: "translate-y-8 opacity-0",
     shown: "translate-y-0 opacity-100",
   },
   unveil: {
-    base: "transition-[clip-path,opacity] duration-[1400ms] ease-[cubic-bezier(0.77,0,0.18,1)]",
+    base: "transition-[clip-path,opacity] duration-[700ms] ease-[cubic-bezier(0.77,0,0.18,1)]",
     hidden: "opacity-0 [clip-path:inset(100%_0_0_0)]",
     shown: "opacity-100 [clip-path:inset(0_0_0_0)]",
   },
@@ -55,7 +60,7 @@ export default function Reveal({ children, className, delay = 0, effect = "rise"
           io.disconnect()
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
+      { threshold: 0, rootMargin: "0px 0px 10% 0px" },
     )
     io.observe(el)
     return () => io.disconnect()

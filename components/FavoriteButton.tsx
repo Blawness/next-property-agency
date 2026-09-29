@@ -62,7 +62,7 @@ export default function FavoriteButton({
       aria-label={favorited ? "Hapus dari favorit" : "Simpan ke favorit"}
       aria-pressed={favorited}
       className={cn(
-        "pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-all hover:bg-black/60 disabled:opacity-60",
+        "pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full bg-black/55 transition-colors hover:bg-black/70 disabled:opacity-60",
         className,
       )}
     >

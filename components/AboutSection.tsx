@@ -44,6 +44,7 @@ export default function AboutSection({ secondaryImage = null }: AboutSectionProp
                     alt={BRAND.about.heading}
                     fill
                     loading="eager"
+                    fetchPriority="low"
                     sizes="(max-width: 1024px) 100vw, 40vw"
                     className="object-cover"
                   />
@@ -57,7 +58,7 @@ export default function AboutSection({ secondaryImage = null }: AboutSectionProp
                 className="absolute -bottom-10 -left-6 w-[42%] border-[6px] border-background shadow-xl sm:-left-12 lg:-left-20"
               >
                 <div className="relative aspect-square w-full overflow-hidden bg-muted">
-                  <Image src={secondaryImage} alt="" fill loading="eager" sizes="240px" className="object-cover" />
+                  <Image src={secondaryImage} alt="" fill loading="eager" fetchPriority="low" sizes="240px" className="object-cover" />
                 </div>
               </Reveal>
             )}

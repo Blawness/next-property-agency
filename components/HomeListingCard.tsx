@@ -54,6 +54,11 @@ export default function HomeListingCard({
     <article className="group relative">
       <Link href={`/properti/${property.id}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+          {/* `sizes` is the card width x 2.25, not the card width: the frame is
+              4:5 portrait, the parallax layer is 1.2x its height, and listing
+              photos are mostly 3:2 landscape, so object-cover needs a source
+              2.25x as wide as the card to fill it without upscaling. Sized to
+              the card alone, every listing photo rendered soft. */}
           {image ? (
             <div data-parallax>
               <Image
@@ -61,7 +66,8 @@ export default function HomeListingCard({
                 alt={property.title}
                 fill
                 loading="eager"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                fetchPriority="low"
+                sizes="(max-width: 640px) 225vw, (max-width: 1024px) 113vw, 75vw"
                 className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.05]"
               />
             </div>

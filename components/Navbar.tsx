@@ -25,7 +25,7 @@ export default function Navbar() {
     <header
       className={cn(
         "sticky top-0 z-40 border-b transition-colors duration-500",
-        overHero ? "border-white/15 bg-transparent" : "border-border bg-background/95 backdrop-blur",
+        overHero ? "border-white/15 bg-transparent" : "border-border bg-background",
       )}
     >
       <nav className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">

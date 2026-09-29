@@ -21,7 +21,7 @@ export default function PropertyPills({ listingType, type, className }: Property
       >
         {isJual ? "Dijual" : "Disewa"}
       </span>
-      <span className="inline-flex items-center rounded-full bg-black/40 px-2.5 py-[3px] text-[10px] font-semibold text-white backdrop-blur-sm">
+      <span className="inline-flex items-center rounded-full bg-black/55 px-2.5 py-[3px] text-[10px] font-semibold text-white">
         {PROPERTY_TYPE_LABELS[type]}
       </span>
     </div>

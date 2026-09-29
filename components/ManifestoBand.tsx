@@ -12,7 +12,7 @@ export default function ManifestoBand() {
     <section aria-label="Manifesto" className="relative h-[80svh] min-h-[520px] overflow-hidden bg-accent">
       <div data-expand className="absolute inset-0 overflow-hidden">
         <div data-parallax>
-          <Image src={BRAND.manifesto.image} alt="" fill loading="eager" sizes="100vw" className="object-cover" />
+          <Image src={BRAND.manifesto.image} alt="" fill loading="eager" fetchPriority="low" sizes="100vw" className="object-cover" />
         </div>
         <div aria-hidden className="absolute inset-0 bg-[#140A04]/60" />
       </div>
