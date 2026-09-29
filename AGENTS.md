@@ -127,6 +127,17 @@ triggered once 15% was on screen (the page outran its own content; now
 500–700ms and triggered just before entry); and `backdrop-blur` on the navbar
 and the card buttons, recomposited every frame over moving photographs on
 integrated GPUs, and barely visible behind a 95% opaque background.
+`/` opens on `components/IntroLoader.tsx`: a `bg-accent` curtain with the
+wordmark and a real percentage (photographs loaded, plus fonts), held until
+the window `load` event — at least 1.2s, at most 6s — then lifted like the
+curtains elsewhere on the page. A parse-time inline script sets
+`intro-active` on `<html>` before first paint (scroll locked, hero entrance
+animations paused in CSS; HomeMotion keeps Lenis stopped until
+`intro:done`), and `intro-skip` on a second visit in the same session, so it
+never replays or flashes. That script also releases everything after 8s
+whatever happens, and the curtain fades itself out in CSS at 8s, so a failed
+JavaScript bundle can never leave a visitor stuck behind it. `<html>` carries
+`suppressHydrationWarning` because of those classes.
 The contact section sits on a `bg-accent` wrapper so the card shrinks onto the
 footer's colour; whatever becomes the last homepage section needs the same.
 

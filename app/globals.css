@@ -269,6 +269,66 @@
   animation: hero-scroll-bounce 2s ease-in-out infinite;
 }
 
+/* ── Intro curtain (components/IntroLoader.tsx) ───────────── */
+/* intro-active and intro-skip are set on <html> by the loader's parse-time
+   script, before anything paints. */
+html.intro-active {
+  overflow: hidden;
+}
+html.intro-skip #intro {
+  display: none;
+}
+
+/* The hero's entrance waits behind the curtain, then plays as it lifts.
+   Keyed to intro-active rather than to the lack of intro-done, so a visitor
+   without JavaScript (who never gets either class) still sees the hero. */
+html.intro-active :is(
+    .hero-animate-badge,
+    .hero-animate-h1,
+    .hero-animate-sub,
+    .hero-animate-search,
+    .hero-animate-pills,
+    .hero-animate-stats,
+    .hero-animate-line,
+    .hero-kenburns
+  ) {
+  animation-play-state: paused;
+}
+
+.intro-curtain {
+  transition: transform 1s cubic-bezier(0.77, 0, 0.18, 1);
+  /* Fail-safe for a visitor without JavaScript: nothing would ever lift the
+     curtain, so it fades itself out. With JavaScript it is gone long before. */
+  animation: intro-failsafe 0.6s ease 8s forwards;
+}
+.intro-curtain[data-phase="leaving"] {
+  transform: translateY(-100%);
+}
+.intro-curtain .intro-wordmark {
+  transition:
+    transform 0.8s cubic-bezier(0.77, 0, 0.18, 1),
+    opacity 0.5s ease;
+}
+/* The wordmark leaves a little ahead of the panel carrying it. */
+.intro-curtain[data-phase="leaving"] .intro-wordmark {
+  transform: translateY(-30%);
+  opacity: 0;
+}
+/* Quick: on a fast connection the whole intro lasts ~1.3s, and the brand
+   should be on screen for most of it. */
+.intro-rise {
+  animation: hero-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.intro-rise + .intro-rise {
+  animation-delay: 0.08s;
+}
+@keyframes intro-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
 /* ── Reduced motion ─────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,

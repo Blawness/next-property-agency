@@ -8,6 +8,7 @@ import ManifestoBand from "@/components/ManifestoBand"
 import HomeListingCard from "@/components/HomeListingCard"
 import HeroSection from "@/components/HeroSection"
 import HomeMotion from "@/components/HomeMotion"
+import IntroLoader from "@/components/IntroLoader"
 import AboutSection from "@/components/AboutSection"
 import HowWeWork from "@/components/HowWeWork"
 import ExploreTypes from "@/components/ExploreTypes"
@@ -45,6 +46,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <IntroLoader />
       <HomeMotion />
       <HeroSection />
       <AboutSection secondaryImage={firstListingImage ?? null} />

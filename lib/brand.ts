@@ -61,6 +61,11 @@ export const BRAND = {
       "https://images.unsplash.com/photo-1646928229117-08e84cde1692?auto=format&fit=crop&w=2000&q=80",
   },
 
+  // The homepage's opening screen, held until the page has loaded.
+  intro: {
+    caption: "Menyiapkan koleksi",
+  },
+
   // Full-bleed quote band between the process and the collection.
   manifesto: {
     quote: "Properti terbaik tidak dijual dengan tergesa. Ia ditemukan, diperiksa, lalu dipilih dengan tenang.",

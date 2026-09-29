@@ -45,9 +45,12 @@ export const metadata: Metadata = {
   description: BRAND.description,
 }
 
+// suppressHydrationWarning: IntroLoader's parse-time script adds intro-* classes
+// to <html> before React hydrates, so its className differs from the server's
+// on purpose. It only silences that one element's own attributes.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${archivo.variable} ${cormorant.variable} ${pinyon.variable} ${inter.variable}`}>
+    <html lang="id" suppressHydrationWarning className={`${archivo.variable} ${cormorant.variable} ${pinyon.variable} ${inter.variable}`}>
       <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <Providers>
           <Navbar />
