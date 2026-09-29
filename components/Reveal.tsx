@@ -18,14 +18,18 @@ interface RevealProps {
   effect?: RevealEffect
 }
 
+// Transitions name translate and opacity only (Tailwind v4 moves with the
+// `translate` property, not `transform`). `transition-all` also watched
+// every other property the wrapper's children could change, and measured as a
+// real cost while the homepage scrolls.
 const EFFECTS: Record<RevealEffect, { base: string; hidden: string; shown: string }> = {
   rise: {
-    base: "transition-all duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+    base: "transition-[translate,opacity] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
     hidden: "translate-y-3 opacity-0",
     shown: "translate-y-0 opacity-100",
   },
   drift: {
-    base: "transition-all duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+    base: "transition-[translate,opacity] duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
     hidden: "translate-y-8 opacity-0",
     shown: "translate-y-0 opacity-100",
   },

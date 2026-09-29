@@ -5,6 +5,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SplitText } from "gsap/SplitText"
 import Lenis from "lenis"
+import { useEffect } from "react"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText)
 
@@ -28,8 +29,7 @@ const PARALLAX_TRAVEL = 8
  *   data-hero-dim     darkens the hero as the next section covers it
  *   data-expand       a full-bleed photograph opens out from a window
  *   data-parallax     an image drifts inside its frame
- *   data-split        a heading's letters flip in one after another;
- *                     data-split="words" moves whole words, for long lines
+ *   data-split        a heading's words rise in one after another
  *   data-footer-clip  the last section shrinks into a card as the footer
  *                     ([data-footer]) rises, and the footer's
  *                     [data-footer-content] grows in behind it
@@ -42,13 +42,33 @@ const PARALLAX_TRAVEL = 8
  * native scrolling. Visitors who prefer reduced motion get none of it.
  */
 export default function HomeMotion() {
+  // Every photograph below the hero is lazy, so each one used to be fetched
+  // and decoded only as it scrolled into view, and popped in mid-glide. Once
+  // the page has loaded, the rest are fetched and decoded while the visitor
+  // is still on the hero; the hero's own image keeps first claim on the
+  // network either way.
+  useEffect(() => {
+    const warm = () => {
+      document.querySelectorAll<HTMLImageElement>('main img[loading="lazy"]').forEach((img) => {
+        img.loading = "eager"
+        img.decode().catch(() => {})
+      })
+    }
+    const schedule = () =>
+      "requestIdleCallback" in window ? requestIdleCallback(warm, { timeout: 2000 }) : setTimeout(warm, 200)
+    if (document.readyState === "complete") schedule()
+    else window.addEventListener("load", schedule, { once: true })
+    return () => window.removeEventListener("load", schedule)
+  }, [])
+
   useGSAP(() => {
     const mm = gsap.matchMedia()
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       // The navbar is 64px tall; anchor jumps land below it.
-      // A little below Lenis's default lerp (0.1): a longer glide.
-      const lenis = new Lenis({ autoRaf: false, lerp: 0.08, anchors: { offset: -64 } })
+      // Lenis's default lerp. 0.08 gave a longer glide, but the page kept
+      // moving after the wheel stopped and read as lag.
+      const lenis = new Lenis({ autoRaf: false, lerp: 0.1, anchors: { offset: -64 } })
       lenis.on("scroll", ScrollTrigger.update)
       const tick = (time: number) => lenis.raf(time * 1000)
       gsap.ticker.add(tick)
@@ -132,24 +152,31 @@ export default function HomeMotion() {
         )
       })
 
-      // Split into words and letters only, never lines, so the wrap is the
-      // browser's own and a late font needs no re-split. Once a heading has
-      // played it goes back to plain text, rather than keeping a node per
-      // letter on the page for good.
+      // Split into words, never lines, so the wrap is the browser's own and a
+      // late font needs no re-split. Once a heading has played it goes back to
+      // plain text.
+      //
+      // Words, not letters, and flat. Scrolling the page with the CPU slowed
+      // 4x measured 45 fps with letters flipping in 3D, 46 with letters rising
+      // flat, and 50–51 with words — the same as with no split at all. fromTo with
+      // explicit start values renders the hidden state here, while the page
+      // loads, so nothing is read back from the DOM when a heading arrives.
       gsap.utils.toArray<HTMLElement>("[data-split]").forEach((heading) => {
-        const byWord = heading.dataset.split === "words"
-        const split = SplitText.create(heading, { type: byWord ? "words" : "words,chars" })
-        gsap.from(byWord ? split.words : split.chars, {
-          yPercent: 60,
-          rotationY: 90,
-          autoAlpha: 0,
-          transformPerspective: 600,
-          duration: 1,
-          ease: "power3.out",
-          stagger: byWord ? 0.07 : 0.026,
-          scrollTrigger: { trigger: heading, start: "top 88%", once: true },
-          onComplete: () => split.revert(),
-        })
+        const split = SplitText.create(heading, { type: "words" })
+        gsap.fromTo(
+          split.words,
+          { yPercent: 60, autoAlpha: 0 },
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 1,
+            ease: "power3.out",
+            stagger: 0.07,
+            immediateRender: true,
+            scrollTrigger: { trigger: heading, start: "top 88%", once: true },
+            onComplete: () => split.revert(),
+          },
+        )
       })
 
       return () => {

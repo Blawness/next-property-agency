@@ -91,7 +91,7 @@ Scroll motion on `/` is `components/HomeMotion.tsx`: Lenis smooth scrolling
 plus GSAP ScrollTrigger, mounted by the homepage alone so the catalogue, map
 and admin keep native scrolling. Sections stay server components and opt in
 with data attributes — `data-parallax` (an image layer drifting in a frame
-that clips), `data-split` (letters flip in; `="words"` for long lines),
+that clips), `data-split` (a heading's words rise in, one after another),
 `data-hero-zoom` / `-drift` / `-fade` / `-dim`, `data-expand` (a photograph
 opening out from a window to full bleed), and `data-footer-clip` (the last
 section, clipped into a card as the footer rises). Keep new effects to
@@ -102,6 +102,17 @@ background) slide over the last screen of it like a curtain;
 `useOverHero` subtracts that margin so the navbar turns solid when About
 reaches it. Under `prefers-reduced-motion` the hero is one screen, nothing
 overlaps, and HomeMotion does nothing.
+
+Scroll smoothness was measured, not guessed: a Playwright wheel-scroll down
+`/` with the CPU slowed 4x, counting frame times. Three findings to keep:
+per-letter SplitText (each letter its own layer) was the costliest effect,
+so headings split by word; `transition-all` on `Reveal` cost frames, so it
+names `translate` and `opacity` (Tailwind v4's `translate-y-*` sets the
+`translate` property, not `transform`); and toggling `pointer-events` on
+`body` while Lenis scrolls — the usual "no hover while scrolling" trick —
+restyles the whole page on every start and stop, costing 150–250 ms frames,
+so it is deliberately absent. HomeMotion also fetches and decodes the lazy
+photographs once the page has loaded, so none pops in mid-scroll.
 The contact section sits on a `bg-accent` wrapper so the card shrinks onto the
 footer's colour; whatever becomes the last homepage section needs the same.
 
