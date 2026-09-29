@@ -5,7 +5,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SplitText } from "gsap/SplitText"
 import Lenis from "lenis"
-import { INTRO_DONE_EVENT } from "@/components/IntroLoader"
+import { INTRO_DONE_EVENT, INTRO_PREPARE_EVENT } from "@/components/IntroLoader"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText)
 
@@ -57,14 +57,14 @@ export default function HomeMotion() {
       gsap.ticker.lagSmoothing(0)
 
       // Held still while IntroLoader covers the page; the wheel would
-      // otherwise scroll the page behind the curtain. Once it lifts, triggers
-      // are measured again, since fonts and photographs have settled by then.
-      const release = () => {
-        lenis.start()
-        ScrollTrigger.refresh()
-      }
+      // otherwise scroll the page behind the curtain. Triggers are measured
+      // again behind the curtain, once fonts and photographs have settled —
+      // measuring as it lifted put a full relayout on the first scroll.
+      const prepare = () => ScrollTrigger.refresh()
+      const release = () => lenis.start()
       if (document.documentElement.classList.contains("intro-active")) {
         lenis.stop()
+        window.addEventListener(INTRO_PREPARE_EVENT, prepare, { once: true })
         window.addEventListener(INTRO_DONE_EVENT, release, { once: true })
       }
 
@@ -176,6 +176,7 @@ export default function HomeMotion() {
       })
 
       return () => {
+        window.removeEventListener(INTRO_PREPARE_EVENT, prepare)
         window.removeEventListener(INTRO_DONE_EVENT, release)
         gsap.ticker.remove(tick)
         gsap.ticker.lagSmoothing(500, 33)

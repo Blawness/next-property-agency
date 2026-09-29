@@ -279,10 +279,10 @@ html.intro-skip #intro {
   display: none;
 }
 
-/* The hero's entrance waits behind the curtain, then plays as it lifts.
-   Keyed to intro-active rather than to the lack of intro-done, so a visitor
-   without JavaScript (who never gets either class) still sees the hero. */
-html.intro-active :is(
+/* The hero's entrance waits behind the curtain, then plays as it lifts
+   (intro-lifting). Keyed to intro-active rather than to the lack of
+   intro-done, so a visitor without JavaScript still sees the hero. */
+html.intro-active:not(.intro-lifting) :is(
     .hero-animate-badge,
     .hero-animate-h1,
     .hero-animate-sub,

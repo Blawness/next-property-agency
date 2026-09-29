@@ -128,12 +128,18 @@ triggered once 15% was on screen (the page outran its own content; now
 and the card buttons, recomposited every frame over moving photographs on
 integrated GPUs, and barely visible behind a 95% opaque background.
 `/` opens on `components/IntroLoader.tsx`: a `bg-accent` curtain with the
-wordmark and a real percentage (photographs loaded, plus fonts), held until
-the window `load` event — at least 1.2s, at most 6s — then lifted like the
-curtains elsewhere on the page. A parse-time inline script sets
-`intro-active` on `<html>` before first paint (scroll locked, hero entrance
-animations paused in CSS; HomeMotion keeps Lenis stopped until
-`intro:done`), and `intro-skip` on a second visit in the same session, so it
+wordmark and a real percentage, held until the page can scroll smoothly —
+at least 1.2s, at most 6s — then lifted like the curtains elsewhere on the
+page. Lifting on the `load` event alone read as lag, because decoding,
+hydration and ScrollTrigger's measuring then landed on the first scroll; so
+it waits for `load`, then decodes every photograph, fires `intro:prepare`
+(HomeMotion runs `ScrollTrigger.refresh()` behind the curtain), then waits
+for twelve calm frames in a row. The hero's entrance plays as it lifts
+(`intro-lifting`); scrolling and Lenis stay held until it has gone
+(`intro:done`), so a scroll never competes with the lift. A parse-time inline
+script sets `intro-active` on `<html>` before first paint (scroll locked,
+hero entrance paused in CSS), and `intro-skip` on a second visit in the same
+session, so it
 never replays or flashes. That script also releases everything after 8s
 whatever happens, and the curtain fades itself out in CSS at 8s, so a failed
 JavaScript bundle can never leave a visitor stuck behind it. `<html>` carries
@@ -154,8 +160,9 @@ brand string in a component.
 
 The logo is a **placeholder** until the agency's own arrives: `BrandMark`
 sets `BRAND.logo.monogram` in a terracotta square beside
-`BRAND.logo.wordmark`, and `app/icon.svg` draws the same square (the PNGs in
-`app/apple-icon.png` and `public/` are rendered from it). The real logo
+`BRAND.logo.wordmark`, and `app/icon.svg` draws the same square
+(`app/favicon.ico` — 16/32/48px — `app/apple-icon.png` and the PNGs in
+`public/` are rendered from it). The real logo
 replaces `BrandMark`'s contents and those icon files; the pages that render
 `BrandMark` need no change.
 

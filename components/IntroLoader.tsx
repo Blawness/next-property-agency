@@ -11,8 +11,15 @@ export const INTRO_MAX_MS = 6000
 const EXIT_MS = 1000
 /** Set once the intro has played, so a return to `/` this session skips it. */
 export const INTRO_SEEN_KEY = "trihuni:intro-seen"
-/** Fired on window when the page underneath is uncovered. */
+/** Fired on window once the curtain has gone and scrolling is released. */
 export const INTRO_DONE_EVENT = "intro:done"
+/** Fired while the curtain still covers the page, once every photograph is
+ *  decoded: the moment for work that would otherwise land on the first scroll. */
+export const INTRO_PREPARE_EVENT = "intro:prepare"
+/** The main thread counts as quiet after this many frames in a row... */
+const SETTLE_FRAMES = 12
+/** ...each shorter than this (a 60 Hz frame is 16.7 ms). */
+const SETTLE_FRAME_MS = 25
 
 // useLayoutEffect warns during SSR; this component only needs it in the browser.
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect
@@ -36,15 +43,16 @@ const PARSE_TIME_SCRIPT = `(function(){var d=document.documentElement;try{if(ses
 type Phase = "loading" | "leaving" | "gone"
 
 /**
- * The homepage's opening screen. It holds the visitor on the brand while the
- * hero photograph, the fonts and the rest of the page's photographs load —
- * the window `load` event, since every homepage photograph is eager — then
- * lifts like a curtain onto the hero, whose entrance animations wait for it
- * (`html:not(.intro-done)` in globals.css). HomeMotion keeps Lenis stopped
- * until INTRO_DONE_EVENT.
+ * The homepage's opening screen. It holds the visitor on the brand until the
+ * page is ready to scroll smoothly — photographs downloaded and decoded,
+ * fonts in, scroll triggers measured, main thread quiet (see the stages
+ * below) — then lifts like a curtain onto the hero. The hero's entrance
+ * animations wait for the lift (`intro-active` without `intro-lifting` in
+ * globals.css); scrolling, and Lenis in HomeMotion, wait until the curtain
+ * has gone (INTRO_DONE_EVENT).
  *
- * The percentage is real: photographs loaded out of those on the page, with
- * the fonts as one more step.
+ * The percentage is real: up to 80 for photographs and fonts, 90 once every
+ * photograph is decoded, the rest as the main thread settles.
  */
 export default function IntroLoader() {
   const [phase, setPhase] = useState<Phase>("loading")
@@ -72,51 +80,76 @@ export default function IntroLoader() {
     }
   }, [])
 
+  // Lifting on the `load` event alone was not enough: a downloaded photograph
+  // still has to be decoded, React may still be hydrating, and the scroll
+  // triggers had not been measured, so all of that landed on the first scroll
+  // and read as lag. The curtain therefore waits through three stages:
+  //   loading   photographs downloaded, fonts ready, window `load`
+  //   decoding  every photograph decoded (img.decode), then INTRO_PREPARE_EVENT
+  //             so HomeMotion measures its triggers behind the curtain
+  //   settling  SETTLE_FRAMES frames in a row under SETTLE_FRAME_MS — the main
+  //             thread has gone quiet — before it lifts
   useEffect(() => {
     if (phase !== "loading") return
     const started = performance.now()
     let fontsReady = false
     let loaded = document.readyState === "complete"
+    let stage: "loading" | "decoding" | "settling" = "loading"
+    let calm = 0
+    let lastFrame = started
     let target = 0
     let raf = 0
     let finished = false
 
+    const images = () => [...document.querySelectorAll<HTMLImageElement>("main img")]
+
     const measure = () => {
-      const images = [...document.querySelectorAll<HTMLImageElement>("main img")]
-      const done = images.filter((img) => img.complete).length
-      const steps = images.length + 1
-      target = Math.round(((done + (fontsReady ? 1 : 0)) / steps) * 100)
-      if (loaded) target = 100
+      if (stage === "loading") {
+        const all = images()
+        const done = all.filter((img) => img.complete).length
+        target = Math.round(((done + (fontsReady ? 1 : 0)) / (all.length + 1)) * 80)
+        if (loaded && fontsReady && done === all.length) {
+          target = 80
+          stage = "decoding"
+          Promise.all(all.map((img) => img.decode?.().catch(() => {})))
+            .catch(() => {})
+            .then(() => {
+              window.dispatchEvent(new Event(INTRO_PREPARE_EVENT))
+              calm = 0
+              stage = "settling"
+            })
+        }
+      } else if (stage === "settling") {
+        target = 90 + Math.round((Math.min(calm, SETTLE_FRAMES) / SETTLE_FRAMES) * 10)
+      }
     }
 
     // The counter eases towards the measured value rather than jumping.
-    const tick = () => {
+    const tick = (now: number) => {
+      const frame = now - lastFrame
+      lastFrame = now
+      calm = frame < SETTLE_FRAME_MS ? calm + 1 : 0
       measure()
       const next = shown.current + (target - shown.current) * 0.12
       shown.current = target - next < 0.5 ? target : next
       const value = Math.floor(shown.current)
       if (counter.current) counter.current.textContent = String(value).padStart(2, "0")
       if (bar.current) bar.current.style.transform = `scaleX(${shown.current / 100})`
-      const elapsed = performance.now() - started
-      const ready = (loaded && fontsReady && shown.current >= 100 && elapsed >= INTRO_MIN_MS) || elapsed >= INTRO_MAX_MS
-      if (ready && !finished) {
+      const elapsed = now - started
+      const settled = stage === "settling" && calm >= SETTLE_FRAMES && elapsed >= INTRO_MIN_MS
+      if ((settled || elapsed >= INTRO_MAX_MS) && !finished) {
         finished = true
+        if (stage !== "settling") window.dispatchEvent(new Event(INTRO_PREPARE_EVENT))
+        if (counter.current) counter.current.textContent = "100"
+        if (bar.current) bar.current.style.transform = "scaleX(1)"
         setProgress(100)
-        finish()
+        // The hero's entrance plays as the curtain rises; scrolling stays
+        // locked until it has gone, so a scroll never competes with the lift.
+        document.documentElement.classList.add("intro-lifting")
+        setPhase("leaving")
         return
       }
       raf = requestAnimationFrame(tick)
-    }
-
-    const finish = () => {
-      const root = document.documentElement
-      root.classList.remove("intro-active")
-      root.classList.add("intro-done")
-      try {
-        sessionStorage.setItem(INTRO_SEEN_KEY, "1")
-      } catch {}
-      window.dispatchEvent(new Event(INTRO_DONE_EVENT))
-      setPhase("leaving")
     }
 
     const onLoad = () => {
@@ -139,7 +172,16 @@ export default function IntroLoader() {
 
   useEffect(() => {
     if (phase !== "leaving") return
-    const t = setTimeout(() => setPhase("gone"), EXIT_MS)
+    const t = setTimeout(() => {
+      const root = document.documentElement
+      root.classList.remove("intro-active", "intro-lifting")
+      root.classList.add("intro-done")
+      try {
+        sessionStorage.setItem(INTRO_SEEN_KEY, "1")
+      } catch {}
+      window.dispatchEvent(new Event(INTRO_DONE_EVENT))
+      setPhase("gone")
+    }, EXIT_MS)
     return () => clearTimeout(t)
   }, [phase])
 
