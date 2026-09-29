@@ -34,11 +34,9 @@ export function listingSpecs(property: PropertyWithImages): string {
 export default function HomeListingCard({
   property,
   initialFavorited = false,
-  priority = false,
 }: {
   property: PropertyWithImages
   initialFavorited?: boolean
-  priority?: boolean
 }) {
   const image = property.images.find((i) => i.isPrimary) ?? property.images[0]
   const price = formatPriceCompactValue(property.price, property.listingType)
@@ -62,7 +60,7 @@ export default function HomeListingCard({
                 src={image.url}
                 alt={property.title}
                 fill
-                priority={priority}
+                loading="eager"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.05]"
               />

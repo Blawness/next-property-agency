@@ -65,6 +65,7 @@ export default async function PopularCities() {
                     src={city.image}
                     alt={city.name}
                     fill
+                    loading="eager"
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.06]"
                   />

@@ -111,8 +111,10 @@ names `translate` and `opacity` (Tailwind v4's `translate-y-*` sets the
 `translate` property, not `transform`); and toggling `pointer-events` on
 `body` while Lenis scrolls — the usual "no hover while scrolling" trick —
 restyles the whole page on every start and stop, costing 150–250 ms frames,
-so it is deliberately absent. HomeMotion also fetches and decodes the lazy
-photographs once the page has loaded, so none pops in mid-scroll.
+so it is deliberately absent. Every homepage photograph is `loading="eager"`
+(they sit in homepage-only components): lazy ones were still downloading when
+a first-time visitor began to scroll, and popped in mid-glide. The hero keeps
+`priority`, so it still wins the network.
 The contact section sits on a `bg-accent` wrapper so the card shrinks onto the
 footer's colour; whatever becomes the last homepage section needs the same.
 

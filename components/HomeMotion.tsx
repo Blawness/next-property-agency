@@ -5,7 +5,6 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { SplitText } from "gsap/SplitText"
 import Lenis from "lenis"
-import { useEffect } from "react"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText)
 
@@ -42,25 +41,6 @@ const PARALLAX_TRAVEL = 8
  * native scrolling. Visitors who prefer reduced motion get none of it.
  */
 export default function HomeMotion() {
-  // Every photograph below the hero is lazy, so each one used to be fetched
-  // and decoded only as it scrolled into view, and popped in mid-glide. Once
-  // the page has loaded, the rest are fetched and decoded while the visitor
-  // is still on the hero; the hero's own image keeps first claim on the
-  // network either way.
-  useEffect(() => {
-    const warm = () => {
-      document.querySelectorAll<HTMLImageElement>('main img[loading="lazy"]').forEach((img) => {
-        img.loading = "eager"
-        img.decode().catch(() => {})
-      })
-    }
-    const schedule = () =>
-      "requestIdleCallback" in window ? requestIdleCallback(warm, { timeout: 2000 }) : setTimeout(warm, 200)
-    if (document.readyState === "complete") schedule()
-    else window.addEventListener("load", schedule, { once: true })
-    return () => window.removeEventListener("load", schedule)
-  }, [])
-
   useGSAP(() => {
     const mm = gsap.matchMedia()
 
