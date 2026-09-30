@@ -29,7 +29,7 @@ export default function BrandMark({ size = "md", className, inverted = false }: 
       <span
         aria-hidden
         className={cn(
-          "inline-flex shrink-0 items-center justify-center rounded-sm font-heading font-extrabold leading-none",
+          "inline-flex shrink-0 items-center justify-center rounded-sm font-heading font-bold leading-none",
           inverted ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground",
         )}
         style={{ width: s.box, height: s.box, fontSize: s.monogram }}
@@ -38,7 +38,7 @@ export default function BrandMark({ size = "md", className, inverted = false }: 
       </span>
       <span
         className={cn(
-          "font-extrabold leading-none tracking-tight",
+          "font-bold leading-none tracking-tight",
           inverted ? "text-primary-foreground" : "text-foreground",
         )}
         style={{ fontSize: s.wordmark }}

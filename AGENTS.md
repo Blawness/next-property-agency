@@ -72,8 +72,10 @@ those names: `--primary` is terracotta and drives calls to action, `--accent` is
 deep brown and carries every dark surface (footer, hero, admin sidebar,
 calculator result), `--gold` is highlight only. `--radius` is `0.25rem`.
 
-Typography is Archivo for headings (`font-heading`, `font-display`) over Inter
-for body (`font-sans`), wired up in `app/layout.tsx`.
+Typography is Plus Jakarta Sans throughout (`font-sans`, `font-heading`,
+`font-display` all resolve to it), wired up in `app/layout.tsx` at weights
+400–700 — nothing lighter, nothing heavier, so don't reach for `font-light` or
+`font-extrabold` on sans text.
 The homepage alone adds Cormorant Garamond (`font-serif`) for its display
 lines, Pinyon Script (`font-script`, not preloaded) for the single accent word
 under the hero headline, and `--ivory` for its alternating bands — the landing reads as a

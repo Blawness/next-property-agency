@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Archivo, Cormorant_Garamond, Inter, Pinyon_Script } from "next/font/google"
+import { Cormorant_Garamond, Pinyon_Script, Plus_Jakarta_Sans } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import Navbar from "@/components/Navbar"
@@ -7,12 +7,13 @@ import ConditionalFooter from "@/components/ConditionalFooter"
 import Providers from "@/components/Providers"
 import { BRAND } from "@/lib/brand"
 
-// Archivo carries the headings — a grotesk with enough weight at 700/800 to
-// hold the editorial layout together. Inter stays out of the way in body copy.
-const archivo = Archivo({
+// Plus Jakarta Sans carries both headings and body copy: 400/500 for text and
+// UI, 600 for buttons and card titles, 700 for headings. Nothing lighter than
+// 400 — its thin weights turn brittle at small sizes on cheap phone screens.
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-  variable: "--font-archivo",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jakarta",
 })
 
 // Cormorant carries the homepage's display lines — a high-contrast serif set
@@ -34,12 +35,6 @@ const pinyon = Pinyon_Script({
   preload: false,
 })
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-inter",
-})
-
 export const metadata: Metadata = {
   title: BRAND.pageTitle.home,
   description: BRAND.description,
@@ -50,7 +45,7 @@ export const metadata: Metadata = {
 // on purpose. It only silences that one element's own attributes.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning className={`${archivo.variable} ${cormorant.variable} ${pinyon.variable} ${inter.variable}`}>
+    <html lang="id" suppressHydrationWarning className={`${jakarta.variable} ${cormorant.variable} ${pinyon.variable}`}>
       <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <Providers>
           <Navbar />
