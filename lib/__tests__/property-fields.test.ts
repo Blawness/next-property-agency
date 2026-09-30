@@ -1,4 +1,42 @@
-import { priceField, latField, lngField } from "@/lib/property-fields"
+import { z } from "zod"
+import {
+  priceField,
+  countField,
+  latField,
+  lngField,
+  roomsFor,
+  validationErrorMessage,
+} from "@/lib/property-fields"
+
+describe("countField", () => {
+  it("accepts blank and whole numbers from zero up", () => {
+    for (const ok of ["", "0", "3", " 120 "]) expect(countField.safeParse(ok).success).toBe(true)
+  })
+
+  it("rejects negatives, decimals and text", () => {
+    for (const bad of ["-3", "2.5", "tiga"]) expect(countField.safeParse(bad).success).toBe(false)
+  })
+})
+
+describe("roomsFor", () => {
+  it("drops rooms for tanah and keeps them for everything else", () => {
+    expect(roomsFor("tanah", 3)).toBeNull()
+    expect(roomsFor("rumah", 3)).toBe(3)
+    expect(roomsFor(undefined, 2)).toBe(2)
+  })
+})
+
+describe("validationErrorMessage", () => {
+  it("names the first field's problem instead of a bare 'Validasi gagal'", () => {
+    const result = z.object({ price: priceField }).safeParse({ price: "abc" })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(validationErrorMessage(result.error)).toBe(
+        "Validasi gagal: Harga harus angka bulat tanpa titik atau koma",
+      )
+    }
+  })
+})
 
 describe("priceField", () => {
   it("accepts whole rupiah", () => {

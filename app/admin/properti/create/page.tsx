@@ -16,8 +16,7 @@ export default function CreatePropertyPage() {
   const { agents } = useAgents()
 
   const wrappedSubmit = async (e: React.FormEvent) => {
-    await handleSubmit(e)
-    if (!error) {
+    if (await handleSubmit(e)) {
       toast.success("Properti berhasil ditambahkan")
     }
   }

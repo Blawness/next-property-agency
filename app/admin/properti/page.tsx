@@ -54,7 +54,8 @@ export default function AdminPropertiesPage() {
   const searchParamsHook = useSearchParams()
   const router = useRouter()
 
-  const page = parseInt(searchParamsHook.get("page") ?? "1", 10)
+  const rawPage = parseInt(searchParamsHook.get("page") ?? "1", 10)
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1
   const search = searchParamsHook.get("search") ?? ""
   const statusFilter = searchParamsHook.get("status") ?? ""
   const typeFilter = searchParamsHook.get("type") ?? ""
@@ -87,13 +88,19 @@ export default function AdminPropertiesPage() {
     if (typeFilter) params.set("type", typeFilter)
 
     fetch(`/api/properties?${params}`)
-      .then((r) => r.json())
+      .then(async (r) => {
+        const data = await r.json().catch(() => ({}))
+        // A 403 or 500 used to fall through as "no items" and show
+        // "Belum ada properti" instead of the error screen.
+        if (!r.ok) throw new Error(data.error ?? `Gagal memuat (${r.status})`)
+        return data
+      })
       .then((data) => {
         setItems(data.items ?? [])
         setTotal(data.total ?? 0)
         setSelectedIds(new Set())
       })
-      .catch((err) => { setError(err.message); setLoading(false) })
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [page, search, statusFilter, typeFilter])
 
@@ -102,6 +109,25 @@ export default function AdminPropertiesPage() {
     fetchProperties()
   }, [fetchProperties])
 
+  // Back/forward changes `search` in the URL without touching the input.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSearchInput(search)
+  }, [search])
+
+  const totalPages = Math.ceil(total / limit)
+
+  // Deleting every row on the last page leaves the admin on a page that no
+  // longer exists, with no pagination to leave it by. Step back to the last
+  // page that does.
+  useEffect(() => {
+    if (!loading && items.length === 0 && total > 0 && page > totalPages) {
+      const params = new URLSearchParams(searchParamsHook.toString())
+      params.set("page", String(Math.max(totalPages, 1)))
+      router.replace(`/admin/properti?${params.toString()}`)
+    }
+  }, [loading, items.length, total, page, totalPages, searchParamsHook, router])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     updateFilters({ search: searchInput, page: "1" })
@@ -109,9 +135,16 @@ export default function AdminPropertiesPage() {
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Hapus "${title}"?`)) return
-    await fetch(`/api/properties/${id}`, { method: "DELETE" })
-    toast.success("Properti dihapus")
-    fetchProperties()
+    try {
+      const res = await fetch(`/api/properties/${id}`, { method: "DELETE" })
+      // The response was never read, so a 403 or 500 still said "dihapus".
+      if (!res.ok) throw new Error()
+      toast.success("Properti dihapus")
+    } catch {
+      toast.error("Gagal menghapus properti")
+    } finally {
+      fetchProperties()
+    }
   }
 
   const toggleSelect = (id: string) => {
@@ -170,8 +203,6 @@ export default function AdminPropertiesPage() {
       setBusy(false)
     }
   }
-
-  const totalPages = Math.ceil(total / limit)
 
   if (error) {
     return (
@@ -276,7 +307,7 @@ export default function AdminPropertiesPage() {
                           type="checkbox"
                           checked={items.length > 0 && selectedIds.size === items.length}
                           onChange={toggleSelectAll}
-                          className="size-4 rounded border-border accent-brown-500 cursor-pointer"
+                          className="size-4 rounded border-border accent-primary cursor-pointer"
                         />
                       </th>
                       <th className="text-left p-3 font-medium w-14"></th>
@@ -296,7 +327,7 @@ export default function AdminPropertiesPage() {
                             type="checkbox"
                             checked={selectedIds.has(item.id)}
                             onChange={() => toggleSelect(item.id)}
-                            className="size-4 rounded border-border accent-brown-500 cursor-pointer"
+                            className="size-4 rounded border-border accent-primary cursor-pointer"
                           />
                         </td>
                         <td className="p-3">
@@ -362,7 +393,7 @@ export default function AdminPropertiesPage() {
                       type="checkbox"
                       checked={selectedIds.has(item.id)}
                       onChange={() => toggleSelect(item.id)}
-                      className="size-4 mt-1 rounded border-border accent-brown-500 cursor-pointer shrink-0"
+                      className="size-4 mt-1 rounded border-border accent-primary cursor-pointer shrink-0"
                     />
                     <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
                       {item.primaryImageUrl ? (

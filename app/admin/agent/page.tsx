@@ -365,7 +365,7 @@ export default function AdminAgentsPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed rounded-lg text-center transition-colors hover:border-brown-300 hover:bg-brown-50/30">
+                  <div className="border-2 border-dashed rounded-lg text-center transition-colors hover:border-primary/50 hover:bg-primary/5">
                     <div className="p-2">
                       <UploadButton<OurFileRouter, "profileImage">
                         endpoint="profileImage"

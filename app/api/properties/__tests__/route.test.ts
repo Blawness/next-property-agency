@@ -62,7 +62,8 @@ describe('POST /api/properties', () => {
     const res = await POST(makeReq('http://localhost/api/properties', { title: '' }) as any)
     expect(res.status).toBe(400)
     const body = await res.json()
-    expect(body.error).toBe('Validasi gagal')
+    // Names the field, so the admin form can say what to fix.
+    expect(body.error).toBe('Validasi gagal: Judul wajib diisi')
   })
 
   it('returns 201 on valid payload (skipped: route returns 200 with id)', async () => {

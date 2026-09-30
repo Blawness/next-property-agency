@@ -37,14 +37,17 @@ export default function ImageManager({ imageUrls, setImageUrls, onError }: Image
                 className="object-cover"
               />
               {i === 0 && (
-                <span className="absolute top-1.5 left-1.5 bg-brown-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                <span className="absolute top-1.5 left-1.5 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                   Utama
                 </span>
               )}
               <button
                 type="button"
                 onClick={() => removeImage(i)}
-                className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all"
+                aria-label={`Hapus foto ${i + 1}`}
+                // Hover-only hid it on touch screens, where there is no hover,
+                // and from keyboard users; it stays visible below `sm`.
+                className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-destructive text-white rounded-full p-1 transition-all sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
               >
                 <X size={12} />
               </button>
@@ -52,8 +55,8 @@ export default function ImageManager({ imageUrls, setImageUrls, onError }: Image
           ))}
           {/* Uploading placeholders */}
           {uploading && Array.from({ length: uploadingCount }).map((_, i) => (
-            <div key={`loading-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-brown-50 border-2 border-brown-200 flex items-center justify-center">
-              <Loader2 size={20} className="animate-spin text-brown-500" />
+            <div key={`loading-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+              <Loader2 size={20} className="animate-spin text-primary" />
             </div>
           ))}
         </div>
@@ -61,14 +64,14 @@ export default function ImageManager({ imageUrls, setImageUrls, onError }: Image
 
       <div className={`border-2 border-dashed rounded-lg text-center transition-colors ${
         uploading
-          ? "border-brown-300 bg-brown-50/50"
-          : "border-border hover:border-brown-300 hover:bg-brown-50/30"
+          ? "border-primary/50 bg-primary/5"
+          : "border-border hover:border-primary/50 hover:bg-primary/5"
       }`}>
         {uploading ? (
           <div className="p-6 flex flex-col items-center gap-2">
-            <Loader2 size={24} className="animate-spin text-brown-500" />
-            <p className="text-sm font-medium text-brown-700">Mengupload...</p>
-            <p className="text-xs text-brown-600/70">Jangan tutup halaman ini</p>
+            <Loader2 size={24} className="animate-spin text-primary" />
+            <p className="text-sm font-medium text-primary">Mengupload...</p>
+            <p className="text-xs text-primary/70">Jangan tutup halaman ini</p>
           </div>
         ) : (
           <div className="p-6">
@@ -93,7 +96,7 @@ export default function ImageManager({ imageUrls, setImageUrls, onError }: Image
               className="uploadthing-button"
               appearance={{
                 button:
-                  "bg-brown-500 hover:bg-brown-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ut-ready:bg-brown-500 ut-uploading:bg-brown-400 ut-uploading:cursor-not-allowed",
+                  "bg-primary hover:bg-primary/90 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ut-ready:bg-primary ut-uploading:bg-primary/70 ut-uploading:cursor-not-allowed",
                 container: "",
                 allowedContent: "text-muted-foreground text-xs",
               }}

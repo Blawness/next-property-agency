@@ -26,6 +26,7 @@ export default function EditPropertyPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+  const [loadError, setLoadError] = useState("")
   const [imageUrls, setImageUrls] = useState<string[]>([])
   const { agents } = useAgents()
 
@@ -49,7 +50,12 @@ export default function EditPropertyPage() {
 
   useEffect(() => {
     fetch(`/api/properties/${id}`)
-      .then((r) => r.json())
+      .then((r) => {
+        // A 404 used to fill the form with blanks, as if editing a listing
+        // that did not exist were fine.
+        if (!r.ok) throw new Error(r.status === 404 ? "not-found" : "failed")
+        return r.json()
+      })
       .then((data) => {
         setFields({
           title: data.title ?? "",
@@ -70,7 +76,13 @@ export default function EditPropertyPage() {
         })
         setImageUrls(data.images?.map((img: { url: string }) => img.url) ?? [])
       })
-      .catch(() => setError("Gagal memuat data properti."))
+      .catch((err) =>
+        setLoadError(
+          err.message === "not-found"
+            ? "Properti tidak ditemukan atau sudah dihapus."
+            : "Gagal memuat data properti.",
+        ),
+      )
       .finally(() => setLoading(false))
   }, [id])
 
@@ -85,15 +97,22 @@ export default function EditPropertyPage() {
 
     const body: Record<string, string | string[] | null> = { ...fields, imageUrls }
 
-    const res = await fetch(`/api/properties/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
+    try {
+      const res = await fetch(`/api/properties/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
 
-    if (!res.ok) {
-      const data = await res.json()
-      setError(data.error ?? "Gagal menyimpan perubahan.")
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error ?? "Gagal menyimpan perubahan.")
+        setSaving(false)
+        return
+      }
+    } catch {
+      // A dropped connection used to leave the button stuck on "Menyimpan...".
+      setError("Gagal menyimpan perubahan. Periksa koneksi lalu coba lagi.")
       setSaving(false)
       return
     }
@@ -107,6 +126,20 @@ export default function EditPropertyPage() {
       <div className="space-y-4 max-w-2xl">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-96 w-full rounded-xl" />
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="space-y-4 max-w-2xl">
+        <h1 className="text-2xl font-bold">Edit Properti</h1>
+        <div className="text-center py-12 border rounded-xl">
+          <p className="text-destructive font-medium">{loadError}</p>
+          <Button variant="outline" className="mt-4" asChild>
+            <Link href="/admin/properti">Kembali ke daftar</Link>
+          </Button>
+        </div>
       </div>
     )
   }

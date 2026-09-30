@@ -3,10 +3,17 @@ import { db } from "@/db"
 import { properties, propertyImages, adminActions, profiles } from "@/db/schema"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { and, eq } from "drizzle-orm"
+import { and, eq, isNull } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 import { z } from "zod"
-import { priceField, latField, lngField } from "@/lib/property-fields"
+import {
+  priceField,
+  countField,
+  latField,
+  lngField,
+  roomsFor,
+  validationErrorMessage,
+} from "@/lib/property-fields"
 
 export async function GET(
   _req: NextRequest,
@@ -19,10 +26,13 @@ export async function GET(
     }
 
     const { id } = await params
+    // A deleted listing is gone from the admin table; opening its edit URL
+    // directly must not let it be edited back to "active" while it stays
+    // hidden from the public site by deletedAt.
     const [property] = await db
       .select()
       .from(properties)
-      .where(eq(properties.id, id))
+      .where(and(eq(properties.id, id), isNull(properties.deletedAt)))
       .limit(1)
 
     if (!property) {
@@ -62,10 +72,10 @@ const propertyUpdateSchema = z.object({
   address: z.string().optional(),
   lat: latField.optional(),
   lng: lngField.optional(),
-  landArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
-  buildingArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
-  bedrooms: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
-  bathrooms: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
+  landArea: countField.optional(),
+  buildingArea: countField.optional(),
+  bedrooms: countField.optional(),
+  bathrooms: countField.optional(),
   agentId: z.string().optional(),
   imageUrls: z.array(z.string().url()).optional(),
 })
@@ -92,12 +102,24 @@ export async function PATCH(
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Validasi gagal", details: parsed.error.flatten() },
+        { error: validationErrorMessage(parsed.error), details: parsed.error.flatten() },
         { status: 400 },
       )
     }
 
     const { imageUrls, ...fields } = parsed.data
+
+    // Without this an unknown or deleted id updated zero rows and still
+    // answered ok, so the form reported "Properti diperbarui" for nothing.
+    const [existing] = await db
+      .select({ type: properties.type })
+      .from(properties)
+      .where(and(eq(properties.id, id), isNull(properties.deletedAt)))
+      .limit(1)
+    if (!existing) {
+      return NextResponse.json({ error: "Properti tidak ditemukan" }, { status: 404 })
+    }
+    const effectiveType = fields.type ?? existing.type
 
     // An empty agentId clears the assignment; a non-empty one must name a real
     // profile with role='agent'.
@@ -125,9 +147,13 @@ export async function PATCH(
     if (fields.lng !== undefined) updateData.lng = fields.lng || null
     if (fields.landArea !== undefined) updateData.landArea = fields.landArea ? parseInt(fields.landArea, 10) : null
     if (fields.buildingArea !== undefined) updateData.buildingArea = fields.buildingArea ? parseInt(fields.buildingArea, 10) : null
-    if (fields.bedrooms !== undefined) updateData.bedrooms = fields.bedrooms ? parseInt(fields.bedrooms, 10) : null
-    if (fields.bathrooms !== undefined) updateData.bathrooms = fields.bathrooms ? parseInt(fields.bathrooms, 10) : null
     if (fields.agentId !== undefined) updateData.agentId = fields.agentId || null
+    if (fields.bedrooms !== undefined || effectiveType === "tanah") {
+      updateData.bedrooms = roomsFor(effectiveType, fields.bedrooms ? parseInt(fields.bedrooms, 10) : null)
+    }
+    if (fields.bathrooms !== undefined || effectiveType === "tanah") {
+      updateData.bathrooms = roomsFor(effectiveType, fields.bathrooms ? parseInt(fields.bathrooms, 10) : null)
+    }
 
     if (Object.keys(updateData).length > 0) {
       await db
@@ -178,7 +204,9 @@ export async function DELETE(
     const [updated] = await db
       .update(properties)
       .set({ deletedAt: now, status: "archived" })
-      .where(eq(properties.id, id))
+      // Deleting twice would overwrite the original deletion time and log a
+      // second delete in the activity log.
+      .where(and(eq(properties.id, id), isNull(properties.deletedAt)))
       .returning({ id: properties.id })
 
     if (!updated) {

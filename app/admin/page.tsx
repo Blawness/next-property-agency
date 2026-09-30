@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
     { label: "Total Properti", value: stats?.totalProperties ?? 0, icon: Building, color: "text-blue-600", bg: "bg-blue-50" },
     { label: "Properti Aktif", value: stats?.activeProperties ?? 0, icon: CheckCircle, color: "text-green-600", bg: "bg-green-50" },
     { label: "Agent", value: stats?.totalAgents ?? 0, icon: Users, color: "text-purple-600", bg: "bg-purple-50" },
-    { label: "Bulan Ini", value: stats?.propertiesThisMonth ?? 0, icon: Calendar, color: "text-brown-600", bg: "bg-brown-50" },
+    { label: "Bulan Ini", value: stats?.propertiesThisMonth ?? 0, icon: Calendar, color: "text-primary", bg: "bg-primary/10" },
   ]
 
   return (

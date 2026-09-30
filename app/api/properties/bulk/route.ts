@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { z } from "zod"
 import { db } from "@/db"
 import { properties, adminActions } from "@/db/schema"
-import { inArray } from "drizzle-orm"
+import { and, inArray, isNull } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
 const bulkSchema = z.object({
@@ -35,7 +35,9 @@ export async function PATCH(req: NextRequest) {
     const updated = await db
       .update(properties)
       .set({ status, updatedAt: new Date() })
-      .where(inArray(properties.id, ids))
+      // A deleted listing set back to "active" would read as live in the
+      // activity log while deletedAt keeps it off the site.
+      .where(and(inArray(properties.id, ids), isNull(properties.deletedAt)))
       .returning({ id: properties.id })
 
     if (updated.length > 0) {
@@ -80,7 +82,7 @@ export async function DELETE(req: NextRequest) {
     const updated = await db
       .update(properties)
       .set({ deletedAt: now, status: "archived" })
-      .where(inArray(properties.id, parsed.data.ids))
+      .where(and(inArray(properties.id, parsed.data.ids), isNull(properties.deletedAt)))
       .returning({ id: properties.id })
 
     if (updated.length > 0) {

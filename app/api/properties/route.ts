@@ -5,9 +5,16 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { PropertyStatus, PropertyType } from "@/lib/types"
 import { PROPERTY_TYPES, escapeLikePattern } from "@/lib/constants"
-import { priceField, latField, lngField } from "@/lib/property-fields"
+import {
+  priceField,
+  countField,
+  latField,
+  lngField,
+  roomsFor,
+  validationErrorMessage,
+} from "@/lib/property-fields"
 import { z } from "zod"
-import { eq, and, ilike, asc, or, count, inArray } from "drizzle-orm"
+import { eq, and, ilike, desc, or, count, inArray, isNull } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
 const PROPERTY_STATUSES = ["active", "sold", "rented", "archived"] as const
@@ -30,10 +37,10 @@ const propertySchema = z.object({
   address: z.string().optional(),
   lat: latField.optional(),
   lng: lngField.optional(),
-  landArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
-  buildingArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
-  bedrooms: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
-  bathrooms: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
+  landArea: countField.optional(),
+  buildingArea: countField.optional(),
+  bedrooms: countField.optional(),
+  bathrooms: countField.optional(),
   agentId: z.string().optional(),
   imageUrls: z.array(z.string().url()).optional(),
 })
@@ -79,7 +86,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Tipe properti tidak valid" }, { status: 400 })
     }
 
-    const conditions = []
+    // "Hapus" is a soft delete, so without this a deleted listing stayed in the
+    // admin table as "Diarsipkan" — it looked as if Hapus had done nothing.
+    const conditions = [isNull(properties.deletedAt)]
 
     if (status) conditions.push(eq(properties.status, status as PropertyStatus))
     if (type) conditions.push(eq(properties.type, type as PropertyType))
@@ -96,7 +105,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const where = conditions.length > 0 ? and(...conditions) : undefined
+    const where = and(...conditions)
 
     const [countResult] = await db
       .select({ count: count() })
@@ -109,7 +118,10 @@ export async function GET(req: NextRequest) {
       .select()
       .from(properties)
       .where(where)
-      .orderBy(asc(properties.createdAt))
+      // Newest first: oldest-first put a listing just created on the last
+      // page, out of sight of the admin who was redirected here to see it.
+      // The id keeps rows created together in a stable order across pages.
+      .orderBy(desc(properties.createdAt), desc(properties.id))
       .limit(limit)
       .offset((page - 1) * limit)
 
@@ -161,7 +173,7 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Validasi gagal", details: parsed.error.flatten() },
+        { error: validationErrorMessage(parsed.error), details: parsed.error.flatten() },
         { status: 400 },
       )
     }
@@ -187,8 +199,8 @@ export async function POST(req: NextRequest) {
         lng: fields.lng || null,
         landArea: fields.landArea ? parseInt(fields.landArea, 10) : null,
         buildingArea: fields.buildingArea ? parseInt(fields.buildingArea, 10) : null,
-        bedrooms: fields.bedrooms ? parseInt(fields.bedrooms, 10) : null,
-        bathrooms: fields.bathrooms ? parseInt(fields.bathrooms, 10) : null,
+        bedrooms: roomsFor(fields.type, fields.bedrooms ? parseInt(fields.bedrooms, 10) : null),
+        bathrooms: roomsFor(fields.type, fields.bathrooms ? parseInt(fields.bathrooms, 10) : null),
         agentId,
       })
       .returning()

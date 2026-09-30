@@ -26,9 +26,9 @@ function SidebarContent({
     <div className="flex flex-col h-full">
       <div className={`p-4 border-b flex items-center justify-between ${mobile ? "border-border/40" : ""}`}>
         <Link href="/admin" className="flex items-center gap-2" onClick={handleClose}>
-          <span className="w-2 h-2 rounded-full bg-brown-500" />
+          <span className="w-2 h-2 rounded-full bg-primary" />
           <span className="font-display font-bold text-lg italic">{BRAND.name}</span>
-          <span className="text-[10px] bg-brown-100 text-brown-700 px-1.5 py-0.5 rounded font-semibold ml-auto">
+          <span className="text-[10px] bg-primary/15 text-primary px-1.5 py-0.5 rounded font-semibold ml-auto">
             ADMIN
           </span>
         </Link>
@@ -48,7 +48,7 @@ function SidebarContent({
               onClick={handleClose}
               className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 active
-                  ? "bg-brown-50 text-brown-700"
+                  ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
@@ -107,7 +107,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           <Menu size={20} />
         </button>
         <Link href="/admin" className="flex items-center gap-2 ml-3 flex-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-brown-500" />
+          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
           <span className="font-display font-bold text-base italic">{BRAND.name}</span>
         </Link>
       </div>

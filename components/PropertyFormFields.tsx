@@ -79,6 +79,7 @@ export default function PropertyFormFields({ fields, setField, agents = [] }: Pr
         <Input
           id="price"
           type="number"
+          min={0}
           placeholder="500000000"
           value={fields.price}
           onChange={(e) => setField("price", e.target.value)}
@@ -112,6 +113,7 @@ export default function PropertyFormFields({ fields, setField, agents = [] }: Pr
         <Input
           id="landArea"
           type="number"
+          min={0}
           value={fields.landArea}
           onChange={(e) => setField("landArea", e.target.value)}
         />
@@ -122,6 +124,7 @@ export default function PropertyFormFields({ fields, setField, agents = [] }: Pr
         <Input
           id="buildingArea"
           type="number"
+          min={0}
           value={fields.buildingArea}
           onChange={(e) => setField("buildingArea", e.target.value)}
         />
@@ -134,6 +137,7 @@ export default function PropertyFormFields({ fields, setField, agents = [] }: Pr
             <Input
               id="bedrooms"
               type="number"
+              min={0}
               value={fields.bedrooms}
               onChange={(e) => setField("bedrooms", e.target.value)}
             />
@@ -143,6 +147,7 @@ export default function PropertyFormFields({ fields, setField, agents = [] }: Pr
             <Input
               id="bathrooms"
               type="number"
+              min={0}
               value={fields.bathrooms}
               onChange={(e) => setField("bathrooms", e.target.value)}
             />

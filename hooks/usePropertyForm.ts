@@ -57,26 +57,35 @@ export function usePropertyForm() {
     dispatch({ type: "SET_FIELD", key, value })
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  /** Resolves true once saved, so the caller need not read `error` — which, in
+   *  the caller's closure, is still the value from before this submit. */
+  async function handleSubmit(e: React.FormEvent): Promise<boolean> {
     e.preventDefault()
     setLoading(true)
     setError("")
 
-    const res = await fetch("/api/properties", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...fields, imageUrls }),
-    })
+    try {
+      const res = await fetch("/api/properties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...fields, imageUrls }),
+      })
 
-    if (!res.ok) {
-      const data = await res.json()
-      setError(data.error ?? "Gagal menyimpan properti.")
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error ?? "Gagal menyimpan properti.")
+        setLoading(false)
+        return false
+      }
+    } catch {
+      // A dropped connection used to leave the button stuck on "Menyimpan...".
+      setError("Gagal menyimpan properti. Periksa koneksi lalu coba lagi.")
       setLoading(false)
-      return
+      return false
     }
 
-    void res.json()
     router.push("/admin/properti")
+    return true
   }
 
   return { fields, imageUrls, setField, setImageUrls, setError, handleSubmit, loading, error }
