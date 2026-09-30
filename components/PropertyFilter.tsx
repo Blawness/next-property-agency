@@ -21,14 +21,39 @@ import {
   SORT_LABELS,
 } from "@/lib/constants"
 
+/** The price fields are typed in millions; the URL carries whole rupiah. */
+const RUPIAH_PER_JUTA = 1_000_000
+
+/** Whole rupiah from the URL, shown back in the "(Juta)" field it came from. */
+export function rupiahToJuta(rupiah: string | null): string {
+  if (!rupiah) return ""
+  const n = Number(rupiah)
+  return Number.isFinite(n) ? String(n / RUPIAH_PER_JUTA) : ""
+}
+
+/** What the visitor typed in millions, as whole rupiah — or "" for no bound. */
+export function jutaToRupiah(juta: string): string {
+  const n = Number(juta.trim())
+  if (!juta.trim() || !Number.isFinite(n) || n < 0) return ""
+  return String(Math.round(n * RUPIAH_PER_JUTA))
+}
+
+// Neither is a filter: `view` is how results are shown, `page` where in them.
+const NOT_FILTERS = new Set(["view", "page"])
+
 export default function PropertyFilter() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   function updateFilter(key: string, value: string) {
+    const next = value && value !== "semua" ? value : ""
+    // Blurring a field without editing it must not navigate: that would throw
+    // the visitor back to page one for nothing.
+    if (next === (searchParams.get(key) ?? "")) return
+
     const params = new URLSearchParams(searchParams.toString())
-    if (value && value !== "semua") {
-      params.set(key, value)
+    if (next) {
+      params.set(key, next)
     } else {
       params.delete(key)
     }
@@ -37,10 +62,19 @@ export default function PropertyFilter() {
   }
 
   function clearFilters() {
-    router.push("/properti")
+    // Keep the map open if that is where the visitor was.
+    const view = searchParams.get("view")
+    router.push(view ? `/properti?view=${encodeURIComponent(view)}` : "/properti")
   }
 
-  const hasFilters = Array.from(searchParams.keys()).length > 0
+  const hasFilters = Array.from(searchParams.keys()).some((k) => !NOT_FILTERS.has(k))
+
+  // The text and price fields are uncontrolled, so they would keep showing a
+  // value after Reset or Back removed it from the URL. Keying them on the
+  // param remounts them whenever it changes underneath.
+  const q = searchParams.get("q") ?? ""
+  const minPrice = searchParams.get("minPrice")
+  const maxPrice = searchParams.get("maxPrice")
 
   return (
     <div className="space-y-5">
@@ -74,12 +108,13 @@ export default function PropertyFilter() {
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
+              key={q}
               id="q"
               name="q"
               type="search"
               placeholder="Judul, kota, alamat..."
               className="h-9 pl-9 text-sm rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary"
-              defaultValue={searchParams.get("q") ?? ""}
+              defaultValue={q}
               onBlur={(e) => updateFilter("q", e.target.value.trim())}
             />
           </div>
@@ -159,22 +194,26 @@ export default function PropertyFilter() {
         <div>
           <Label className="text-[11px] font-medium uppercase tracking-[0.16em] text-foreground/70 mb-1 block">Harga Min (Juta)</Label>
           <Input
+            key={minPrice ?? ""}
             type="number"
+            min={0}
             placeholder="Contoh: 500"
             className="h-9 text-sm rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary"
-            defaultValue={searchParams.get("minPrice") ?? ""}
-            onBlur={(e) => updateFilter("minPrice", e.target.value ? String(Number(e.target.value) * 1_000_000) : "")}
+            defaultValue={rupiahToJuta(minPrice)}
+            onBlur={(e) => updateFilter("minPrice", jutaToRupiah(e.target.value))}
           />
         </div>
 
         <div>
           <Label className="text-[11px] font-medium uppercase tracking-[0.16em] text-foreground/70 mb-1 block">Harga Max (Juta)</Label>
           <Input
+            key={maxPrice ?? ""}
             type="number"
+            min={0}
             placeholder="Contoh: 2000"
             className="h-9 text-sm rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary"
-            defaultValue={searchParams.get("maxPrice") ?? ""}
-            onBlur={(e) => updateFilter("maxPrice", e.target.value ? String(Number(e.target.value) * 1_000_000) : "")}
+            defaultValue={rupiahToJuta(maxPrice)}
+            onBlur={(e) => updateFilter("maxPrice", jutaToRupiah(e.target.value))}
           />
         </div>
 

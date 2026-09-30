@@ -4,9 +4,10 @@ import { properties, propertyImages, profiles } from "@/db/schema"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { PropertyStatus, PropertyType } from "@/lib/types"
-import { PROPERTY_TYPES } from "@/lib/constants"
+import { PROPERTY_TYPES, escapeLikePattern } from "@/lib/constants"
+import { priceField, latField, lngField } from "@/lib/property-fields"
 import { z } from "zod"
-import { eq, and, like, asc, or, count, inArray } from "drizzle-orm"
+import { eq, and, ilike, asc, or, count, inArray } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
 const PROPERTY_STATUSES = ["active", "sold", "rented", "archived"] as const
@@ -22,13 +23,13 @@ function isPropertyType(s: string): s is (typeof PROPERTY_TYPES)[number] {
 const propertySchema = z.object({
   title: z.string().min(1, "Judul wajib diisi"),
   description: z.string().optional(),
-  price: z.string().min(1, "Harga wajib diisi"),
+  price: priceField,
   type: z.enum(["rumah", "apartemen", "tanah", "ruko"]),
   listingType: z.enum(["jual", "sewa"]),
-  city: z.string().min(1, "Kota wajib diisi"),
+  city: z.string().trim().min(1, "Kota wajib diisi"),
   address: z.string().optional(),
-  lat: z.string().optional(),
-  lng: z.string().optional(),
+  lat: latField.optional(),
+  lng: lngField.optional(),
   landArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
   buildingArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
   bedrooms: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
@@ -61,8 +62,11 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url)
-    const page = parseInt(searchParams.get("page") ?? "1", 10)
-    const limit = parseInt(searchParams.get("limit") ?? "20", 10)
+    // NaN or a negative number would reach OFFSET/LIMIT and fail the query.
+    const rawPage = parseInt(searchParams.get("page") ?? "1", 10)
+    const rawLimit = parseInt(searchParams.get("limit") ?? "20", 10)
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 20
     const status = searchParams.get("status")
     const type = searchParams.get("type")
     const city = searchParams.get("city")
@@ -81,10 +85,13 @@ export async function GET(req: NextRequest) {
     if (type) conditions.push(eq(properties.type, type as PropertyType))
     if (city) conditions.push(eq(properties.city, city))
     if (search) {
+      // Case-insensitive, like the public catalog: "rumah" has to find
+      // "Rumah Minimalis".
+      const pattern = `%${escapeLikePattern(search)}%`
       conditions.push(
         or(
-          like(properties.title, `%${search}%`),
-          like(properties.city, `%${search}%`),
+          ilike(properties.title, pattern),
+          ilike(properties.city, pattern),
         )!
       )
     }

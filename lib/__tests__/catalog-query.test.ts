@@ -1,4 +1,9 @@
-import { parseCatalogFilters, isCatalogView } from "@/lib/catalog-query"
+import {
+  parseCatalogFilters,
+  parsePriceBound,
+  isCatalogView,
+  CATALOG_ORDER_BY,
+} from "@/lib/catalog-query"
 
 describe("parseCatalogFilters", () => {
   it("keeps values that are valid", () => {
@@ -63,6 +68,38 @@ describe("parseCatalogFilters", () => {
     expect(parseCatalogFilters({}).view).toBe("daftar")
     expect(parseCatalogFilters({ view: "peta" }).view).toBe("peta")
     expect(parseCatalogFilters({ view: "galeri" }).view).toBe("daftar")
+  })
+})
+
+describe("parsePriceBound", () => {
+  it("keeps a whole number of rupiah", () => {
+    expect(parsePriceBound("500000000")).toBe("500000000")
+    expect(parsePriceBound(" 750000 ")).toBe("750000")
+    expect(parsePriceBound("0")).toBe("0")
+    expect(parsePriceBound("007")).toBe("7")
+  })
+
+  it("drops anything Postgres could not cast to numeric", () => {
+    expect(parsePriceBound("abc")).toBeUndefined()
+    expect(parsePriceBound("5e8")).toBeUndefined()
+    expect(parsePriceBound("-1")).toBeUndefined()
+    expect(parsePriceBound("1.5")).toBeUndefined()
+    expect(parsePriceBound("")).toBeUndefined()
+    expect(parsePriceBound(undefined)).toBeUndefined()
+  })
+
+  it("is what parseCatalogFilters applies to both bounds", () => {
+    const f = parseCatalogFilters({ minPrice: "banyak", maxPrice: "2000000000" })
+    expect(f.minPrice).toBeUndefined()
+    expect(f.maxPrice).toBe("2000000000")
+  })
+})
+
+describe("CATALOG_ORDER_BY", () => {
+  it("ends every sort on a unique key so pages never overlap", () => {
+    for (const keys of Object.values(CATALOG_ORDER_BY)) {
+      expect(keys.length).toBeGreaterThanOrEqual(2)
+    }
   })
 })
 

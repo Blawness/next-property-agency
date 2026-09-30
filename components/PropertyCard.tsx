@@ -115,7 +115,8 @@ export default function PropertyCard({
                       {property.bathrooms} KM
                     </span>
                   )}
-                  {property.buildingArea != null && property.bathrooms != null && (
+                  {property.buildingArea != null &&
+                    (property.bedrooms != null || property.bathrooms != null) && (
                     <span aria-hidden className="h-3 w-px bg-border" />
                   )}
                   {property.buildingArea != null && (

@@ -10,7 +10,15 @@ interface PropertyGalleryClientProps {
   title: string
 }
 
-export default function PropertyGalleryClient({ images, title }: PropertyGalleryClientProps) {
+export default function PropertyGalleryClient({ images: unordered, title }: PropertyGalleryClientProps) {
+  // The primary photo leads everywhere — the large tile, the thumbnail strip
+  // and the lightbox — so an index means the same photo in all three. Taken
+  // from `images` as stored, the tile showed the primary while the lightbox
+  // opened on whichever photo happened to be first.
+  const primaryImage = unordered.find((img) => img.isPrimary) ?? unordered[0]
+  const otherImages = unordered.filter((img) => img.id !== primaryImage?.id)
+  const images = primaryImage ? [primaryImage, ...otherImages] : []
+
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const lightboxRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
@@ -55,9 +63,6 @@ export default function PropertyGalleryClient({ images, title }: PropertyGallery
       </div>
     )
   }
-
-  const primaryImage = images.find((img) => img.isPrimary) ?? images[0]
-  const otherImages = images.filter((img) => img.id !== primaryImage?.id)
 
   return (
     <>
@@ -147,6 +152,7 @@ export default function PropertyGalleryClient({ images, title }: PropertyGallery
         >
           <button
             onClick={closeLightbox}
+            aria-label="Tutup galeri"
             className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
           >
             <X size={20} />
@@ -156,6 +162,7 @@ export default function PropertyGalleryClient({ images, title }: PropertyGallery
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); prev() }}
+                aria-label="Foto sebelumnya"
                 className="absolute left-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
                 disabled={lightboxIndex === 0}
               >
@@ -163,6 +170,7 @@ export default function PropertyGalleryClient({ images, title }: PropertyGallery
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); next() }}
+                aria-label="Foto berikutnya"
                 className="absolute right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
                 disabled={lightboxIndex === images.length - 1}
               >

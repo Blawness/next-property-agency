@@ -1,9 +1,9 @@
 import { db } from "@/db"
 import { properties } from "@/db/schema"
-import { asc, desc, count } from "drizzle-orm"
+import { count } from "drizzle-orm"
 import PropertyCard from "@/components/PropertyCard"
 import PropertyFilter from "@/components/PropertyFilter"
-import CatalogPagination from "@/components/CatalogPagination"
+import CatalogPagination, { catalogPageHref } from "@/components/CatalogPagination"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -13,10 +13,10 @@ import type { PropertyWithImages } from "@/lib/types"
 import { getPropertiesWithImagesBatch, getFavoritePropertyIds } from "@/lib/db-helpers"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { type SortKey } from "@/lib/constants"
 import {
   parseCatalogFilters,
   catalogConditions,
+  CATALOG_ORDER_BY,
   CATALOG_PAGE_SIZE,
   MAP_MARKER_LIMIT,
   type CatalogFilters,
@@ -46,12 +46,6 @@ interface PageProps {
   }>
 }
 
-const ORDER_BY: Record<SortKey, ReturnType<typeof desc>> = {
-  terbaru: desc(properties.createdAt),
-  termurah: asc(properties.price),
-  termahal: desc(properties.price),
-}
-
 async function getProperties(
   filters: CatalogFilters,
 ): Promise<{ items: PropertyWithImages[]; total: number }> {
@@ -63,7 +57,7 @@ async function getProperties(
         .select()
         .from(properties)
         .where(where)
-        .orderBy(ORDER_BY[filters.sort])
+        .orderBy(...CATALOG_ORDER_BY[filters.sort])
         .limit(CATALOG_PAGE_SIZE)
         .offset((filters.page - 1) * CATALOG_PAGE_SIZE),
     ),
@@ -85,7 +79,7 @@ async function getMapPins(filters: CatalogFilters) {
         .select()
         .from(properties)
         .where(catalogConditions(filters, { requireCoords: true }))
-        .orderBy(ORDER_BY[filters.sort])
+        .orderBy(...CATALOG_ORDER_BY[filters.sort])
         .limit(MAP_MARKER_LIMIT),
     ),
     db.select({ n: count() }).from(properties).where(catalogConditions(filters)),
@@ -124,6 +118,25 @@ async function PropertyGrid({
   ])
   const page = filters.page
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()
+  const totalPages = Math.ceil(total / CATALOG_PAGE_SIZE)
+
+  // Matches exist, just not on this page — an old bookmark, or a last page
+  // that emptied as listings sold. "Nothing found" would be untrue here.
+  if (items.length === 0 && total > 0) {
+    return (
+      <div className="text-center py-20">
+        <p className="font-sans text-lg font-semibold text-foreground">
+          Halaman {page} tidak tersedia
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Pencarian ini hanya punya {totalPages} halaman ({total} properti).
+        </p>
+        <Button variant="outline" size="sm" className="mt-5 rounded-xl" asChild>
+          <Link href={catalogPageHref(raw, 1)}>Ke Halaman Pertama</Link>
+        </Button>
+      </div>
+    )
+  }
 
   if (items.length === 0) {
     return (
@@ -144,7 +157,6 @@ async function PropertyGrid({
     )
   }
 
-  const totalPages = Math.ceil(total / CATALOG_PAGE_SIZE)
   const start = (page - 1) * CATALOG_PAGE_SIZE + 1
   const end = start + items.length - 1
 

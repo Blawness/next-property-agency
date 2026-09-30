@@ -9,7 +9,7 @@ interface CatalogPaginationProps {
   filters: RawCatalogParams
 }
 
-function buildHref(filters: RawCatalogParams, page: number): string {
+export function catalogPageHref(filters: RawCatalogParams, page: number): string {
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(filters)) {
     if (key !== "page" && value) params.set(key, value)
@@ -44,7 +44,7 @@ export default function CatalogPagination({ page, totalPages, filters }: Catalog
   return (
     <nav aria-label="Navigasi halaman" className="mt-8 flex items-center justify-center gap-1.5">
       {page > 1 ? (
-        <Link href={buildHref(filters, page - 1)} aria-label="Halaman sebelumnya" className={cn(base, idle)}>
+        <Link href={catalogPageHref(filters, page - 1)} aria-label="Halaman sebelumnya" className={cn(base, idle)}>
           <ChevronLeft className="h-4 w-4" />
         </Link>
       ) : (
@@ -61,7 +61,7 @@ export default function CatalogPagination({ page, totalPages, filters }: Catalog
         ) : (
           <Link
             key={p}
-            href={buildHref(filters, p)}
+            href={catalogPageHref(filters, p)}
             aria-current={p === page ? "page" : undefined}
             className={cn(base, p === page ? activeCls : idle)}
           >
@@ -71,7 +71,7 @@ export default function CatalogPagination({ page, totalPages, filters }: Catalog
       )}
 
       {page < totalPages ? (
-        <Link href={buildHref(filters, page + 1)} aria-label="Halaman berikutnya" className={cn(base, idle)}>
+        <Link href={catalogPageHref(filters, page + 1)} aria-label="Halaman berikutnya" className={cn(base, idle)}>
           <ChevronRight className="h-4 w-4" />
         </Link>
       ) : (

@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth"
 import { and, eq } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 import { z } from "zod"
+import { priceField, latField, lngField } from "@/lib/property-fields"
 
 export async function GET(
   _req: NextRequest,
@@ -51,14 +52,16 @@ const nonEmptyString = z
 const propertyUpdateSchema = z.object({
   title: nonEmptyString.optional(),
   description: z.string().optional(),
-  price: nonEmptyString.optional(),
+  price: priceField.optional(),
   type: z.enum(["rumah", "apartemen", "tanah", "ruko"]).optional(),
   listingType: z.enum(["jual", "sewa"]).optional(),
   status: z.enum(["active", "sold", "rented", "archived"]).optional(),
-  city: z.string().optional(),
+  // Required on create, so an edit must not be able to blank it either: the
+  // city filter and every card's location line depend on it.
+  city: nonEmptyString.optional(),
   address: z.string().optional(),
-  lat: z.string().optional(),
-  lng: z.string().optional(),
+  lat: latField.optional(),
+  lng: lngField.optional(),
   landArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
   buildingArea: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),
   bedrooms: z.string().refine((v) => v === "" || !isNaN(parseInt(v, 10)), "Harus angka").optional(),

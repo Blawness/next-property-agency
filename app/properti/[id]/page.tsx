@@ -59,7 +59,7 @@ function buildJsonLd(property: typeof properties.$inferSelect, images: Array<typ
     "@type": "Residence" as const,
     name: property.title,
     description: property.description ?? undefined,
-    url: `/properti/${property.id}`,
+    url: `${SITE_URL}/properti/${property.id}`,
     image: primary ? [primary.url] : undefined,
     address: {
       "@type": "PostalAddress" as const,
@@ -88,7 +88,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params
   const data = await getProperty(id)
 
-  if (!data) return { title: BRAND.pageTitle.propertyNotFound }
+  // Same rule as the page: an archived listing is not found, so its title and
+  // photo must not leak through the metadata either.
+  if (!data || data.property.status === "archived") {
+    return { title: BRAND.pageTitle.propertyNotFound }
+  }
 
   const { property, images } = data
   const primaryImage = images.find((img) => img.isPrimary) ?? images[0]
@@ -98,16 +102,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? property.description.slice(0, 160)
     : `${property.title} di ${property.city} — ${formattedPrice}`
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+  // SITE_URL, like every other shareable link: NEXTAUTH_URL is an auth
+  // setting, and its old fallback pointed canonical URLs at port 3000.
+  const url = `${SITE_URL}/properti/${property.id}`
   return {
     title: `${property.title} — ${formattedPrice} | ${BRAND.name}`,
     description,
-    alternates: { canonical: `${baseUrl}/properti/${property.id}` },
+    alternates: { canonical: url },
     openGraph: {
       title: property.title,
       description,
       type: "article",
-      url: `${baseUrl}/properti/${property.id}`,
+      url,
       siteName: BRAND.name,
       locale: "id_ID",
       images: primaryImage ? [{ url: primaryImage.url, width: 1200, height: 630, alt: property.title }] : [],
@@ -156,17 +162,27 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(property, images)) }}
+        // A "</script>" in a title or description would otherwise end the tag
+        // early and let the rest run as HTML; < is the same "<" to JSON.
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(buildJsonLd(property, images)).replace(/</g, "\\u003c"),
+        }}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <div className="space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
+              {/* formatPriceFull already ends a rental in "/bulan"; it is split
+                  off here only to set it smaller. */}
               <p className="font-sans text-3xl font-bold text-primary sm:text-4xl">
-                {formattedPrice}
-                {property.listingType === "sewa" && (
-                  <span className="ml-1 text-base font-normal text-muted-foreground">/bulan</span>
+                {property.listingType === "sewa" ? (
+                  <>
+                    {formattedPrice.replace(/\/bulan$/, "")}
+                    <span className="ml-1 text-base font-normal text-muted-foreground">/bulan</span>
+                  </>
+                ) : (
+                  formattedPrice
                 )}
               </p>
               <ShareButton

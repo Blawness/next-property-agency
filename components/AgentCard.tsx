@@ -35,7 +35,7 @@ export default function AgentCard({
   price,
   listingType,
 }: AgentCardProps) {
-  const { favorites, toggleFavorite } = useFavorites()
+  const { favorites, pending, toggleFavorite } = useFavorites()
   const isFavorited = propertyId ? favorites.some((f) => f.id === propertyId) : false
 
   const whatsappHref =
@@ -86,27 +86,26 @@ export default function AgentCard({
                 </span>
               </div>
             </div>
-            {propertyId ? (
-              <Button
-                variant="outline"
-                className="w-full rounded-sm"
-                onClick={() => toggleFavorite(propertyId)}
-                aria-label={isFavorited ? "Hapus dari favorit" : "Simpan"}
-              >
-                <Heart
-                  className={`h-4 w-4 mr-2 ${isFavorited ? "fill-primary text-primary" : ""}`}
-                />
-                Simpan
-              </Button>
-            ) : (
-              <div className="flex items-center justify-center gap-1.5 rounded-sm border border-border py-2 text-sm text-muted-foreground">
-                <Heart className="h-4 w-4" />
-                Simpan
-              </div>
-            )}
           </>
         ) : (
           <p className="text-sm text-muted-foreground">Info agen tidak tersedia</p>
+        )}
+        {/* Saving is about the listing, not the agent, so it stays available
+            on a listing that has no agent assigned. */}
+        {propertyId && (
+          <Button
+            variant="outline"
+            className="w-full rounded-sm"
+            onClick={() => toggleFavorite(propertyId)}
+            disabled={pending}
+            aria-pressed={isFavorited}
+            aria-label={isFavorited ? "Hapus dari favorit" : "Simpan ke favorit"}
+          >
+            <Heart
+              className={`h-4 w-4 mr-2 ${isFavorited ? "fill-primary text-primary" : ""}`}
+            />
+            {isFavorited ? "Tersimpan" : "Simpan"}
+          </Button>
         )}
         {whatsappHref && (
           <Button className="w-full rounded-sm bg-primary text-primary-foreground hover:bg-primary/90" asChild>

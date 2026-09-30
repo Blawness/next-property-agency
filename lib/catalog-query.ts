@@ -1,5 +1,5 @@
 import { properties } from "@/db/schema"
-import { and, eq, gte, ilike, isNull, isNotNull, lte, or } from "drizzle-orm"
+import { and, asc, desc, eq, gte, ilike, isNull, isNotNull, lte, or, type SQL } from "drizzle-orm"
 import {
   PROPERTY_TYPES,
   LISTING_TYPES,
@@ -17,6 +17,31 @@ export const CATALOG_PAGE_SIZE = 24
  * under-report what a search actually found.
  */
 export const MAP_MARKER_LIMIT = 500
+
+/**
+ * Price alone ties whenever two listings cost the same, and `created_at` ties
+ * for rows inserted together (a seed, a bulk import). Postgres orders ties
+ * however it likes and may choose differently per query, so without the id as
+ * a final key OFFSET pagination can show a listing on two pages and skip
+ * another entirely.
+ */
+export const CATALOG_ORDER_BY: Record<SortKey, SQL[]> = {
+  terbaru: [desc(properties.createdAt), desc(properties.id)],
+  termurah: [asc(properties.price), desc(properties.id)],
+  termahal: [desc(properties.price), desc(properties.id)],
+}
+
+/**
+ * A price bound from the URL, as whole rupiah. The column is numeric, so a
+ * hand-edited `?minPrice=abc` would reach Postgres as an invalid cast and take
+ * the whole page down with it; anything that is not a non-negative whole
+ * number is treated as no bound at all.
+ */
+export function parsePriceBound(raw: string | undefined): string | undefined {
+  const trimmed = raw?.trim()
+  if (!trimmed || !/^\d+$/.test(trimmed)) return undefined
+  return trimmed.replace(/^0+(?=\d)/, "")
+}
 
 export const CATALOG_VIEWS = ["daftar", "peta"] as const
 export type CatalogView = (typeof CATALOG_VIEWS)[number]
@@ -67,9 +92,9 @@ export function parseCatalogFilters(raw: RawCatalogParams): CatalogFilters {
     listingType: LISTING_TYPES.includes(raw.listingType as (typeof LISTING_TYPES)[number])
       ? (raw.listingType as (typeof LISTING_TYPES)[number])
       : undefined,
-    city: raw.city || undefined,
-    minPrice: raw.minPrice || undefined,
-    maxPrice: raw.maxPrice || undefined,
+    city: raw.city?.trim() || undefined,
+    minPrice: parsePriceBound(raw.minPrice),
+    maxPrice: parsePriceBound(raw.maxPrice),
     minBedrooms: parseMinBedrooms(raw.minBedrooms),
     q: q ? q : undefined,
     sort: isSortKey(raw.sort) ? raw.sort : "terbaru",
@@ -87,7 +112,7 @@ export function catalogConditions(f: CatalogFilters, { requireCoords = false } =
 
   if (f.type) conditions.push(eq(properties.type, f.type))
   if (f.listingType) conditions.push(eq(properties.listingType, f.listingType))
-  if (f.city) conditions.push(ilike(properties.city, `%${f.city}%`))
+  if (f.city) conditions.push(ilike(properties.city, `%${escapeLikePattern(f.city)}%`))
   if (f.minPrice) conditions.push(gte(properties.price, f.minPrice))
   if (f.maxPrice) conditions.push(lte(properties.price, f.maxPrice))
   if (f.minBedrooms !== null) conditions.push(gte(properties.bedrooms, f.minBedrooms))

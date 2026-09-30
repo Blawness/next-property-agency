@@ -86,6 +86,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ favorited: false })
     }
 
+    // An unknown id would otherwise fail the foreign key and answer 500, and a
+    // soft-deleted listing would be saved only to vanish from the favorites list.
+    const [target] = await db
+      .select({ id: properties.id })
+      .from(properties)
+      .where(and(eq(properties.id, propertyId), isNull(properties.deletedAt)))
+      .limit(1)
+    if (!target) {
+      return NextResponse.json({ error: "Properti tidak ditemukan" }, { status: 404 })
+    }
+
     await db.insert(favorites).values({ userId, propertyId })
     return NextResponse.json({ favorited: true })
   } catch (error) {
