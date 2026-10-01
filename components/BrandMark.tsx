@@ -4,47 +4,79 @@ import { BRAND } from "@/lib/brand"
 interface BrandMarkProps {
   size?: "sm" | "md" | "lg"
   className?: string
-  /** Use off-white text + light box (e.g. on dark/footer backgrounds) */
+  /** Use off-white artwork (e.g. on dark/footer backgrounds) */
   inverted?: boolean
 }
 
-const SIZE_MAP = {
-  sm: { box: 24, monogram: 13, wordmark: 16, gap: 8 },
-  md: { box: 32, monogram: 17, wordmark: 22, gap: 10 },
-  lg: { box: 44, monogram: 23, wordmark: 30, gap: 12 },
-} as const
+const HEIGHT_MAP = { sm: 20, md: 28, lg: 40 } as const
+
+// The logo's content box, trimmed from the supplied artwork (1245 x 723 canvas).
+const VIEW_BOX = "179 220 1239 320"
+const ASPECT = 1239 / 320
 
 /**
- * Placeholder logo: the monogram in a square, then the name. The agency's own
- * logo replaces what this renders; every page goes through this component, so
- * nothing else has to change when it does.
+ * The TRIHUNI logo: "tri" + a hand-drawn "h" + "uni", drawn as paths in
+ * `currentColor` so one file serves the light and the dark surfaces. Every page
+ * goes through this component.
  */
 export default function BrandMark({ size = "md", className, inverted = false }: BrandMarkProps) {
-  const s = SIZE_MAP[size]
+  const height = HEIGHT_MAP[size]
   return (
-    <span
-      className={cn("inline-flex shrink-0 select-none items-center font-sans", className)}
-      style={{ gap: s.gap }}
+    <svg
+      role="img"
+      aria-label={BRAND.name}
+      viewBox={VIEW_BOX}
+      width={Math.round(height * ASPECT)}
+      height={height}
+      className={cn(
+        "shrink-0 select-none",
+        inverted ? "text-primary-foreground" : "text-accent",
+        className,
+      )}
     >
-      <span
-        aria-hidden
-        className={cn(
-          "inline-flex shrink-0 items-center justify-center rounded-sm font-heading font-bold leading-none",
-          inverted ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground",
-        )}
-        style={{ width: s.box, height: s.box, fontSize: s.monogram }}
-      >
-        {BRAND.logo.monogram}
-      </span>
-      <span
-        className={cn(
-          "font-bold leading-none tracking-tight",
-          inverted ? "text-primary-foreground" : "text-foreground",
-        )}
-        style={{ fontSize: s.wordmark }}
-      >
-        {BRAND.logo.wordmark}
-      </span>
-    </span>
+      {/* the "h" */}
+      <g fill="none" stroke="currentColor" strokeWidth="65">
+        <path
+          transform="matrix(0.749879 0 0 0.749879 587.750164 220.146363)"
+          d="M 32.499829 0 L 32.499829 81.46386 C 32.499829 103.071521 41.084551 123.793623 56.363064 139.066927 C 71.636368 154.34544 92.35847 162.930162 113.966131 162.930162 L 210.721365 162.930162 C 282.493391 162.930162 340.674676 221.111447 340.674676 292.883473 L 340.674676 422.836785"
+        />
+        <path
+          transform="matrix(0 0.749879 -0.749879 0 636.487024 389.497252)"
+          d="M 0 32.498372 L 200.609028 32.498372"
+        />
+      </g>
+      <g fill="currentColor">
+        {/* t */}
+        <path
+          transform="translate(173.503756 538.87685)"
+          d="M 126.828125 2.53125 C 101.265625 2.53125 81.597656 -4.347656 67.828125 -18.109375 C 54.066406 -31.878906 47.1875 -51.265625 47.1875 -76.265625 L 47.1875 -181.609375 L 5.90625 -181.609375 L 5.90625 -227.125 L 12.640625 -227.125 C 23.597656 -227.125 32.09375 -230.070312 38.125 -235.96875 C 44.164062 -241.863281 47.1875 -250.289062 47.1875 -261.25 L 47.1875 -297.484375 L 97.765625 -297.484375 L 97.765625 -227.125 L 151.6875 -227.125 L 151.6875 -181.609375 L 97.765625 -181.609375 L 97.765625 -76.265625 C 97.765625 -69.804688 98.882812 -63.695312 101.125 -57.9375 C 103.375 -52.175781 107.378906 -47.539062 113.140625 -44.03125 C 118.898438 -40.519531 127.117188 -38.765625 137.796875 -38.765625 C 142.566406 -38.765625 147.617188 -39.1875 152.953125 -40.03125 L 152.953125 0.421875 C 143.960938 1.828125 135.253906 2.53125 126.828125 2.53125 Z"
+        />
+        {/* r */}
+        <path
+          transform="translate(329.4042 538.87685)"
+          d="M 133.578125 -229.65625 L 154.640625 -229.65625 L 154.640625 -184.140625 L 127.25 -184.140625 C 111.800781 -184.140625 99.226562 -179.289062 89.53125 -169.59375 C 79.84375 -159.90625 75 -146.210938 75 -128.515625 L 75 0 L 24.4375 0 L 24.4375 -227.125 L 72.0625 -227.125 L 72.0625 -195.515625 C 77.957031 -207.878906 86.238281 -216.660156 96.90625 -221.859375 C 107.582031 -227.054688 119.804688 -229.65625 133.578125 -229.65625 Z"
+        />
+        {/* i */}
+        <path
+          transform="translate(482.776532 538.87685)"
+          d="M 22.75 -257.03125 L 22.75 -313.921875 L 73.3125 -313.921875 L 73.3125 -257.03125 Z M 22.75 0 L 22.75 -227.125 L 73.3125 -227.125 L 73.3125 0 Z"
+        />
+        {/* u */}
+        <path
+          transform="translate(873.868684 536.8473)"
+          d="M 167.28125 -227.125 L 217.84375 -227.125 L 217.84375 0 L 169.8125 0 L 169.8125 -26.125 C 163.632812 -16.289062 154.992188 -8.632812 143.890625 -3.15625 C 132.796875 2.320312 120.226562 5.0625 106.1875 5.0625 C 89.332031 5.0625 74.441406 1.128906 61.515625 -6.734375 C 48.597656 -14.609375 38.484375 -25.425781 31.171875 -39.1875 C 23.867188 -52.945312 20.21875 -68.535156 20.21875 -85.953125 L 20.21875 -227.125 L 70.796875 -227.125 L 70.796875 -92.28125 C 70.796875 -76.832031 75.21875 -64.539062 84.0625 -55.40625 C 92.914062 -46.28125 104.644531 -41.71875 119.25 -41.71875 C 133.570312 -41.71875 145.15625 -46.28125 154 -55.40625 C 162.851562 -64.539062 167.28125 -76.832031 167.28125 -92.28125 Z"
+        />
+        {/* n */}
+        <path
+          transform="translate(1107.719615 536.8473)"
+          d="M 136.53125 -232.171875 C 153.382812 -232.171875 168.203125 -228.585938 180.984375 -221.421875 C 193.765625 -214.265625 203.804688 -204.296875 211.109375 -191.515625 C 218.410156 -178.734375 222.0625 -164.054688 222.0625 -147.484375 L 222.0625 0 L 171.5 0 L 171.5 -134.84375 C 171.5 -150.289062 167.070312 -162.578125 158.21875 -171.703125 C 149.375 -180.835938 137.789062 -185.40625 123.46875 -185.40625 C 108.851562 -185.40625 97.117188 -180.835938 88.265625 -171.703125 C 79.421875 -162.578125 75 -150.289062 75 -134.84375 L 75 0 L 24.4375 0 L 24.4375 -227.125 L 72.0625 -227.125 L 72.0625 -199.734375 C 78.519531 -210.410156 87.363281 -218.484375 98.59375 -223.953125 C 109.832031 -229.429688 122.476562 -232.171875 136.53125 -232.171875 Z"
+        />
+        {/* i */}
+        <path
+          transform="translate(1341.570547 536.8473)"
+          d="M 22.75 -257.03125 L 22.75 -313.921875 L 73.3125 -313.921875 L 73.3125 -257.03125 Z M 22.75 0 L 22.75 -227.125 L 73.3125 -227.125 L 73.3125 0 Z"
+        />
+      </g>
+    </svg>
   )
 }

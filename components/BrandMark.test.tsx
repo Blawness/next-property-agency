@@ -3,13 +3,13 @@ import BrandMark from '@/components/BrandMark'
 import { BRAND } from '@/lib/brand'
 
 describe('BrandMark', () => {
-  it('renders the wordmark', () => {
+  it('exposes the brand name as the logo image', () => {
     render(<BrandMark />)
-    expect(screen.getByText(BRAND.logo.wordmark)).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: BRAND.name })).toBeInTheDocument()
   })
 
-  it('keeps the monogram out of the accessible name', () => {
-    render(<BrandMark />)
-    expect(screen.getByText(BRAND.logo.monogram)).toHaveAttribute('aria-hidden')
+  it('switches to the light artwork when inverted', () => {
+    render(<BrandMark inverted />)
+    expect(screen.getByRole('img', { name: BRAND.name })).toHaveClass('text-primary-foreground')
   })
 })

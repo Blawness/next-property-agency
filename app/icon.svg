@@ -1,6 +1,8 @@
-<!-- Placeholder until the TRIHUNI logo arrives: the BrandMark square and its
-     monogram, drawn as shapes so it needs no font. -->
+<!-- The "h" from the TRIHUNI logo, in white on the terracotta square. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="6" fill="#C06A14"/>
-  <path d="M17 16h30v8H36v24h-8V24H17z" fill="#FFFFFF"/>
+  <g transform="translate(14.5 12) scale(0.125) translate(-587.75 -220.15)" fill="none" stroke="#FFFFFF" stroke-width="65">
+    <path transform="matrix(0.749879 0 0 0.749879 587.750164 220.146363)" d="M 32.499829 0 L 32.499829 81.46386 C 32.499829 103.071521 41.084551 123.793623 56.363064 139.066927 C 71.636368 154.34544 92.35847 162.930162 113.966131 162.930162 L 210.721365 162.930162 C 282.493391 162.930162 340.674676 221.111447 340.674676 292.883473 L 340.674676 422.836785"/>
+    <path transform="matrix(0 0.749879 -0.749879 0 636.487024 389.497252)" d="M 0 32.498372 L 200.609028 32.498372"/>
+  </g>
 </svg>

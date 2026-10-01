@@ -1,10 +1,9 @@
 export const BRAND = {
   name: "TRIHUNI",
 
-  // Placeholder mark until the agency's own logo arrives: BrandMark sets
-  // `monogram` in a square beside `wordmark`, and app/icon.svg draws the same
-  // square. Swapping in the real logo means replacing BrandMark's contents and
-  // those icon files, not touching the pages that use it.
+  // BrandMark draws the real TRIHUNI logo as inline SVG. `wordmark` is the
+  // plain-text form for the intro curtain; `monogram` only feeds the
+  // placeholder favicon (app/icon.svg and the PNGs rendered from it).
   logo: { wordmark: "TRIHUNI", monogram: "T" },
 
   fullName: "TRIHUNI — Katalog Properti Indonesia",
