@@ -113,15 +113,24 @@ names `translate` and `opacity` (Tailwind v4's `translate-y-*` sets the
 `translate` property, not `transform`); and toggling `pointer-events` on
 `body` while Lenis scrolls — the usual "no hover while scrolling" trick —
 restyles the whole page on every start and stop, costing 150–250 ms frames,
-so it is deliberately absent. Every homepage photograph is `loading="eager"`
-(they sit in homepage-only components): lazy ones were still downloading when
-a first-time visitor began to scroll, and popped in mid-glide. They are also
-`fetchPriority="low"`, and that part matters: React 19 writes a
-`<link rel="preload">` into the head for every server-rendered `<img>` that is
-neither lazy nor low priority, so eager alone put fifteen photographs in
-contention with the hero. The hero is `fetchPriority="high"` (Next 16
-deprecates `priority`). `HomeListingCard` asks for a source 2.25x its width —
-see the comment there — or the photos render soft.
+so it is deliberately absent. The hero is the only eager photograph,
+`loading="eager"` + `fetchPriority="high"` (Next 16 deprecates `priority`;
+React 19 writes the `<link rel="preload">` for it). Every other homepage
+photograph is lazy (Next's default). They were all eager once, so that none
+popped in mid-glide — but `IntroLoader` waited for every one of them, which
+held the hero, the LCP, behind the curtain for ~5s under Lighthouse's mobile
+throttling and put ~1.1MB on the first load. `IntroLoader` now waits only for
+images that are not `loading="lazy"`; a lazy one would never complete and
+would hold the curtain to its 6s maximum. If pop-in comes back on slow
+connections, warm the lazy images after `intro:done` rather than making them
+eager again. Never give an eager photograph `fetchPriority="high"` besides the
+hero: React preloads every server-rendered `<img>` that is neither lazy nor low
+priority. `sizes` everywhere is the width the photograph is *drawn* at, not
+the frame's: a `data-parallax` layer is 120% of its frame's height, so with
+`object-cover` a 3:2 listing photo in `HomeListingCard`'s 4:5 frame needs a
+source 2.25x the card's width (see the comment there), and the city tiles
+need more than their width (`TILE_SIZES` in `PopularCities`). Sized to the
+frame alone, the photos render soft.
 
 Other things found slow or laggy, and kept out: Lenis at `lerp` 0.1 or below
 (a wheel notch took ~0.9s to settle, so it runs at 0.15); `Reveal` at 1.1–1.4s

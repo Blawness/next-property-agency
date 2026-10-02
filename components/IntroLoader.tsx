@@ -13,8 +13,8 @@ const EXIT_MS = 1000
 export const INTRO_SEEN_KEY = "trihuni:intro-seen"
 /** Fired on window once the curtain has gone and scrolling is released. */
 export const INTRO_DONE_EVENT = "intro:done"
-/** Fired while the curtain still covers the page, once every photograph is
- *  decoded: the moment for work that would otherwise land on the first scroll. */
+/** Fired while the curtain still covers the page, once every up-front
+ *  photograph is decoded: the moment for work that would otherwise land on the first scroll. */
 export const INTRO_PREPARE_EVENT = "intro:prepare"
 /** The main thread counts as quiet after this many frames in a row... */
 const SETTLE_FRAMES = 12
@@ -44,7 +44,8 @@ type Phase = "loading" | "leaving" | "gone"
 
 /**
  * The homepage's opening screen. It holds the visitor on the brand until the
- * page is ready to scroll smoothly — photographs downloaded and decoded,
+ * page is ready to scroll smoothly — the photographs that load up front (the
+ * hero; the rest are lazy) downloaded and decoded,
  * fonts in, scroll triggers measured, main thread quiet (see the stages
  * below) — then lifts like a curtain onto the hero. The hero's entrance
  * animations wait for the lift (`intro-active` without `intro-lifting` in
@@ -101,7 +102,13 @@ export default function IntroLoader() {
     let raf = 0
     let finished = false
 
-    const images = () => [...document.querySelectorAll<HTMLImageElement>("main img")]
+    // Only the photographs that load up front (the hero). A lazy one below the
+    // fold is not fetched until the visitor scrolls towards it, so waiting for
+    // it would hold the curtain to INTRO_MAX_MS on every visit.
+    const images = () =>
+      [...document.querySelectorAll<HTMLImageElement>("main img")].filter(
+        (img) => img.getAttribute("loading") !== "lazy",
+      )
 
     const measure = () => {
       if (stage === "loading") {

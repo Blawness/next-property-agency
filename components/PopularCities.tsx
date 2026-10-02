@@ -17,6 +17,19 @@ const BENTO = [
   "col-span-2",
 ]
 
+// `sizes` per BENTO tile. A tile's photograph is the width it must be drawn at
+// to cover the tile once the parallax layer adds 20% to its height — city
+// photos are 4:3, so a tall tile needs a source wider than the tile itself:
+// the large square at 2 x 240px + gap, the small ones at 240px (190px below md).
+const TILE_SIZES = [
+  "(max-width: 767px) 690px, 800px",
+  "(max-width: 767px) 90vw, (max-width: 1439px) 50vw, 640px",
+  "(max-width: 767px) 345px, 384px",
+  "(max-width: 767px) 345px, 384px",
+  "(max-width: 767px) 90vw, (max-width: 1439px) 50vw, 640px",
+  "(max-width: 767px) 90vw, (max-width: 1439px) 50vw, 640px",
+]
+
 async function getCityCounts(): Promise<Record<string, number>> {
   const rows = await db
     .select({ city: properties.city, total: count() })
@@ -65,9 +78,7 @@ export default async function PopularCities() {
                     src={city.image}
                     alt={city.name}
                     fill
-                    loading="eager"
-                    fetchPriority="low"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes={TILE_SIZES[i % TILE_SIZES.length]}
                     className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.06]"
                   />
                 </div>

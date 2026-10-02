@@ -37,6 +37,7 @@ export default function PropertyCard({
     <div className="group relative">
       <Link
         href={`/properti/${property.id}`}
+        prefetch={false}
         className="relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
       >
         {/* Gold hairline on hover */}
@@ -51,7 +52,7 @@ export default function PropertyCard({
               src={primaryImage.url}
               alt={property.title}
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 639px) 100vw, (max-width: 1023px) 55vw, 34vw"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />
           ) : (

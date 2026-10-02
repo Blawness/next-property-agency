@@ -52,22 +52,23 @@ export default function HomeListingCard({
 
   return (
     <article className="group relative">
-      <Link href={`/properti/${property.id}`} className="block">
+      <Link href={`/properti/${property.id}`} prefetch={false} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-muted">
           {/* `sizes` is the card width x 2.25, not the card width: the frame is
               4:5 portrait, the parallax layer is 1.2x its height, and listing
               photos are mostly 3:2 landscape, so object-cover needs a source
               2.25x as wide as the card to fill it without upscaling. Sized to
-              the card alone, every listing photo rendered soft. */}
+              the card alone, every listing photo rendered soft. Each step is
+              2.25x the card in the homepage grid (1 / 2 / 3 columns inside
+              the 1440px container); it is lazy, as the grid is far below the
+              fold. */}
           {image ? (
             <div data-parallax>
               <Image
                 src={image.url}
                 alt={property.title}
                 fill
-                loading="eager"
-                fetchPriority="low"
-                sizes="(max-width: 640px) 225vw, (max-width: 1024px) 113vw, 75vw"
+                sizes="(max-width: 639px) 203vw, (max-width: 1023px) 101vw, (max-width: 1439px) 68vw, 924px"
                 className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.05]"
               />
             </div>
