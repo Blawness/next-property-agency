@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, AtSign, Mail, MapPin, MessageCircle } from "lucide-react"
+import { ArrowRight, AtSign, Globe, Mail, MapPin, MessageCircle } from "lucide-react"
 import BrandMark from "@/components/BrandMark"
 import { BRAND } from "@/lib/brand"
 
@@ -108,6 +108,12 @@ export default function Footer() {
                 <Mail size={14} className="shrink-0 text-gold" />
                 <a href={`mailto:${BRAND.contact.email}`} className="min-w-0 break-all hover:text-gold">
                   {BRAND.contact.email}
+                </a>
+              </li>
+              <li className="flex min-w-0 items-center gap-2.5">
+                <Globe size={14} className="shrink-0 text-gold" />
+                <a href={`https://${BRAND.contact.website}`} className="min-w-0 break-all hover:text-gold">
+                  {BRAND.contact.website}
                 </a>
               </li>
             </ul>

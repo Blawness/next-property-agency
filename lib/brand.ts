@@ -134,7 +134,8 @@ export const BRAND = {
   },
 
   contact: {
-    email: "tigaanakpropetindo@gmail.com",
+    email: "office@tigaanakpropertindo.com",
+    website: "tigaanakpropertindo.com",
 
     // Fallback for the WhatsApp enquiry when a listing's agent has no number
     // on file. Left blank on purpose — an empty value hides the button rather
