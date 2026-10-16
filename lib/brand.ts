@@ -56,6 +56,28 @@ export const BRAND = {
     heading: "Cari sesuai budgetmu",
   },
 
+  benefits: {
+    heading: "Keuntungan bersama TRIHUNI",
+    subtitle: "Semua yang kamu butuhkan untuk menemukan properti yang tepat.",
+    items: [
+      { icon: "FileCheck", title: "Listing terverifikasi", description: "Setiap listing melalui verifikasi dokumen dan legalitas." },
+      { icon: "Users", title: "Agen terpercaya", description: "Terhubung langsung dengan agen yang menangani setiap listing." },
+      { icon: "MessageCircle", title: "Tanya lewat WhatsApp", description: "Hubungi agen langsung, tanpa formulir panjang." },
+      { icon: "Calculator", title: "Simulasi KPR", description: "Hitung cicilan bulanan di setiap listing yang dijual." },
+      { icon: "Map", title: "Cari lewat peta", description: "Lihat sebaran listing dan pilih lokasi yang pas." },
+      { icon: "SlidersHorizontal", title: "Filter lengkap", description: "Saring berdasarkan tipe, kota, harga, dan kamar tidur." },
+      { icon: "Heart", title: "Simpan favorit", description: "Tandai listing incaran dan buka lagi kapan saja." },
+      { icon: "KeyRound", title: "Jual dan sewa", description: "Rumah, apartemen, tanah, dan ruko — untuk dibeli atau disewa." },
+    ],
+  },
+
+  contactCta: {
+    heading: "Butuh bantuan cari properti?",
+    body: "Agen kami mengenal area dan tipe properti yang kamu cari. Ceritakan kebutuhanmu, kami bantu carikan.",
+    agentsCta: "Lihat Agen Kami",
+    whatsappCta: "Chat WhatsApp",
+  },
+
   // Homepage hero. The headline is set poster-size over three lines, and
   // `accent` — one word, no more — is set in script under the other two, so
   // keep the parts separate rather than one string with breaks in it.
