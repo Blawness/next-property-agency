@@ -147,7 +147,7 @@ export default function PropertyFilter({ layout = "stack" }: { layout?: "stack" 
         value={searchParams.get("sort") ?? "terbaru"}
         onValueChange={(v) => updateFilter("sort", v === "terbaru" ? "" : v)}
       >
-        <SelectTrigger className={CONTROL}>
+        <SelectTrigger className={`${CONTROL} w-full`}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -163,7 +163,7 @@ export default function PropertyFilter({ layout = "stack" }: { layout?: "stack" 
     <div>
       <Label className={LABEL}>Tipe Properti</Label>
       <Select value={type || "semua"} onValueChange={(v) => updateFilter("type", v)}>
-        <SelectTrigger className={CONTROL}>
+        <SelectTrigger className={`${CONTROL} w-full`}>
           <SelectValue placeholder="Semua Tipe" />
         </SelectTrigger>
         <SelectContent>
@@ -180,7 +180,7 @@ export default function PropertyFilter({ layout = "stack" }: { layout?: "stack" 
     <div>
       <Label className={LABEL}>Jual / Sewa</Label>
       <Select value={listingType || "semua"} onValueChange={(v) => updateFilter("listingType", v)}>
-        <SelectTrigger className={CONTROL}>
+        <SelectTrigger className={`${CONTROL} w-full`}>
           <SelectValue placeholder="Semua" />
         </SelectTrigger>
         <SelectContent>
@@ -200,7 +200,7 @@ export default function PropertyFilter({ layout = "stack" }: { layout?: "stack" 
         value={searchParams.get("city") ?? "semua"}
         onValueChange={(v) => updateFilter("city", v)}
       >
-        <SelectTrigger className={CONTROL}>
+        <SelectTrigger className={`${CONTROL} w-full`}>
           <SelectValue placeholder="Semua Kota" />
         </SelectTrigger>
         <SelectContent>
@@ -250,7 +250,7 @@ export default function PropertyFilter({ layout = "stack" }: { layout?: "stack" 
         value={searchParams.get("minBedrooms") ?? "semua"}
         onValueChange={(v) => updateFilter("minBedrooms", v)}
       >
-        <SelectTrigger className={CONTROL}>
+        <SelectTrigger className={`${CONTROL} w-full`}>
           <SelectValue placeholder="Semua" />
         </SelectTrigger>
         <SelectContent>

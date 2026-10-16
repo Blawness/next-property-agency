@@ -6,6 +6,7 @@ import SearchHero from "@/components/home/SearchHero"
 import ListingRail from "@/components/home/ListingRail"
 import BenefitsGrid from "@/components/home/BenefitsGrid"
 import ContactCta from "@/components/home/ContactCta"
+import HashScroll from "@/components/home/HashScroll"
 import PopularCities from "@/components/PopularCities"
 import { TYPE_CHIPS, budgetChips } from "@/components/home/rail-chips"
 import { BUDGET_RANGES, budgetHref, budgetParams, type BudgetRange } from "@/lib/budget-ranges"
@@ -81,6 +82,7 @@ export default async function HomePage() {
       <PopularCities />
       <BenefitsGrid />
       <ContactCta />
+      <HashScroll />
     </>
   )
 }

@@ -63,4 +63,11 @@ describe("bar layout", () => {
     fireEvent.click(screen.getByRole("button", { name: "Disewa" }))
     expect(push).toHaveBeenCalledWith("/properti?listingType=sewa")
   })
+
+  it("stretches every dropdown to its column, like the text fields beside it", () => {
+    render(<PropertyFilter layout="bar" />)
+    for (const trigger of screen.getAllByRole("combobox")) {
+      expect(trigger.className).toContain("w-full")
+    }
+  })
 })
