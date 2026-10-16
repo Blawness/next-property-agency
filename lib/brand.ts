@@ -36,6 +36,17 @@ export const BRAND = {
   loginDescription: "Masuk ke akun TRIHUNI kamu",
   registerDescription: "Buat akun TRIHUNI gratis",
 
+  // Homepage search hero: a rounded banner photograph with the search form on it.
+  searchHero: {
+    headline: "Temukan properti impianmu di seluruh Indonesia",
+    subtitle: "Rumah, apartemen, tanah, dan ruko — dijual dan disewakan langsung oleh agen terpercaya.",
+    placeholder: "Cari kota, area, atau nama properti",
+    cta: "Cari Sekarang",
+    image:
+      "https://images.unsplash.com/photo-1646928229117-08e84cde1692?auto=format&fit=crop&w=2000&q=80",
+    imageAlt: "Rumah di tengah hutan tropis",
+  },
+
   // Homepage hero. The headline is set poster-size over three lines, and
   // `accent` — one word, no more — is set in script under the other two, so
   // keep the parts separate rather than one string with breaks in it.
