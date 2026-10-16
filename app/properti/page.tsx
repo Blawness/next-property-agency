@@ -6,7 +6,7 @@ import PropertyFilter from "@/components/PropertyFilter"
 import CatalogPagination, { catalogPageHref } from "@/components/CatalogPagination"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import CatalogFilterSheet from "@/components/CatalogFilterSheet"
 import { Suspense } from "react"
 import Link from "next/link"
 import type { PropertyWithImages } from "@/lib/types"
@@ -22,7 +22,7 @@ import {
   type CatalogFilters,
   type RawCatalogParams,
 } from "@/lib/catalog-query"
-import { SlidersHorizontal, SearchX } from "lucide-react"
+import { SearchX } from "lucide-react"
 import SectionHeading from "@/components/SectionHeading"
 import { BRAND } from "@/lib/brand"
 import CatalogViewToggle from "@/components/CatalogViewToggle"
@@ -231,23 +231,7 @@ export default async function PropertiPage({ searchParams }: PageProps) {
 
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="lg:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="lg">
-                <SlidersHorizontal size={14} /> Filter
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <SheetHeader>
-                <SheetTitle>Filter Properti</SheetTitle>
-              </SheetHeader>
-              <div className="px-4 py-4">
-                <Suspense>
-                  <PropertyFilter />
-                </Suspense>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <CatalogFilterSheet />
         </div>
         <div className="ml-auto">
           <CatalogViewToggle view={filters.view} filters={raw} />
