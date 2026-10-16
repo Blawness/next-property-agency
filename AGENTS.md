@@ -66,102 +66,51 @@ There is no dark mode: `app/globals.css` defines one palette on `:root` only.
 
 ### Design tokens
 Every colour lives in `app/globals.css`. The palette is deep brown `#4A2E1C`,
-warm brown `#8A5526`, sand gold `#D6A76A` and terracotta `#C06A14` over
-off-white `#F9F9F9` and near-black `#1B1B1B`, mapped to roles rather than to
-those names: `--primary` is terracotta and drives calls to action, `--accent` is
-deep brown and carries every dark surface (footer, hero, admin sidebar,
-calculator result), `--gold` is highlight only. `--radius` is `0.25rem`.
+warm brown `#8A5526`, sand gold `#D6A76A` and terracotta `#C06A14` on white,
+with near-black `#1B1B1B` text, mapped to roles rather than to those names:
+`--primary` is terracotta and drives calls to action, active chips and
+prices; `--accent` is deep brown and carries headings and every dark surface
+(footer, admin sidebar, the homepage contact band); `--gold` is highlight
+only. `--muted` is the warm grey behind alternating sections. `--radius` is
+`0.75rem`; cards are `rounded-xl`, and buttons and chips are full pills
+(`components/ui/button.tsx` defaults to `rounded-full`).
 
 Typography is Plus Jakarta Sans throughout (`font-sans`, `font-heading`,
 `font-display` all resolve to it), wired up in `app/layout.tsx` at weights
 400–700 — nothing lighter, nothing heavier, so don't reach for `font-light` or
-`font-extrabold` on sans text.
-The homepage alone adds Cormorant Garamond (`font-serif`) for its display
-lines, Pinyon Script (`font-script`, not preloaded) for the single accent word
-under the hero headline, and `--ivory` for its alternating bands — the landing reads as a
-residence brochure, the rest of the app as a catalogue. Its sections share one
-editorial pattern: a numbered eyebrow (`01`–`05`), a light serif heading, and
-`Reveal effect="drift"` / `"unveil"` for slower entrances than the app's
-default `rise`.
+`font-extrabold`. There is no serif or script face.
 
-On `/` the navbar is transparent while the hero is behind it
-(`components/navbar/useOverHero.ts`); the hero pulls itself up under the bar
-with `-mt-16`. Anything that becomes the first homepage section must do the
-same, or the bar will float white-on-white.
+The look is a property marketplace (modelled on the browsing style of Indonesian
+rental marketplaces — style only, no borrowed assets or copy). The homepage is
+built from `components/home/`: `SearchHero` (a rounded banner photograph with
+a GET search form, `id="home"`), two `ListingRail`s — "Pilihan Untukmu" with
+type chips, and "Cari sesuai budgetmu" showing the cheapest band from
+`lib/budget-ranges.ts` that has a sale listing (left out when nothing is for
+sale) — then `PopularCities`, `BenefitsGrid`, and `ContactCta`
+(`id="contact"`, the navbar's Kontak target). Chips are links into
+`/properti`, so the rails need no client-side fetching. Budget bands stop one
+rupiah short of the next band because `catalogConditions` applies price
+bounds inclusively.
 
-Scroll motion on `/` is `components/HomeMotion.tsx`: Lenis smooth scrolling
-plus GSAP ScrollTrigger, mounted by the homepage alone so the catalogue, map
-and admin keep native scrolling. Sections stay server components and opt in
-with data attributes — `data-parallax` (an image layer drifting in a frame
-that clips), `data-split` (a heading's words rise in, one after another),
-`data-hero-zoom` / `-drift` / `-fade` / `-dim`, `data-expand` (a photograph
-opening out from a window to full bleed), and `data-footer-clip` (the last
-section, clipped into a card as the footer rises). Keep new effects to
-transform and opacity; the footer's clip-path is the one repaint, and only
-for the last screen. `#home` is a 300svh scroll area with the hero screen
-pinned inside it, and `-mb-[100svh]` lets About (`relative z-10`, its own
-background) slide over the last screen of it like a curtain;
-`useOverHero` subtracts that margin so the navbar turns solid when About
-reaches it. Under `prefers-reduced-motion` the hero is one screen, nothing
-overlaps, and HomeMotion does nothing.
+`PropertyCard` is the one listing card everywhere — homepage rails
+(`variant="rail"`, fixed 260px), catalog, agent and profile grids. Title,
+location, a one-line spec (`specLine`), then the price.
 
-Scroll smoothness was measured, not guessed: a Playwright wheel-scroll down
-`/` with the CPU slowed 4x, counting frame times. Three findings to keep:
-per-letter SplitText (each letter its own layer) was the costliest effect,
-so headings split by word; `transition-all` on `Reveal` cost frames, so it
-names `translate` and `opacity` (Tailwind v4's `translate-y-*` sets the
-`translate` property, not `transform`); and toggling `pointer-events` on
-`body` while Lenis scrolls — the usual "no hover while scrolling" trick —
-restyles the whole page on every start and stop, costing 150–250 ms frames,
-so it is deliberately absent. The hero is the only eager photograph,
+The navbar is always solid white with a bottom border; there is no
+transparent-over-hero mode. Scrolling is native everywhere — there is no
+Lenis, GSAP, or intro curtain. `Reveal` is a single short `rise`, used on
+catalog, agent and profile grids, not on the homepage.
+
+Performance findings that still hold: the hero is the only eager photograph,
 `loading="eager"` + `fetchPriority="high"` (Next 16 deprecates `priority`;
-React 19 writes the `<link rel="preload">` for it). Every other homepage
-photograph is lazy (Next's default). They were all eager once, so that none
-popped in mid-glide — but `IntroLoader` waited for every one of them, which
-held the hero, the LCP, behind the curtain for ~5s under Lighthouse's mobile
-throttling and put ~1.1MB on the first load. `IntroLoader` now waits only for
-images that are not `loading="lazy"`; a lazy one would never complete and
-would hold the curtain to its 6s maximum. If pop-in comes back on slow
-connections, warm the lazy images after `intro:done` rather than making them
-eager again. Never give an eager photograph `fetchPriority="high"` besides the
-hero: React preloads every server-rendered `<img>` that is neither lazy nor low
-priority. `sizes` everywhere is the width the photograph is *drawn* at, not
-the frame's: a `data-parallax` layer is 120% of its frame's height, so with
-`object-cover` a 3:2 listing photo in `HomeListingCard`'s 4:5 frame needs a
-source 2.25x the card's width (see the comment there), and the city tiles
-need more than their width (`TILE_SIZES` in `PopularCities`). Sized to the
-frame alone, the photos render soft.
-
-Other things found slow or laggy, and kept out: Lenis at `lerp` 0.1 or below
-(a wheel notch took ~0.9s to settle, so it runs at 0.15); `Reveal` at 1.1–1.4s
-triggered once 15% was on screen (the page outran its own content; now
-500–700ms and triggered just before entry); and `backdrop-blur` on the navbar
-and the card buttons, recomposited every frame over moving photographs on
-integrated GPUs, and barely visible behind a 95% opaque background.
-`/` opens on `components/IntroLoader.tsx`: a `bg-accent` curtain with the
-wordmark and a real percentage, held until the page can scroll smoothly —
-at least 1.2s, at most 6s — then lifted like the curtains elsewhere on the
-page. Lifting on the `load` event alone read as lag, because decoding,
-hydration and ScrollTrigger's measuring then landed on the first scroll; so
-it waits for `load`, then decodes every photograph, fires `intro:prepare`
-(HomeMotion runs `ScrollTrigger.refresh()` behind the curtain), then waits
-for twelve calm frames in a row. The hero's entrance plays as it lifts
-(`intro-lifting`); scrolling and Lenis stay held until it has gone
-(`intro:done`), so a scroll never competes with the lift. A parse-time inline
-script sets `intro-active` on `<html>` before first paint (scroll locked,
-hero entrance paused in CSS), and `intro-skip` on a second visit in the same
-session, so it
-never replays or flashes. That script also releases everything after 8s
-whatever happens, and the curtain fades itself out in CSS at 8s, so a failed
-JavaScript bundle can never leave a visitor stuck behind it. `<html>` carries
-`suppressHydrationWarning` because of those classes.
-The contact section sits on a `bg-accent` wrapper so the card shrinks onto the
-footer's colour; whatever becomes the last homepage section needs the same.
-
-Homepage listings use `HomeListingCard` (tall photo, serif title, quiet
-price); `PropertyCard` stays on the catalogue and agent pages, where a denser
-card suits scanning a long grid. The manifesto band's photograph is
-`BRAND.manifesto.image`, deliberately not a listing photo.
+React 19 writes the `<link rel="preload">` for it); never give another
+photograph `fetchPriority="high"`, since React preloads every server-rendered
+`<img>` that is neither lazy nor low priority. `sizes` everywhere is the width
+the photograph is *drawn* at, not the frame's: a 4:3 city photo in a 4:5 tile
+is drawn ~1.67x the tile's width (`CITY_TILE_SIZES` in `PopularCities`).
+Transitions name `translate` and `opacity` rather than `transition-all`, and
+there is no `backdrop-blur` — both measured as dropped frames over moving
+photographs on integrated GPUs.
 
 ### Brand config (`lib/brand.ts`)
 Every brand string — name, logo text, taglines, page titles, stats,
@@ -201,7 +150,7 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 ### Routes
 | Path | Purpose |
 |------|---------|
-| `/` | Homepage — featured active listings |
+| `/` | Homepage — search hero, listing rails by type and budget, cities, benefits, contact band |
 | `/properti` | Catalog with filters, sort and pagination; `?view=peta` swaps the grid for the map |
 | `/properti/[id]` | Detail — gallery, map, KPR simulation (sale listings), lead form, agent card |
 | `/peta` | 308 to `/properti?view=peta` (a `next.config.ts` redirect, not a route) |
