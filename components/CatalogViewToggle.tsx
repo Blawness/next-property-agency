@@ -29,7 +29,7 @@ function hrefFor(view: CatalogView, filters: RawCatalogParams): string {
 
 export default function CatalogViewToggle({ view, filters }: CatalogViewToggleProps) {
   return (
-    <div className="inline-flex overflow-hidden rounded-sm border border-border">
+    <div className="inline-flex gap-1 rounded-full border border-border p-1">
       {OPTIONS.map(({ view: option, label, Icon }) => {
         const active = option === view
         return (
@@ -38,7 +38,7 @@ export default function CatalogViewToggle({ view, filters }: CatalogViewTogglePr
             href={hrefFor(option, filters)}
             aria-current={active ? "true" : undefined}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-colors",
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors",
               active
                 ? "bg-primary text-primary-foreground"
                 : "bg-background text-muted-foreground hover:bg-muted",

@@ -129,9 +129,9 @@ export default function ProfilPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {favorites.map((prop, i) => (
-              <Reveal key={prop.id} delay={(i % 3) * 90}>
+              <Reveal key={prop.id} delay={(i % 4) * 90}>
                 <PropertyCard property={prop} />
               </Reveal>
             ))}

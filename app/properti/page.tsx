@@ -24,6 +24,7 @@ import {
 } from "@/lib/catalog-query"
 import { SlidersHorizontal, SearchX } from "lucide-react"
 import SectionHeading from "@/components/SectionHeading"
+import { BRAND } from "@/lib/brand"
 import CatalogViewToggle from "@/components/CatalogViewToggle"
 import MapView from "@/components/MapView"
 import MapCoverageNotice from "@/components/MapCoverageNotice"
@@ -88,14 +89,14 @@ async function getMapPins(filters: CatalogFilters) {
   return { pins, matching: totalRow[0]?.n ?? 0 }
 }
 
-const SKELETON_CARDS = Array.from({ length: 6 })
+const SKELETON_CARDS = Array.from({ length: 8 })
 
 function PropertyGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {SKELETON_CARDS.map((_, i) => (
         <div key={i} className="space-y-2">
-          <Skeleton className="h-48 w-full rounded-lg" />
+          <Skeleton className="aspect-[4/3] w-full rounded-xl" />
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-32" />
@@ -131,7 +132,7 @@ async function PropertyGrid({
         <p className="mt-1 text-sm text-muted-foreground">
           Pencarian ini hanya punya {totalPages} halaman ({total} properti).
         </p>
-        <Button variant="outline" size="sm" className="mt-5 rounded-xl" asChild>
+        <Button variant="outline" size="sm" className="mt-5" asChild>
           <Link href={catalogPageHref(raw, 1)}>Ke Halaman Pertama</Link>
         </Button>
       </div>
@@ -150,7 +151,7 @@ async function PropertyGrid({
         <p className="mt-1 text-sm text-muted-foreground">
           Coba ubah atau hapus beberapa filter.
         </p>
-        <Button variant="outline" size="sm" className="mt-5 rounded-xl" asChild>
+        <Button variant="outline" size="sm" className="mt-5" asChild>
           <Link href="/properti">Reset Filter</Link>
         </Button>
       </div>
@@ -163,12 +164,12 @@ async function PropertyGrid({
   return (
     <div>
       <p className="mb-5 text-sm text-muted-foreground">
-        Menampilkan <span className="font-semibold italic text-primary">{start}–{end}</span> dari{" "}
-        <span className="font-semibold italic text-primary">{total}</span> properti
+        <span className="font-semibold text-foreground">{total} properti</span> ditemukan
+        <span className="text-muted-foreground/70"> · menampilkan {start}–{end}</span>
       </p>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {items.map((property, i) => (
-          <Reveal key={property.id} delay={(i % 3) * 90}>
+          <Reveal key={property.id} delay={(i % 4) * 90}>
             <PropertyCard property={property} initialFavorited={favoriteIds.has(property.id)} />
           </Reveal>
         ))}
@@ -183,12 +184,12 @@ async function PropertyMapPanel({ filters }: { filters: CatalogFilters }) {
 
   if (matching === 0) {
     return (
-      <div className="flex h-[60vh] min-h-[420px] flex-col items-center justify-center gap-3 rounded-sm border border-border text-center">
+      <div className="flex h-[60vh] min-h-[420px] flex-col items-center justify-center gap-3 rounded-xl border border-border text-center">
         <SearchX size={28} strokeWidth={1.5} className="text-primary" />
         <p className="font-sans text-lg font-semibold text-foreground">
           Tidak ada properti ditemukan
         </p>
-        <Button variant="outline" size="sm" className="rounded-sm" asChild>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/properti?view=peta">Reset Filter</Link>
         </Button>
       </div>
@@ -198,7 +199,7 @@ async function PropertyMapPanel({ filters }: { filters: CatalogFilters }) {
   return (
     <div className="space-y-3">
       <MapCoverageNotice pinned={pins.length} matching={matching} />
-      <div className="overflow-hidden rounded-sm border border-border">
+      <div className="overflow-hidden rounded-xl border border-border">
         <div className="h-[60vh] min-h-[420px]">
           <MapView properties={pins} />
         </div>
@@ -208,7 +209,7 @@ async function PropertyMapPanel({ filters }: { filters: CatalogFilters }) {
 }
 
 function MapSkeleton() {
-  return <Skeleton className="h-[60vh] min-h-[420px] w-full rounded-sm" />
+  return <Skeleton className="h-[60vh] min-h-[420px] w-full rounded-xl" />
 }
 
 export default async function PropertiPage({ searchParams }: PageProps) {
@@ -217,52 +218,49 @@ export default async function PropertiPage({ searchParams }: PageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <SectionHeading eyebrow="Katalog" title="Katalog Properti" />
+      <SectionHeading title={BRAND.pageTitle.catalogHeading} />
 
-      {/* Mobile filter drawer */}
-      <div className="lg:hidden mb-4">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="rounded-xl">
-              <SlidersHorizontal size={14} className="mr-1" /> Filter
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <SheetHeader>
-              <SheetTitle>Filter Properti</SheetTitle>
-            </SheetHeader>
-            <div className="py-4">
-              <Suspense>
-                <PropertyFilter />
-              </Suspense>
-            </div>
-          </SheetContent>
-        </Sheet>
+      {/* Desktop: the filter bar stays under the navbar while the grid scrolls. */}
+      <div className="sticky top-16 z-30 -mx-4 mb-6 hidden border-b border-border bg-background px-4 py-3 lg:block">
+        <Suspense>
+          <PropertyFilter layout="bar" />
+        </Suspense>
       </div>
 
-      <div className="flex gap-8">
-        <aside className="hidden lg:block w-56 shrink-0">
-          <div className="sticky top-20 rounded-3xl bg-secondary/60 p-6">
-            <Suspense>
-              <PropertyFilter />
-            </Suspense>
-          </div>
-        </aside>
-        <div className="flex-1 min-w-0">
-          <div className="mb-5 flex justify-end">
-            <CatalogViewToggle view={filters.view} filters={raw} />
-          </div>
-          {filters.view === "peta" ? (
-            <Suspense fallback={<MapSkeleton />}>
-              <PropertyMapPanel filters={filters} />
-            </Suspense>
-          ) : (
-            <Suspense fallback={<PropertyGridSkeleton />}>
-              <PropertyGrid filters={filters} raw={raw} />
-            </Suspense>
-          )}
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="lg:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="lg">
+                <SlidersHorizontal size={14} /> Filter
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+              <SheetHeader>
+                <SheetTitle>Filter Properti</SheetTitle>
+              </SheetHeader>
+              <div className="px-4 py-4">
+                <Suspense>
+                  <PropertyFilter />
+                </Suspense>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+        <div className="ml-auto">
+          <CatalogViewToggle view={filters.view} filters={raw} />
         </div>
       </div>
+
+      {filters.view === "peta" ? (
+        <Suspense fallback={<MapSkeleton />}>
+          <PropertyMapPanel filters={filters} />
+        </Suspense>
+      ) : (
+        <Suspense fallback={<PropertyGridSkeleton />}>
+          <PropertyGrid filters={filters} raw={raw} />
+        </Suspense>
+      )}
     </div>
   )
 }

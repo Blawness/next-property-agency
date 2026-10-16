@@ -21,7 +21,7 @@ export default async function AgenPage() {
       <SectionHeading eyebrow="Tim" title="Agen Kami" />
 
       {agents.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-sm border border-border bg-card py-20 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card py-20 text-center">
           <Users className="h-8 w-8 text-muted-foreground/40" aria-hidden />
           <p className="text-sm text-muted-foreground">Belum ada agen terdaftar.</p>
         </div>

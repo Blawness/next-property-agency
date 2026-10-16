@@ -84,7 +84,7 @@ export default async function AgenDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(agent)) }}
       />
 
-      <div className="rounded-sm bg-accent p-8 text-accent-foreground sm:p-10">
+      <div className="rounded-xl bg-accent p-8 text-accent-foreground sm:p-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <Avatar className="h-28 w-28 shrink-0 border-2 border-gold">
             {agent.avatarUrl ? (
@@ -132,7 +132,7 @@ export default async function AgenDetailPage({ params }: PageProps) {
 
             {whatsappHref && (
               <Button
-                className="mt-6 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90"
+                className="mt-6 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
                 asChild
               >
                 <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
@@ -150,11 +150,11 @@ export default async function AgenDetailPage({ params }: PageProps) {
       <SectionHeading eyebrow="Portofolio" title={`Listing oleh ${agent.fullName}`} />
 
       {listings.length === 0 ? (
-        <p className="rounded-sm border border-border bg-card py-16 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-border bg-card py-16 text-center text-sm text-muted-foreground">
           Agen ini belum punya listing aktif.
         </p>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {listings.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}

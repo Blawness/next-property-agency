@@ -1,9 +1,18 @@
-import { rupiahToJuta, jutaToRupiah } from "@/components/PropertyFilter"
+import { render, screen, fireEvent } from "@testing-library/react"
+import PropertyFilter, { rupiahToJuta, jutaToRupiah } from "@/components/PropertyFilter"
+
+const push = jest.fn()
+let mockParams = new URLSearchParams()
 
 jest.mock("next/navigation", () => ({
-  useRouter: () => ({ push: jest.fn() }),
-  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push }),
+  useSearchParams: () => mockParams,
 }))
+
+beforeEach(() => {
+  push.mockClear()
+  mockParams = new URLSearchParams()
+})
 
 describe("price fields in millions", () => {
   it("shows the URL's rupiah back in millions, not as raw rupiah", () => {
@@ -24,5 +33,34 @@ describe("price fields in millions", () => {
     expect(jutaToRupiah("")).toBe("")
     expect(jutaToRupiah("  ")).toBe("")
     expect(jutaToRupiah("-5")).toBe("")
+  })
+})
+
+describe("bar layout", () => {
+  it("shows property types as chips and marks the current one", () => {
+    mockParams = new URLSearchParams("type=ruko")
+    render(<PropertyFilter layout="bar" />)
+    expect(screen.getByRole("button", { name: "Ruko" })).toHaveAttribute("aria-pressed", "true")
+    expect(screen.getByRole("button", { name: "Rumah" })).toHaveAttribute("aria-pressed", "false")
+  })
+
+  it("filters by type with the same URL key as before, back on page one", () => {
+    mockParams = new URLSearchParams("page=3&city=Bandung")
+    render(<PropertyFilter layout="bar" />)
+    fireEvent.click(screen.getByRole("button", { name: "Apartemen" }))
+    expect(push).toHaveBeenCalledWith("/properti?city=Bandung&type=apartemen")
+  })
+
+  it("clears the type when its active chip is pressed again", () => {
+    mockParams = new URLSearchParams("type=tanah")
+    render(<PropertyFilter layout="bar" />)
+    fireEvent.click(screen.getByRole("button", { name: "Tanah" }))
+    expect(push).toHaveBeenCalledWith("/properti?")
+  })
+
+  it("switches jual/sewa with chips", () => {
+    render(<PropertyFilter layout="bar" />)
+    fireEvent.click(screen.getByRole("button", { name: "Disewa" }))
+    expect(push).toHaveBeenCalledWith("/properti?listingType=sewa")
   })
 })
