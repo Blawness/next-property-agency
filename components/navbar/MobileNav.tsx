@@ -13,16 +13,10 @@ import {
 import { Menu, X } from "lucide-react"
 import NavLink from "@/components/navbar/NavLink"
 import { NAV_LINKS } from "@/components/navbar/nav-links"
-import { BRAND } from "@/lib/brand"
+import BrandMark from "@/components/BrandMark"
 import { cn } from "@/lib/utils"
 
-export default function MobileNav({
-  isActive,
-  light = false,
-}: {
-  isActive: (id: string) => boolean
-  light?: boolean
-}) {
+export default function MobileNav({ isActive }: { isActive: (id: string) => boolean }) {
   const { data: session } = useSession()
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
@@ -33,10 +27,7 @@ export default function MobileNav({
         <button
           type="button"
           aria-label="Buka menu navigasi"
-          className={cn(
-            "lg:hidden flex h-9 w-9 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            light ? "text-white hover:bg-white/10" : "text-primary hover:bg-muted",
-          )}
+          className="lg:hidden flex h-9 w-9 items-center justify-center rounded-full text-accent transition-colors hover:bg-muted outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Menu size={20} />
         </button>
@@ -46,7 +37,7 @@ export default function MobileNav({
         <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
 
         <div className="flex items-center justify-between border-b border-border px-5 h-16">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-foreground">{BRAND.name}</span>
+          <BrandMark size="sm" />
           <SheetClose asChild>
             <button
               type="button"
@@ -68,12 +59,11 @@ export default function MobileNav({
                 id={id}
                 onNavigate={close}
                 className={cn(
-                  "flex items-center justify-between border-b border-border py-4 font-serif text-[26px] font-light transition-colors",
-                  active ? "text-foreground font-normal" : "text-foreground/60 hover:text-foreground",
+                  "flex items-center justify-between rounded-xl px-3 py-3 text-base transition-colors",
+                  active ? "bg-primary/10 font-bold text-primary" : "font-medium text-foreground/75 hover:bg-muted",
                 )}
               >
-                <span className={active ? "italic" : undefined}>{label}</span>
-                {active && <span aria-hidden className="h-px w-6 bg-gold" />}
+                {label}
               </NavLink>
             )
           })}
@@ -84,7 +74,7 @@ export default function MobileNav({
             <Link
               href="/masuk"
               onClick={close}
-              className="flex h-12 w-full items-center justify-center border border-foreground/30 text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground transition-colors hover:bg-foreground hover:text-background"
+              className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Masuk
             </Link>

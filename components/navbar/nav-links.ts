@@ -5,16 +5,14 @@ export interface NavLink {
 }
 
 export const NAV_LINKS: NavLink[] = [
-  { href: "/#home", label: "Beranda", id: "home" },
-  { href: "/#about", label: "Tentang", id: "about" },
-  { href: "/#how", label: "Proses", id: "how" },
+  { href: "/", label: "Beranda", id: "home" },
   { href: "/properti", label: "Properti", id: "listings" },
   { href: "/agen", label: "Agen", id: "agents" },
   { href: "/#contact", label: "Kontak", id: "contact" },
 ]
 
-/** Sections observed on the homepage; the rest of the links point at routes. */
-export const HOME_SECTIONS = ["home", "about", "how", "contact"]
+/** Sections observed on the homepage: the search hero and the contact band. */
+export const HOME_SECTIONS = ["home", "contact"]
 
 /**
  * Hash links must stay plain anchors — `<Link>` cannot scroll to a section the

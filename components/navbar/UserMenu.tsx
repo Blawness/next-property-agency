@@ -11,23 +11,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PlusCircle, ChevronDown } from "lucide-react"
-import { cn } from "@/lib/utils"
 
-export default function UserMenu({ light = false }: { light?: boolean }) {
+export default function UserMenu() {
   const { data: session } = useSession()
 
   if (!session) {
     return (
       <Link
         href="/masuk"
-        className={cn(
-          "hidden sm:flex h-9 items-center border px-5 text-[11px] font-semibold uppercase tracking-[0.24em] transition-colors duration-300",
-          light
-            ? "border-white/50 text-white hover:bg-white hover:text-foreground"
-            : "border-foreground/30 text-foreground hover:border-foreground hover:bg-foreground hover:text-background",
-        )}
+        className="hidden h-10 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:flex"
       >
-        Masuk
+        Masuk / Daftar
       </Link>
     )
   }
@@ -37,7 +31,7 @@ export default function UserMenu({ light = false }: { light?: boolean }) {
       {session.user.role === "admin" ? (
         <Link
           href="/admin"
-          className="hidden sm:flex h-9 items-center gap-2 bg-primary px-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary/90"
+          className="hidden h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:flex"
         >
           <PlusCircle size={13} />
           Dashboard
@@ -47,10 +41,7 @@ export default function UserMenu({ light = false }: { light?: boolean }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              light ? "hover:bg-white/10" : "hover:bg-muted",
-            )}
+            className="flex items-center gap-1.5 rounded-full px-2 py-1.5 transition-colors outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="h-7 w-7 rounded-full bg-secondary border-2 border-border flex items-center justify-center shrink-0 overflow-hidden">
               {session.user.image ? (
@@ -67,7 +58,7 @@ export default function UserMenu({ light = false }: { light?: boolean }) {
                 </span>
               )}
             </div>
-            <ChevronDown size={12} className={cn("hidden sm:block", light ? "text-white/70" : "text-foreground/40")} />
+            <ChevronDown size={12} className="hidden text-foreground/40 sm:block" />
           </button>
         </DropdownMenuTrigger>
 

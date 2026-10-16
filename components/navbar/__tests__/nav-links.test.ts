@@ -14,7 +14,15 @@ describe("isHashLink", () => {
 
   it("classifies every link the navbar actually renders", () => {
     const routes = NAV_LINKS.filter((l) => !isHashLink(l.href)).map((l) => l.href)
-    expect(routes).toEqual(["/properti", "/agen"])
+    expect(routes).toEqual(["/", "/properti", "/agen"])
+  })
+
+  it("points Kontak at the homepage's #contact section", () => {
+    expect(NAV_LINKS.find((l) => l.id === "contact")?.href).toBe("/#contact")
+  })
+
+  it("no longer links the removed brochure sections", () => {
+    expect(NAV_LINKS.map((l) => l.id)).toEqual(["home", "listings", "agents", "contact"])
   })
 })
 
@@ -40,17 +48,17 @@ describe("isNavLinkActive", () => {
 
   it("falls back to Home on the homepage until a section is observed", () => {
     expect(isNavLinkActive("home", "/", null)).toBe(true)
-    expect(isNavLinkActive("about", "/", null)).toBe(false)
+    expect(isNavLinkActive("contact", "/", null)).toBe(false)
   })
 
   it("follows the observed section once there is one", () => {
-    expect(isNavLinkActive("about", "/", "about")).toBe(true)
-    expect(isNavLinkActive("home", "/", "about")).toBe(false)
+    expect(isNavLinkActive("contact", "/", "contact")).toBe(true)
+    expect(isNavLinkActive("home", "/", "contact")).toBe(false)
   })
 
   it("marks no section link outside the homepage", () => {
-    for (const id of ["home", "about", "how", "contact"]) {
-      expect(isNavLinkActive(id, "/properti", "about")).toBe(false)
+    for (const id of ["home", "contact"]) {
+      expect(isNavLinkActive(id, "/properti", "contact")).toBe(false)
     }
   })
 

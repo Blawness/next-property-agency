@@ -55,3 +55,19 @@ describe('Navbar active link', () => {
     expect(agen).toHaveAttribute('href', '/agen')
   })
 })
+
+describe('Navbar surface', () => {
+  it('is solid on the homepage too, with no transparent mode', () => {
+    const { container } = renderAt('/')
+    const header = container.querySelector('header')!
+    expect(header.className).toContain('bg-background')
+    expect(header.className).not.toContain('bg-transparent')
+  })
+
+  it('shows a pill sign-in link when signed out', () => {
+    const { getAllByRole } = renderAt('/properti')
+    const masuk = getAllByRole('link', { name: /masuk/i })[0]
+    expect(masuk).toHaveAttribute('href', '/masuk')
+    expect(masuk.className).toContain('rounded-full')
+  })
+})
