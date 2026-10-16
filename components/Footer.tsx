@@ -7,27 +7,18 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer id="kontak" data-footer className="bg-accent text-accent-foreground">
-      <div
-        aria-hidden
-        className="h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, oklch(0.72 0.09 78 / 0.55), transparent)",
-        }}
-      />
-      <div data-footer-content className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] pt-[clamp(4rem,8vw,6rem)] pb-10">
-        <div className="mb-14 flex flex-col gap-8 border-b border-accent-foreground/15 pb-14 lg:flex-row lg:items-end lg:justify-between">
-          <p data-split className="m-0 font-serif text-[clamp(2.5rem,5.5vw,5rem)] font-light leading-[1] tracking-[-0.01em]">
-            {BRAND.footer.closing.lead}{" "}
-            <span className="italic text-gold">{BRAND.footer.closing.trail}</span>
+    <footer className="bg-accent text-accent-foreground">
+      <div className="container mx-auto px-4 pt-12 pb-8">
+        <div className="mb-10 flex flex-col gap-4 border-b border-accent-foreground/15 pb-10 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xl font-bold sm:text-2xl">
+            {BRAND.footer.closing.lead} {BRAND.footer.closing.trail}
           </p>
           <Link
             href="/properti"
-            className="group inline-flex items-center gap-3 self-start border-b border-accent-foreground/40 pb-2 text-[11px] font-semibold uppercase tracking-[0.24em] transition-colors hover:border-gold hover:text-gold lg:self-auto"
+            className="inline-flex h-11 items-center gap-2 self-start rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:self-auto"
           >
             {BRAND.footer.closing.cta}
-            <ArrowRight size={15} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1" />
+            <ArrowRight size={15} aria-hidden />
           </Link>
         </div>
 
@@ -49,7 +40,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center border border-accent-foreground/20 text-accent-foreground/70 transition-colors hover:border-gold hover:text-gold"
+                  className="flex h-9 w-9 rounded-full items-center justify-center border border-accent-foreground/20 text-accent-foreground/70 transition-colors hover:border-gold hover:text-gold"
                 >
                   <Icon size={15} />
                 </a>
@@ -58,7 +49,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-5 text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+            <h3 className="mb-4 text-sm font-semibold text-accent-foreground">
               Jelajahi
             </h3>
             <ul className="space-y-2.5">
@@ -76,7 +67,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-5 text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+            <h3 className="mb-4 text-sm font-semibold text-accent-foreground">
               Perusahaan
             </h3>
             <ul className="space-y-2.5">
@@ -94,7 +85,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-5 text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+            <h3 className="mb-4 text-sm font-semibold text-accent-foreground">
               Kontak
             </h3>
             <ul className="space-y-3 text-sm text-accent-foreground/70">
@@ -124,7 +115,7 @@ export default function Footer() {
           <p className="text-xs text-accent-foreground/60">
             &copy; {year} {BRAND.name}. Hak cipta dilindungi.
           </p>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-accent-foreground/50">
+          <p className="text-xs text-accent-foreground/50">
             {BRAND.tagline}
           </p>
         </div>
