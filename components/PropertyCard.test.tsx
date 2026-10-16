@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { SessionProvider } from 'next-auth/react'
-import PropertyCard from '@/components/PropertyCard'
+import PropertyCard, { specLine } from '@/components/PropertyCard'
 import type { PropertyWithImages } from '@/lib/types'
 
 function renderWithSession(ui: React.ReactElement) {
@@ -67,5 +67,66 @@ describe('PropertyCard', () => {
   it('hides the WhatsApp button when no number is reachable', () => {
     renderWithSession(<PropertyCard property={mockProperty} />)
     expect(screen.queryByRole('link', { name: /whatsapp/i })).not.toBeInTheDocument()
+  })
+})
+
+describe('PropertyCard layout', () => {
+  it('reads title, then location, then specs, then price', () => {
+    const { container } = renderWithSession(
+      <PropertyCard property={{ ...mockProperty, address: 'Jl. Melati 5, Kemang' }} />,
+    )
+    const text = container.textContent ?? ''
+    const order = ['Test Property', 'Jl. Melati 5, Kemang', '3 KT · 2 KM · 100 m²', '1 M'].map((s) =>
+      text.indexOf(s),
+    )
+    expect(order.every((i) => i >= 0)).toBe(true)
+    expect([...order].sort((a, b) => a - b)).toEqual(order)
+  })
+
+  it('falls back to the city when there is no address', () => {
+    renderWithSession(<PropertyCard property={mockProperty} />)
+    expect(screen.getByText('Jakarta')).toBeInTheDocument()
+  })
+
+  it('marks a rent price per month', () => {
+    renderWithSession(
+      <PropertyCard property={{ ...mockProperty, listingType: 'sewa', price: '15000000' }} />,
+    )
+    expect(screen.getByText('/bln')).toBeInTheDocument()
+  })
+
+  it('shows a placeholder instead of a broken image when there is no photo', () => {
+    const { container } = renderWithSession(<PropertyCard property={{ ...mockProperty, images: [] }} />)
+    expect(screen.getByText('Tidak ada foto')).toBeInTheDocument()
+    expect(container.querySelector('img')).toBeNull()
+  })
+
+  it('gives the rail variant a fixed width so the rail can scroll', () => {
+    const { container } = renderWithSession(<PropertyCard property={mockProperty} variant="rail" />)
+    expect((container.firstChild as HTMLElement).className).toContain('w-[260px]')
+  })
+})
+
+describe('specLine', () => {
+  it('joins rooms and building area', () => {
+    expect(specLine(mockProperty)).toBe('3 KT · 2 KM · 100 m²')
+  })
+
+  it('shows land area alone for tanah', () => {
+    expect(specLine({ ...mockProperty, type: 'tanah' })).toBe('LT 200 m²')
+  })
+
+  it('is null for tanah without a land area, so no empty row renders', () => {
+    expect(specLine({ ...mockProperty, type: 'tanah', landArea: null })).toBeNull()
+  })
+
+  it('is null when a building has no specs at all', () => {
+    expect(
+      specLine({ ...mockProperty, bedrooms: null, bathrooms: null, buildingArea: null }),
+    ).toBeNull()
+  })
+
+  it('skips only the missing parts', () => {
+    expect(specLine({ ...mockProperty, bathrooms: null })).toBe('3 KT · 100 m²')
   })
 })
