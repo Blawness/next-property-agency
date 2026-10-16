@@ -3,32 +3,12 @@ import Image from "next/image"
 import { db } from "@/db"
 import { properties } from "@/db/schema"
 import { and, eq, isNull, count } from "drizzle-orm"
-import { ArrowUpRight } from "lucide-react"
-import Reveal from "@/components/Reveal"
-import { cn } from "@/lib/utils"
 import { BRAND } from "@/lib/brand"
 
-const BENTO = [
-  "col-span-2 row-span-2",
-  "col-span-2",
-  "",
-  "",
-  "col-span-2",
-  "col-span-2",
-]
-
-// `sizes` per BENTO tile. A tile's photograph is the width it must be drawn at
-// to cover the tile once the parallax layer adds 20% to its height — city
-// photos are 4:3, so a tall tile needs a source wider than the tile itself:
-// the large square at 2 x 240px + gap, the small ones at 240px (190px below md).
-const TILE_SIZES = [
-  "(max-width: 767px) 690px, 800px",
-  "(max-width: 767px) 90vw, (max-width: 1439px) 50vw, 640px",
-  "(max-width: 767px) 345px, 384px",
-  "(max-width: 767px) 345px, 384px",
-  "(max-width: 767px) 90vw, (max-width: 1439px) 50vw, 640px",
-  "(max-width: 767px) 90vw, (max-width: 1439px) 50vw, 640px",
-]
+// City photos are 4:3 and the tiles 4:5, so with object-cover a photo is drawn
+// at 5/4 x 4/3 ≈ 1.67x its tile's width: tiles are ~50vw below sm, ~33vw to lg,
+// and at most ~240px in the six-column row.
+const CITY_TILE_SIZES = "(max-width: 639px) 85vw, (max-width: 1023px) 56vw, 400px"
 
 async function getCityCounts(): Promise<Record<string, number>> {
   const rows = await db
@@ -41,68 +21,36 @@ async function getCityCounts(): Promise<Record<string, number>> {
 
 export default async function PopularCities() {
   const counts = await getCityCounts()
+  const { popularCities } = BRAND
 
   return (
-    <section className="bg-ivory">
-      <div className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] py-[clamp(6rem,11vw,9rem)]">
-        <Reveal effect="drift" className="mb-[clamp(3rem,6vw,5rem)] grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-x-12">
-          <div className="lg:col-span-6">
-            <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-muted-foreground">
-              <span className="font-serif text-[15px] italic tracking-normal text-primary">04</span>
-              <span aria-hidden className="h-px w-8 bg-gold" />
-              Lokasi
-            </p>
-            <h2 data-split className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em] text-foreground">
-              {BRAND.popularCities.heading}
-            </h2>
-          </div>
-          <p className="max-w-[40ch] text-[16px] leading-[1.85] text-muted-foreground lg:col-span-4 lg:col-start-9 lg:self-end">
-            Dari pusat kota hingga pesisir — alamat yang kami kenal dengan baik.
-          </p>
-        </Reveal>
-
-        <div className="grid auto-rows-[190px] grid-cols-2 gap-3 md:auto-rows-[240px] md:grid-cols-4 md:gap-4">
-          {BRAND.popularCities.cities.map((city, i) => (
-            <Reveal
-              key={city.name}
-              effect="unveil"
-              delay={i * 110}
-              className={cn(BENTO[i % BENTO.length])}
+    <section className="container mx-auto px-4 py-10 sm:py-12">
+      <h2 className="text-xl font-bold text-accent sm:text-2xl">{popularCities.heading}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{popularCities.subtitle}</p>
+      <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+        {popularCities.cities.map((city) => (
+          <li key={city.name}>
+            <Link
+              href={`/properti?city=${encodeURIComponent(city.name)}`}
+              prefetch={false}
+              className="group relative block aspect-[4/5] overflow-hidden rounded-xl bg-muted"
             >
-              <Link
-                href={`/properti?city=${city.name}`}
-                className="group relative block h-full w-full overflow-hidden"
-              >
-                <div data-parallax>
-                  <Image
-                    src={city.image}
-                    alt={city.name}
-                    fill
-                    sizes={TILE_SIZES[i % TILE_SIZES.length]}
-                    className="object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.06]"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#140A04]/85 via-[#140A04]/45 via-45% to-transparent transition-opacity duration-700 group-hover:opacity-90" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 sm:p-6">
-                  <div>
-                    <p className="font-serif text-[clamp(1.5rem,2.4vw,2.25rem)] font-light leading-none text-white">
-                      {city.name}
-                    </p>
-                    <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.28em] text-white/65">
-                      {counts[city.name.toLowerCase()] ?? 0} properti
-                    </p>
-                  </div>
-                  <ArrowUpRight
-                    size={20}
-                    strokeWidth={1.25}
-                    className="shrink-0 text-white/80 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1"
-                  />
-                </div>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-      </div>
+              <Image
+                src={city.image}
+                alt={city.name}
+                fill
+                sizes={CITY_TILE_SIZES}
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                <p className="text-base font-bold text-white sm:text-lg">{city.name}</p>
+                <p className="text-xs text-white/80">{counts[city.name.toLowerCase()] ?? 0} properti</p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

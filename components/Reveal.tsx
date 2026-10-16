@@ -3,49 +3,20 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
-type RevealEffect = "rise" | "drift" | "unveil"
-
 interface RevealProps {
   children: ReactNode
   className?: string
   /** stagger delay in ms */
   delay?: number
-  /**
-   * rise — the quick nudge used across the app.
-   * drift — a slower, longer rise for the homepage's editorial blocks.
-   * unveil — images wipe in from the bottom edge, like a curtain lifting.
-   */
-  effect?: RevealEffect
 }
 
 // Transitions name translate and opacity only (Tailwind v4 moves with the
-// `translate` property, not `transform`). `transition-all` also watched
-// every other property the wrapper's children could change, and measured as a
-// real cost while the homepage scrolls.
-//
-// Short, and triggered just before the element enters the screen: at 1.1s and
-// 1.4s, and only once 15% of an element was already in view, the page scrolled
-// ahead of its own content and a visitor saw blank space where a section
-// was still fading in.
-const EFFECTS: Record<RevealEffect, { base: string; hidden: string; shown: string }> = {
-  rise: {
-    base: "transition-[translate,opacity] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-    hidden: "translate-y-3 opacity-0",
-    shown: "translate-y-0 opacity-100",
-  },
-  drift: {
-    base: "transition-[translate,opacity] duration-[500ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-    hidden: "translate-y-8 opacity-0",
-    shown: "translate-y-0 opacity-100",
-  },
-  unveil: {
-    base: "transition-[clip-path,opacity] duration-[700ms] ease-[cubic-bezier(0.77,0,0.18,1)]",
-    hidden: "opacity-0 [clip-path:inset(100%_0_0_0)]",
-    shown: "opacity-100 [clip-path:inset(0_0_0_0)]",
-  },
-}
+// `translate` property, not `transform`); `transition-all` measured as a real
+// cost while scrolling. Short, and triggered just before the element enters
+// the screen, so the page never scrolls ahead of its own content.
+const BASE = "transition-[translate,opacity] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
 
-export default function Reveal({ children, className, delay = 0, effect = "rise" }: RevealProps) {
+export default function Reveal({ children, className, delay = 0 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -66,24 +37,12 @@ export default function Reveal({ children, className, delay = 0, effect = "rise"
     return () => io.disconnect()
   }, [])
 
-  const e = EFFECTS[effect]
-  const animated = cn(e.base, "motion-reduce:transition-none", visible ? e.shown : e.hidden)
-
-  // Chromium's IntersectionObserver honours clip-path, so an element clipped
-  // to nothing never reports as visible and would stay hidden for good. The
-  // curtain therefore goes on an inner box while the outer one is observed.
-  if (effect === "unveil") {
-    return (
-      <div ref={ref} className={className}>
-        <div style={{ transitionDelay: `${delay}ms` }} className={cn(animated, "h-full")}>
-          {children}
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div ref={ref} style={{ transitionDelay: `${delay}ms` }} className={cn(animated, className)}>
+    <div
+      ref={ref}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={cn(BASE, visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0", className)}
+    >
       {children}
     </div>
   )

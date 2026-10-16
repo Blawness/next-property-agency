@@ -1,121 +1,86 @@
-import Link from "next/link"
 import { db } from "@/db"
 import { properties } from "@/db/schema"
-import { eq, desc, and, isNull } from "drizzle-orm"
-import { ArrowRight } from "lucide-react"
-import Reveal from "@/components/Reveal"
-import ManifestoBand from "@/components/ManifestoBand"
-import HomeListingCard from "@/components/HomeListingCard"
-import HeroSection from "@/components/HeroSection"
-import HomeMotion from "@/components/HomeMotion"
-import IntroLoader from "@/components/IntroLoader"
-import AboutSection from "@/components/AboutSection"
-import HowWeWork from "@/components/HowWeWork"
-import ExploreTypes from "@/components/ExploreTypes"
-import PopularCities from "@/components/PopularCities"
-import ContactSection from "@/components/ContactSection"
-import type { PropertyWithImages } from "@/lib/types"
-import { getPropertiesWithImagesBatch, getFavoritePropertyIds } from "@/lib/db-helpers"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import SearchHero from "@/components/home/SearchHero"
+import ListingRail from "@/components/home/ListingRail"
+import BenefitsGrid from "@/components/home/BenefitsGrid"
+import ContactCta from "@/components/home/ContactCta"
+import PopularCities from "@/components/PopularCities"
+import { TYPE_CHIPS, budgetChips } from "@/components/home/rail-chips"
+import { BUDGET_RANGES, budgetHref, budgetParams, type BudgetRange } from "@/lib/budget-ranges"
+import {
+  CATALOG_ORDER_BY,
+  catalogConditions,
+  parseCatalogFilters,
+  type RawCatalogParams,
+} from "@/lib/catalog-query"
+import { getPropertiesWithImagesBatch, getFavoritePropertyIds } from "@/lib/db-helpers"
+import { BRAND } from "@/lib/brand"
+import type { PropertyWithImages } from "@/lib/types"
 
 export const revalidate = 60
 
-async function getFeaturedProperties(): Promise<PropertyWithImages[]> {
+const RAIL_SIZE = 10
+
+/** The newest visible listings for a catalog filter — the same rules the catalog applies. */
+function newestMatching(raw: RawCatalogParams): Promise<PropertyWithImages[]> {
   return getPropertiesWithImagesBatch(
     db
       .select()
       .from(properties)
-      .where(and(eq(properties.status, "active"), isNull(properties.deletedAt)))
-      .orderBy(desc(properties.createdAt))
-      .limit(6),
+      .where(catalogConditions(parseCatalogFilters(raw)))
+      .orderBy(...CATALOG_ORDER_BY.terbaru)
+      .limit(RAIL_SIZE),
   )
 }
 
+/**
+ * The cheapest budget band that has any sale listing, with its listings — or
+ * null when nothing is for sale, so the section is left out rather than empty.
+ * Usually one query; at most one per band.
+ */
+async function getBudgetShowcase(): Promise<{ range: BudgetRange; items: PropertyWithImages[] } | null> {
+  for (const range of BUDGET_RANGES) {
+    const items = await newestMatching(budgetParams(range))
+    if (items.length > 0) return { range, items }
+  }
+  return null
+}
+
 export default async function HomePage() {
-  const [featured, session] = await Promise.all([
-    getFeaturedProperties(),
+  const [latest, budget, session] = await Promise.all([
+    newestMatching({}),
+    getBudgetShowcase(),
     getServerSession(authOptions),
   ])
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()
 
-  // The small inset photo in About is a live listing when there is one.
-  const firstListingImage = featured
-    .map((p) => (p.images.find((i) => i.isPrimary) ?? p.images[0])?.url)
-    .find((url): url is string => Boolean(url))
-
   return (
-    <div>
-      <IntroLoader />
-      <HomeMotion />
-      <HeroSection />
-      <AboutSection secondaryImage={firstListingImage ?? null} />
-      <HowWeWork />
-      <ManifestoBand />
-
-      <section id="listing" className="mx-auto max-w-[1440px] px-[clamp(1.25rem,5vw,4.5rem)] py-[clamp(6rem,11vw,9rem)]">
-        <Reveal
-          effect="drift"
-          className="mb-[clamp(3rem,6vw,5rem)] flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end"
-        >
-          <div>
-            <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.32em] text-muted-foreground">
-              <span className="font-serif text-[15px] italic tracking-normal text-primary">03</span>
-              <span aria-hidden className="h-px w-8 bg-gold" />
-              Koleksi
-            </p>
-            <h2 data-split className="m-0 font-serif text-[clamp(2.5rem,4.8vw,4.25rem)] font-light leading-[1.02] tracking-[-0.01em] text-foreground">
-              Properti <span className="italic">Pilihan</span>
-            </h2>
-            <p className="mt-6 max-w-[46ch] text-[16px] leading-[1.85] text-muted-foreground">
-              Listing terbaru dari agen terpercaya di seluruh Indonesia.
-            </p>
-          </div>
-          {featured.length > 0 && (
-            <Link
-              href="/properti"
-              className="group inline-flex items-center gap-3 border-b border-foreground/40 pb-2 text-[12px] font-semibold uppercase tracking-[0.2em] text-foreground transition-colors hover:border-primary hover:text-primary"
-            >
-              Lihat semua koleksi
-              <ArrowRight
-                size={15}
-                strokeWidth={1.5}
-                className="transition-transform duration-500 group-hover:translate-x-1"
-              />
-            </Link>
-          )}
-        </Reveal>
-
-        <ExploreTypes />
-
-        <div className="mt-[clamp(3rem,6vw,5rem)]">
-          {featured.length === 0 ? (
-            <div className="border border-dashed border-border py-16 text-center">
-              <p className="text-sm text-muted-foreground">
-                Belum ada listing aktif saat ini.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.map((property, i) => (
-                <Reveal key={property.id} effect="drift" delay={(i % 3) * 120}>
-                  <HomeListingCard property={property} initialFavorited={favoriteIds.has(property.id)} />
-                </Reveal>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
+    <>
+      <SearchHero />
+      <ListingRail
+        heading={BRAND.listingRail.heading}
+        subheading={BRAND.listingRail.subheading}
+        chips={TYPE_CHIPS}
+        properties={latest}
+        favoriteIds={favoriteIds}
+        seeAllHref="/properti"
+      />
+      {budget && (
+        <ListingRail
+          heading={BRAND.budgetRail.heading}
+          subheading={`Properti dijual ${budget.range.label}`}
+          chips={budgetChips(budget.range)}
+          properties={budget.items}
+          favoriteIds={favoriteIds}
+          seeAllHref={budgetHref(budget.range)}
+          className="pt-0 sm:pt-0"
+        />
+      )}
       <PopularCities />
-      {/* The brown behind the contact block is the footer's: HomeMotion
-          clips the block into a card as the footer rises, and the card
-          should sit on the colour it is about to become. */}
-      <div className="bg-accent">
-        <div data-footer-clip>
-          <ContactSection />
-        </div>
-      </div>
-    </div>
+      <BenefitsGrid />
+      <ContactCta />
+    </>
   )
 }

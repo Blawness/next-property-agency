@@ -2,8 +2,8 @@ export const BRAND = {
   name: "TRIHUNI",
 
   // BrandMark draws the real TRIHUNI logo as inline SVG. `wordmark` is the
-  // plain-text form for the intro curtain; `monogram` only feeds the
-  // placeholder favicon (app/icon.svg and the PNGs rendered from it).
+  // plain-text form; `monogram` only feeds the favicon (app/icon.svg and the
+  // PNGs rendered from it).
   logo: { wordmark: "TRIHUNI", monogram: "T" },
 
   fullName: "TRIHUNI — Katalog Properti Indonesia",
@@ -11,8 +11,6 @@ export const BRAND = {
   tagline: "Katalog Properti #1 Indonesia",
 
   description: "Katalog properti terlengkap di Indonesia — rumah, apartemen, tanah, dan ruko",
-
-  heroImageAlt: "TRIHUNI — Katalog Properti Indonesia",
 
   pageTitle: {
     home: "TRIHUNI – Katalog Properti Indonesia",
@@ -78,51 +76,9 @@ export const BRAND = {
     whatsappCta: "Chat WhatsApp",
   },
 
-  // Homepage hero. The headline is set poster-size over three lines, and
-  // `accent` — one word, no more — is set in script under the other two, so
-  // keep the parts separate rather than one string with breaks in it.
-  hero: {
-    eyebrow: "Properti Pilihan di Seluruh Indonesia",
-    headline: { lead: "Ruang untuk hidup,", trail: "dirancang untuk", accent: "dikenang." },
-    subtitle:
-      "Rumah, apartemen, tanah, dan ruko terverifikasi — dikurasi oleh agen yang mengenal setiap alamatnya.",
-    primaryCta: "Jelajahi Koleksi",
-    secondaryCta: "Jadwalkan Konsultasi",
-    imageAlt: "Rumah di tengah hutan tropis",
-    // Footage, AV1 first and VP9 as the fallback; the still shows while it
-    // loads and for visitors who prefer reduced motion. Empty for now: the
-    // clip in public/ (an aerial of a ruko estate) reads commercial, not
-    // residential, so the still carries the hero until there is footage of a
-    // home. To bring it back:
-    //   { src: "/hero.av1.mp4", type: 'video/mp4; codecs="av01.0.05M.08"' },
-    //   { src: "/hero.webm", type: 'video/webm; codecs="vp9"' },
-    // Frame either so the lower third is calm — the headline sits there.
-    video: [] as ReadonlyArray<{ src: string; type: string }>,
-    poster:
-      "https://images.unsplash.com/photo-1646928229117-08e84cde1692?auto=format&fit=crop&w=2000&q=80",
-  },
-
-  // The homepage's opening screen, held until the page has loaded.
-  intro: {
-    caption: "Menyiapkan koleksi",
-  },
-
-  // Full-bleed quote band between the process and the collection.
-  manifesto: {
-    quote: "Properti terbaik tidak dijual dengan tergesa. Ia ditemukan, diperiksa, lalu dipilih dengan tenang.",
-    attribution: "Prinsip kerja TRIHUNI",
-    // Chosen, not pulled from a listing: agent photos vary too much to carry a
-    // full-bleed band. Swap for the agency's own photography when there is some.
-    image:
-      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=2000&auto=format&fit=crop&q=80",
-  },
-
-  exploreTypes: {
-    heading: "Jelajahi Tipe Properti",
-  },
-
   popularCities: {
-    heading: "Kota Populer",
+    heading: "Properti per kota",
+    subtitle: "Jelajahi listing aktif di kota-kota pilihan.",
     cities: [
       { name: "Jakarta", image: "https://images.unsplash.com/photo-1555899434-94d1368aa7af?w=800&h=600&fit=crop&auto=format" },
       { name: "Bandung", image: "https://images.unsplash.com/photo-1707993467310-a5b2bb858d68?w=800&h=600&fit=crop&auto=format" },
@@ -131,48 +87,6 @@ export const BRAND = {
       { name: "Bali", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&h=600&fit=crop&auto=format" },
       { name: "Semarang", image: "https://images.unsplash.com/photo-1657594873796-4a121883192a?w=800&h=600&fit=crop&auto=format" },
     ],
-  },
-
-  howWeWork: {
-    heading: "Bagaimana Kami Bekerja",
-    subtitle: "Proses mudah menemukan properti yang tepat untuk Anda.",
-    steps: [
-      {
-        icon: "MessageCircle",
-        title: "Konsultasi Gratis",
-        description: "Konsultasi kebutuhanmu, kami bantu tentukan tipe properti yang sesuai.",
-      },
-      {
-        icon: "Search",
-        title: "Cari & Pilih",
-        description: "Telusuri katalog terverifikasi, filter sesuai budget dan lokasi.",
-      },
-      {
-        icon: "FileCheck",
-        title: "Verifikasi Data",
-        description: "Setiap listing melalui proses verifikasi dokumen dan legalitas.",
-      },
-      {
-        icon: "Handshake",
-        title: "Hubungi Agen",
-        description: "Terhubung langsung dengan agen terpercaya untuk kunjungan & negosiasi.",
-      },
-    ] as const,
-  },
-
-  about: {
-    heading: "Tentang TRIHUNI",
-    subtitle:
-      "Katalog properti terlengkap untuk menemukan rumah, apartemen, tanah, dan ruko di seluruh Indonesia.",
-    body: "TRIHUNI adalah katalog properti modern yang mempertemukan pembeli, penyewa, dan agen terpercaya di seluruh Indonesia. Kami menyediakan ribuan listing terverifikasi — lengkap dengan foto, spesifikasi, dan lokasi — sehingga Anda dapat membuat keputusan properti dengan percaya diri.",
-    statement: "Setiap alamat punya cerita. Tugas kami memastikan ceritanya benar.",
-    image:
-      "https://images.unsplash.com/photo-1692736933760-8a8a9b8c1b6f?w=900&h=1100&fit=crop&auto=format&q=80",
-  },
-
-  contactSection: {
-    heading: "Mari berbincang.",
-    body: "Ceritakan properti yang Anda cari — kami balas dengan daftar pilihan dalam satu hari kerja.",
   },
 
   contact: {
@@ -207,7 +121,6 @@ export const BRAND = {
       { label: "Ruko", href: "/properti?type=ruko" },
     ],
     company: [
-      { label: "Tentang Kami", href: "/#about" },
       { label: "Hubungi Kami", href: "/#contact" },
       { label: "Kebijakan Privasi", href: "#" },
     ],

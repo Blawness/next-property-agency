@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Cormorant_Garamond, Pinyon_Script, Plus_Jakarta_Sans } from "next/font/google"
+import { Plus_Jakarta_Sans } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import Navbar from "@/components/Navbar"
@@ -16,36 +16,14 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
 })
 
-// Cormorant carries the homepage's display lines — a high-contrast serif set
-// light and large, which is what makes the landing read as a residence
-// brochure rather than a catalogue. The rest of the app never uses it.
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
-})
-
-// Pinyon Script sets the one accent word under the hero headline. Only the
-// homepage uses it, so it is not preloaded: other pages never fetch the file.
-const pinyon = Pinyon_Script({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-pinyon",
-  preload: false,
-})
-
 export const metadata: Metadata = {
   title: BRAND.pageTitle.home,
   description: BRAND.description,
 }
 
-// suppressHydrationWarning: IntroLoader's parse-time script adds intro-* classes
-// to <html> before React hydrates, so its className differs from the server's
-// on purpose. It only silences that one element's own attributes.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning className={`${jakarta.variable} ${cormorant.variable} ${pinyon.variable}`}>
+    <html lang="id" className={jakarta.variable}>
       <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <Providers>
           <Navbar />
