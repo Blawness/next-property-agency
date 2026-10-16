@@ -47,6 +47,15 @@ export const BRAND = {
     imageAlt: "Rumah di tengah hutan tropis",
   },
 
+  listingRail: {
+    heading: "Pilihan Untukmu",
+    subheading: "Listing terbaru dari agen kami",
+  },
+
+  budgetRail: {
+    heading: "Cari sesuai budgetmu",
+  },
+
   // Homepage hero. The headline is set poster-size over three lines, and
   // `accent` — one word, no more — is set in script under the other two, so
   // keep the parts separate rather than one string with breaks in it.
