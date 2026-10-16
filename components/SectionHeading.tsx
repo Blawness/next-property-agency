@@ -12,34 +12,18 @@ export default function SectionHeading({
   eyebrow,
   title,
   subtitle,
-  align = "center",
+  align = "left",
   className,
 }: SectionHeadingProps) {
   const centered = align === "center"
   return (
-    <div className={cn("mb-10", centered ? "text-center" : "text-left", className)}>
+    <div className={cn("mb-6", centered ? "text-center" : "text-left", className)}>
       {eyebrow ? (
-        <p
-          className={cn(
-            "mb-3 flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-primary",
-            centered && "justify-center",
-          )}
-        >
-          {centered && <span aria-hidden className="h-px w-6 bg-gold/70" />}
-          {eyebrow}
-          {centered && <span aria-hidden className="h-px w-6 bg-gold/70" />}
-        </p>
+        <p className="mb-1 text-[13px] font-semibold text-primary">{eyebrow}</p>
       ) : null}
-      <h2 className="font-sans text-2xl font-semibold tracking-tight text-foreground sm:text-4xl">
-        {title}
-      </h2>
+      <h2 className="text-2xl font-bold tracking-tight text-accent sm:text-3xl">{title}</h2>
       {subtitle ? (
-        <p
-          className={cn(
-            "mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-[15px]",
-            centered && "mx-auto",
-          )}
-        >
+        <p className={cn("mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground", centered && "mx-auto")}>
           {subtitle}
         </p>
       ) : null}

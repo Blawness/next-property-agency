@@ -14,13 +14,13 @@ describe('SectionHeading', () => {
     expect(screen.getByRole('heading', { name: 'Hanya Judul' })).toBeInTheDocument()
   })
 
-  it('centers by default', () => {
+  it('aligns left by default, like the marketplace section headings', () => {
     const { container } = render(<SectionHeading title="A" />)
-    expect(container.firstChild).toHaveClass('text-center')
+    expect(container.firstChild).toHaveClass('text-left')
   })
 
-  it('can align left', () => {
-    const { container } = render(<SectionHeading title="A" align="left" />)
-    expect(container.firstChild).toHaveClass('text-left')
+  it('can center', () => {
+    const { container } = render(<SectionHeading title="A" align="center" />)
+    expect(container.firstChild).toHaveClass('text-center')
   })
 })

@@ -50,10 +50,11 @@
 }
 
 :root {
-  /* Palette — deep brown / warm brown / sand gold / terracotta on off-white.
+  /* Palette — deep brown / warm brown / sand gold / terracotta on white.
      Roles differ from the swatch names: terracotta drives calls to action,
-     deep brown carries every dark surface, sand gold is highlight only. */
-  --background: #F9F9F9;
+     chips and prices; deep brown carries headings and every dark surface;
+     sand gold is highlight only. */
+  --background: #FFFFFF;
   --foreground: #1B1B1B;
   --card: #FFFFFF;
   --card-foreground: #1B1B1B;
@@ -61,19 +62,19 @@
   --popover-foreground: #1B1B1B;
   --primary: #C06A14;
   --primary-foreground: #FFFFFF;
-  --secondary: #F0EAE2;
+  --secondary: #F5F2EE;
   --secondary-foreground: #1B1B1B;
-  --muted: #F1EDE8;
+  --muted: #F5F2EE;
   --muted-foreground: #6B5B4D;
   --accent: #4A2E1C;
   --accent-foreground: #F5EFE9;
   --destructive: oklch(0.55 0.20 25);
-  --border: #E3DBD1;
-  --input: #EDE6DE;
+  --border: #E9E3DC;
+  --input: #E9E3DC;
   --ring: #C06A14;
-  /* Editorial: near-square corners. The upstream catalog used 0.875rem —
-     this single value is what makes every card read as a different site. */
-  --radius: 0.25rem;
+  /* Marketplace: soft, rounded corners on cards and panels; buttons and
+     chips are full pills on top of this. */
+  --radius: 0.75rem;
   --gold: #D6A76A;
   --warm: #8A5526;
   --ink: #1B1B1B;
