@@ -12,7 +12,7 @@ import { BRAND } from "@/lib/brand"
 
 export default function Navbar() {
   const pathname = usePathname()
-  const activeSection = useActiveSection()
+  const activeSection = useActiveSection(pathname)
 
   if (pathname.startsWith("/admin")) return null
 

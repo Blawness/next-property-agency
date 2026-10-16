@@ -26,7 +26,7 @@ export default function Rail({ children, label }: { children: ReactNode; label: 
         role="region"
         aria-label={label}
         tabIndex={0}
-        className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-3 outline-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-3 outline-none focus-visible:ring-2 focus-visible:ring-ring [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </div>

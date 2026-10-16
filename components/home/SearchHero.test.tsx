@@ -55,4 +55,9 @@ describe("SearchHero", () => {
     expect(form).toHaveAttribute("action", "/properti")
     expect(form).toHaveAttribute("method", "get")
   })
+
+  it("asks for a photo as wide as it is drawn on phones, where the tall banner crops a 3:2 photo to ~825px", () => {
+    const { container } = render(<SearchHero />)
+    expect(container.querySelector("img")?.getAttribute("sizes")).toMatch(/^\(max-width: 639px\) 830px, /)
+  })
 })

@@ -220,8 +220,10 @@ export default async function PropertiPage({ searchParams }: PageProps) {
     <div className="container mx-auto px-4 py-8">
       <SectionHeading title={BRAND.pageTitle.catalogHeading} />
 
-      {/* Desktop: the filter bar stays under the navbar while the grid scrolls. */}
-      <div className="sticky top-16 z-30 -mx-4 mb-6 hidden border-b border-border bg-background px-4 py-3 lg:block">
+      {/* Desktop filter bar. It stays under the navbar only from xl, where the
+          fields fit one row (~130px); below that it wraps to ~190px, a quarter
+          of a laptop screen, so it scrolls away with the page instead. */}
+      <div className="top-16 z-30 -mx-4 mb-6 hidden border-b border-border bg-background px-4 py-3 lg:block xl:sticky">
         <Suspense>
           <PropertyFilter layout="bar" />
         </Suspense>

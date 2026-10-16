@@ -45,7 +45,9 @@ export default function SearchHero() {
           fill
           loading="eager"
           fetchPriority="high"
-          sizes="(max-width: 1535px) 100vw, 1504px"
+          // Below sm the stacked form makes the banner taller than wide, so
+          // object-cover draws the 3:2 photo ~735–825px wide at any phone width.
+          sizes="(max-width: 639px) 830px, (max-width: 1535px) 100vw, 1504px"
           className="object-cover"
         />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/10" />
