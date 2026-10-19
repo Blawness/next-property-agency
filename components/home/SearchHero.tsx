@@ -1,8 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { BRAND } from "@/lib/brand"
 import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS } from "@/lib/constants"
 
@@ -19,22 +24,28 @@ export function searchHref(form: FormData): string {
   return query ? `/properti?${query}` : "/properti"
 }
 
+// Radix Select and ToggleGroup take no empty value, so "all" is a sentinel;
+// the hidden inputs below submit it as blank, which searchHref leaves out.
+const ALL = "semua"
+
 const LISTING_OPTIONS = [
-  { value: "", label: "Semua" },
+  { value: ALL, label: "Semua" },
   { value: "jual", label: "Dijual" },
   { value: "sewa", label: "Disewa" },
 ]
 
-const FIELD =
-  "h-12 w-full rounded-full border border-border bg-background text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+const FIELD = "h-12 rounded-full border-border bg-background text-sm"
 
 /**
- * The homepage's opening section. A plain GET form, so it searches without
- * JavaScript too; with it, blank fields are left out of the URL.
+ * The homepage's opening section. A GET form to /properti: without JavaScript
+ * the search box still works on its own; with it, the type and jual/sewa
+ * choices ride along and blank fields are left out of the URL.
  */
 export default function SearchHero() {
   const router = useRouter()
   const { searchHero } = BRAND
+  const [type, setType] = useState(ALL)
+  const [listingType, setListingType] = useState(ALL)
 
   return (
     <section id="home" className="container mx-auto px-4 pt-4 sm:pt-6">
@@ -67,23 +78,23 @@ export default function SearchHero() {
             }}
             className="mt-8 rounded-2xl bg-background p-3 shadow-lg sm:p-4 lg:max-w-4xl"
           >
-            <fieldset className="mb-3 flex gap-2">
-              <legend className="sr-only">Dijual atau disewa</legend>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              aria-label="Dijual atau disewa"
+              value={listingType}
+              // Always one choice: pressing the active item again keeps it.
+              onValueChange={(v) => v && setListingType(v)}
+              className="mb-3"
+            >
               {LISTING_OPTIONS.map((o) => (
-                <label key={o.label} className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="listingType"
-                    value={o.value}
-                    defaultChecked={o.value === ""}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex h-8 items-center rounded-full border border-border px-4 text-[13px] font-medium text-muted-foreground transition-colors peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-ring">
-                    {o.label}
-                  </span>
-                </label>
+                <ToggleGroupItem key={o.value} value={o.value} className="h-8 border-border px-4 text-[13px]">
+                  {o.label}
+                </ToggleGroupItem>
               ))}
-            </fieldset>
+            </ToggleGroup>
+            <input type="hidden" name="listingType" value={listingType === ALL ? "" : listingType} />
+            <input type="hidden" name="type" value={type === ALL ? "" : type} />
 
             <div className="flex flex-col gap-2 sm:flex-row">
               <label className="relative flex-1">
@@ -92,25 +103,24 @@ export default function SearchHero() {
                   aria-hidden
                   className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                 />
-                <input name="q" type="search" placeholder={searchHero.placeholder} className={`${FIELD} pl-10 pr-4`} />
+                <Input name="q" type="search" placeholder={searchHero.placeholder} className={`${FIELD} pl-10 pr-4`} />
               </label>
-              <label className="sm:w-44">
-                <span className="sr-only">Tipe properti</span>
-                <select name="type" defaultValue="" className={`${FIELD} px-4`}>
-                  <option value="">Semua tipe</option>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger aria-label="Tipe properti" className={`${FIELD} !h-12 w-full px-4 sm:w-44`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>Semua tipe</SelectItem>
                   {PROPERTY_TYPES.map((t) => (
-                    <option key={t} value={t}>
+                    <SelectItem key={t} value={t}>
                       {PROPERTY_TYPE_LABELS[t]}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-              </label>
-              <button
-                type="submit"
-                className="h-12 rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-              >
+                </SelectContent>
+              </Select>
+              <Button type="submit" className="h-12 px-7 font-semibold">
                 {searchHero.cta}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

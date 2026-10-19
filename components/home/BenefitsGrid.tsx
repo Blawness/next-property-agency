@@ -9,6 +9,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 import { BRAND } from "@/lib/brand"
 
 type BenefitIcon = (typeof BRAND.benefits.items)[number]["icon"]
@@ -35,12 +36,16 @@ export default function BenefitsGrid() {
           {benefits.items.map((item) => {
             const Icon = ICONS[item.icon]
             return (
-              <li key={item.title} className="rounded-xl bg-background p-4 sm:p-5">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Icon size={20} aria-hidden />
-                </span>
-                <h3 className="mt-3 text-[15px] font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{item.description}</p>
+              <li key={item.title}>
+                <Card className="h-full ring-0">
+                  <CardContent className="sm:px-5">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Icon size={20} aria-hidden />
+                    </span>
+                    <h3 className="mt-3 text-[15px] font-semibold text-foreground">{item.title}</h3>
+                    <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{item.description}</p>
+                  </CardContent>
+                </Card>
               </li>
             )
           })}

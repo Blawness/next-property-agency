@@ -84,4 +84,10 @@ describe("chips", () => {
     expect(chips.filter((c) => c.active).map((c) => c.label)).toEqual([BUDGET_RANGES[2].label])
     expect(chips).toHaveLength(BUDGET_RANGES.length)
   })
+
+  it("does not announce the type chips as the current page — they link away to the catalog", () => {
+    for (const chip of TYPE_CHIPS) {
+      expect(chip).not.toHaveProperty("active", true)
+    }
+  })
 })

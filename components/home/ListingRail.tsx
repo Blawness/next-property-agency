@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import PropertyCard from "@/components/PropertyCard"
-import Chip from "@/components/home/Chip"
+import { Button } from "@/components/ui/button"
 import Rail from "@/components/home/Rail"
 import type { PropertyWithImages } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 export interface RailChip {
   label: string
   href: string
+  /** Drawn filled — the band a rail is showing. Visual only: these are links. */
   active?: boolean
 }
 
@@ -50,9 +51,16 @@ export default function ListingRail({
 
       <div className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {chips.map((chip) => (
-          <Chip key={chip.href} href={chip.href} active={chip.active}>
-            {chip.label}
-          </Chip>
+          <Button
+            key={chip.href}
+            asChild
+            variant={chip.active ? "default" : "outline"}
+            className="h-9 shrink-0 px-4 text-[13px]"
+          >
+            <Link href={chip.href} prefetch={false}>
+              {chip.label}
+            </Link>
+          </Button>
         ))}
       </div>
 

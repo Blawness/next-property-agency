@@ -35,3 +35,28 @@ for (const [key, value] of Object.entries(undiciGlobals)) {
     globalThis[key] = value
   }
 }
+
+// Browser APIs jsdom lacks. Embla (components/ui/carousel.tsx) reads all three
+// when it mounts; none of them does anything here.
+if (typeof window !== 'undefined') {
+  if (!window.matchMedia) {
+    window.matchMedia = (query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    })
+  }
+  class NoopObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() { return [] }
+  }
+  if (!window.ResizeObserver) window.ResizeObserver = NoopObserver
+  if (!window.IntersectionObserver) window.IntersectionObserver = NoopObserver
+}

@@ -37,30 +37,32 @@ describe("price fields in millions", () => {
 })
 
 describe("bar layout", () => {
-  it("shows property types as chips and marks the current one", () => {
+  it("shows property types as a single-choice toggle group with the current one on", () => {
     mockParams = new URLSearchParams("type=ruko")
     render(<PropertyFilter layout="bar" />)
-    expect(screen.getByRole("button", { name: "Ruko" })).toHaveAttribute("aria-pressed", "true")
-    expect(screen.getByRole("button", { name: "Rumah" })).toHaveAttribute("aria-pressed", "false")
+    expect(screen.getByRole("group", { name: "Tipe properti" })).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "Ruko" })).toHaveAttribute("aria-checked", "true")
+    expect(screen.getByRole("radio", { name: "Rumah" })).toHaveAttribute("aria-checked", "false")
   })
 
   it("filters by type with the same URL key as before, back on page one", () => {
     mockParams = new URLSearchParams("page=3&city=Bandung")
     render(<PropertyFilter layout="bar" />)
-    fireEvent.click(screen.getByRole("button", { name: "Apartemen" }))
+    fireEvent.click(screen.getByRole("radio", { name: "Apartemen" }))
     expect(push).toHaveBeenCalledWith("/properti?city=Bandung&type=apartemen")
   })
 
-  it("clears the type when its active chip is pressed again", () => {
+  it("clears the type when its active item is pressed again", () => {
     mockParams = new URLSearchParams("type=tanah")
     render(<PropertyFilter layout="bar" />)
-    fireEvent.click(screen.getByRole("button", { name: "Tanah" }))
+    fireEvent.click(screen.getByRole("radio", { name: "Tanah" }))
     expect(push).toHaveBeenCalledWith("/properti?")
   })
 
-  it("switches jual/sewa with chips", () => {
+  it("switches jual/sewa with its own labelled group", () => {
     render(<PropertyFilter layout="bar" />)
-    fireEvent.click(screen.getByRole("button", { name: "Disewa" }))
+    expect(screen.getByRole("group", { name: "Dijual atau disewa" })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("radio", { name: "Disewa" }))
     expect(push).toHaveBeenCalledWith("/properti?listingType=sewa")
   })
 

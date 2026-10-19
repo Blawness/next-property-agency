@@ -20,7 +20,7 @@ import {
   SORT_KEYS,
   SORT_LABELS,
 } from "@/lib/constants"
-import { cn } from "@/lib/utils"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 /** The price fields are typed in millions; the URL carries whole rupiah. */
 const RUPIAH_PER_JUTA = 1_000_000
@@ -45,31 +45,8 @@ const NOT_FILTERS = new Set(["view", "page"])
 const LABEL = "mb-1 block text-xs font-medium text-muted-foreground"
 const CONTROL = "h-9 text-sm rounded-full bg-background border border-border focus:ring-2 focus:ring-primary"
 
-function FilterChip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        "inline-flex h-9 shrink-0 items-center rounded-full border px-4 text-[13px] font-medium transition-colors",
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-background text-foreground/75 hover:border-primary hover:text-primary",
-      )}
-    >
-      {children}
-    </button>
-  )
-}
+// Visual size of the bar's toggle items; on/off colours come from toggleVariants.
+const TOGGLE_ITEM = "h-9 border-border bg-background px-4 text-[13px] text-foreground/75"
 
 /**
  * The catalog filter. `stack` is the vertical form in the mobile drawer; `bar`
@@ -268,21 +245,34 @@ export default function PropertyFilter({ layout = "stack" }: { layout?: "stack" 
     return (
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
-          {PROPERTY_TYPES.map((t) => (
-            <FilterChip key={t} active={type === t} onClick={() => updateFilter("type", type === t ? "" : t)}>
-              {PROPERTY_TYPE_LABELS[t]}
-            </FilterChip>
-          ))}
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            aria-label="Tipe properti"
+            value={type}
+            onValueChange={(v) => updateFilter("type", v)}
+            className="flex-wrap"
+          >
+            {PROPERTY_TYPES.map((t) => (
+              <ToggleGroupItem key={t} value={t} className={TOGGLE_ITEM}>
+                {PROPERTY_TYPE_LABELS[t]}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
           <span aria-hidden className="mx-1 h-6 w-px bg-border" />
-          {Object.entries(LISTING_TYPE_LABELS).map(([k, v]) => (
-            <FilterChip
-              key={k}
-              active={listingType === k}
-              onClick={() => updateFilter("listingType", listingType === k ? "" : k)}
-            >
-              {v}
-            </FilterChip>
-          ))}
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            aria-label="Dijual atau disewa"
+            value={listingType}
+            onValueChange={(v) => updateFilter("listingType", v)}
+          >
+            {Object.entries(LISTING_TYPE_LABELS).map(([k, v]) => (
+              <ToggleGroupItem key={k} value={k} className={TOGGLE_ITEM}>
+                {v}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-auto">
               <X className="mr-1 h-3 w-3" />

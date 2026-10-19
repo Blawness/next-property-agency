@@ -4,7 +4,7 @@ import type { RailChip } from "@/components/home/ListingRail"
 
 /** "Pilihan Untukmu": every type, plus rentals. Each opens the catalog filtered. */
 export const TYPE_CHIPS: readonly RailChip[] = [
-  { label: "Semua", href: "/properti", active: true },
+  { label: "Semua", href: "/properti" },
   ...PROPERTY_TYPES.map((t) => ({ label: PROPERTY_TYPE_LABELS[t], href: `/properti?type=${t}` })),
   { label: "Disewakan", href: "/properti?listingType=sewa" },
 ]

@@ -40,13 +40,25 @@ describe("SearchHero", () => {
     expect(container.querySelector("section")).toHaveAttribute("id", "home")
   })
 
-  it("submits the filled fields to the catalog", () => {
+  it("submits the query and the jual/sewa choice to the catalog", () => {
     render(<SearchHero />)
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Kemang" } })
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "apartemen" } })
     fireEvent.click(screen.getByRole("radio", { name: "Disewa" }))
     fireEvent.click(screen.getByRole("button", { name: "Cari Sekarang" }))
-    expect(push).toHaveBeenCalledWith("/properti?q=Kemang&type=apartemen&listingType=sewa")
+    expect(push).toHaveBeenCalledWith("/properti?q=Kemang&listingType=sewa")
+  })
+
+  it("offers jual/sewa as a labelled single-choice toggle group, Semua on by default", () => {
+    render(<SearchHero />)
+    expect(screen.getByRole("group", { name: "Dijual atau disewa" })).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: "Semua" })).toHaveAttribute("aria-checked", "true")
+  })
+
+  it("uses the shadcn Select for the property type, still submitting as `type`", () => {
+    const { container } = render(<SearchHero />)
+    const trigger = screen.getByRole("combobox", { name: "Tipe properti" })
+    expect(trigger).toHaveAttribute("data-slot", "select-trigger")
+    expect(container.querySelector('form select[name="type"], form input[name="type"]')).not.toBeNull()
   })
 
   it("works as a plain GET form without JavaScript", () => {

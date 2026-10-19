@@ -57,7 +57,7 @@ export default function PropertyCard({
     <article
       className={cn(
         "group relative overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-shadow duration-200 hover:shadow-lg",
-        variant === "rail" && "w-[260px] shrink-0 snap-start",
+        variant === "rail" && "w-[260px] shrink-0",
       )}
     >
       <Link

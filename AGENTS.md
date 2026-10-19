@@ -212,6 +212,18 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   is absent on most desktops, the second throws outside HTTPS and in some
   in-app browsers. `ShareButton` reads them at click time, falls back to its
   own menu, and reports a failed copy rather than looking like it worked.
+- **Reach for a shadcn/ui component before hand-rolling one.** Rails are
+  shadcn `Carousel` (Embla), filter and jual/sewa choices are `ToggleGroup`,
+  labels `Badge`, panels `Card`, dropdowns `Select`. When adding one with
+  `pnpm exec shadcn add <name>`, answer **no** to overwriting `button.tsx`
+  (it is customised to pills) — the CLI asks and, with stdin closed, stops
+  without writing anything. New files import `cn` from the `cn` package;
+  point them at `@/lib/utils` like the rest of `components/ui/`, and do not
+  keep the `cn` dependency. `carousel.tsx` reads Embla's scroll state with
+  `useSyncExternalStore` rather than upstream's setState-in-effect, which the
+  React lint rules reject. jsdom lacks what Embla reads on mount, so
+  `jest.setup.js` stubs `matchMedia`, `ResizeObserver` and
+  `IntersectionObserver`.
 - **KPR maths** lives in `lib/mortgage.ts` as a pure function; the component is
   presentation only.
 - **A streamed `notFound()` returns HTTP 200, and that is correct.** Dynamic
