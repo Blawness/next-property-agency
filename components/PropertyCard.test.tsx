@@ -71,13 +71,13 @@ describe('PropertyCard', () => {
 })
 
 describe('PropertyCard layout', () => {
-  it('reads title, then location, then specs, then price', () => {
+  it('reads type label, then title, location, specs and price', () => {
     const { container } = renderWithSession(
       <PropertyCard property={{ ...mockProperty, address: 'Jl. Melati 5, Kemang' }} />,
     )
     const text = container.textContent ?? ''
-    const order = ['Test Property', 'Jl. Melati 5, Kemang', '3 KT · 2 KM · 100 m²', '1 M'].map((s) =>
-      text.indexOf(s),
+    const order = ['Rumah', 'Test Property', 'Jl. Melati 5, Kemang', '3 KT · 2 KM · 100 m²', '1 M'].map(
+      (s) => text.indexOf(s),
     )
     expect(order.every((i) => i >= 0)).toBe(true)
     expect([...order].sort((a, b) => a - b)).toEqual(order)
@@ -88,11 +88,24 @@ describe('PropertyCard layout', () => {
     expect(screen.getByText('Jakarta')).toBeInTheDocument()
   })
 
-  it('marks a rent price per month', () => {
+  it('marks a rent price per month in full', () => {
     renderWithSession(
       <PropertyCard property={{ ...mockProperty, listingType: 'sewa', price: '15000000' }} />,
     )
-    expect(screen.getByText('/bln')).toBeInTheDocument()
+    expect(screen.getByText('/bulan')).toBeInTheDocument()
+  })
+
+  it('is flat: no border or shadow around the card', () => {
+    const { container } = renderWithSession(<PropertyCard property={mockProperty} />)
+    const card = container.firstChild as HTMLElement
+    expect(card.className).not.toMatch(/\bborder\b|shadow/)
+  })
+
+  it('sets the price in the text colour, not the call-to-action colour', () => {
+    renderWithSession(<PropertyCard property={mockProperty} />)
+    const price = screen.getByText('1 M').parentElement!
+    expect(price.className).toContain('text-foreground')
+    expect(price.className).not.toContain('text-primary')
   })
 
   it('shows a placeholder instead of a broken image when there is no photo', () => {

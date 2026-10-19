@@ -1,8 +1,8 @@
 import Link from "next/link"
 import Image from "next/image"
-import { MessageCircle } from "lucide-react"
+import { BedDouble, Building2, Home, MessageCircle, Store, Trees } from "lucide-react"
 import type { PropertyWithImages } from "@/lib/types"
-import { formatPriceCompactValue, SITE_URL } from "@/lib/constants"
+import { formatPriceCompactValue, PROPERTY_TYPE_LABELS, SITE_URL } from "@/lib/constants"
 import { BRAND } from "@/lib/brand"
 import { buildWhatsAppLink } from "@/lib/whatsapp"
 import { cn } from "@/lib/utils"
@@ -10,6 +10,8 @@ import PropertyPills from "@/components/PropertyPills"
 import FavoriteButton from "@/components/FavoriteButton"
 
 type CardVariant = "grid" | "rail"
+
+const TYPE_ICONS = { rumah: Home, apartemen: Building2, tanah: Trees, ruko: Store } as const
 
 // The width each photo is drawn at. Grid: 1 / 2 / 3 / 4 columns at the catalog
 // breakpoints. Rail: a fixed 260px card.
@@ -53,26 +55,24 @@ export default function PropertyCard({
     officePhone: BRAND.contact.whatsapp,
   })
 
+  const TypeIcon = TYPE_ICONS[property.type as keyof typeof TYPE_ICONS] ?? Home
+  const suffix = price.suffix ? "/bulan" : ""
+
   return (
-    <article
-      className={cn(
-        "group relative overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm transition-shadow duration-200 hover:shadow-lg",
-        variant === "rail" && "w-[260px] shrink-0",
-      )}
-    >
+    <article className={cn("group relative", variant === "rail" && "w-[260px] shrink-0")}>
       <Link
         href={`/properti/${property.id}`}
         prefetch={false}
-        className="block outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        className="block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <div className="relative aspect-[4/3] bg-muted">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted">
           {primaryImage ? (
             <Image
               src={primaryImage.url}
               alt={property.title}
               fill
               sizes={SIZES[variant]}
-              className="object-cover"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground/60">
@@ -80,23 +80,32 @@ export default function PropertyCard({
             </div>
           )}
           <div className="absolute left-2.5 top-2.5">
-            <PropertyPills listingType={property.listingType} type={property.type} />
+            <PropertyPills listingType={property.listingType} />
           </div>
         </div>
 
-        <div className="p-3.5">
-          <h3 className="line-clamp-2 min-h-[2.6rem] text-[15px] font-semibold leading-snug text-foreground">
+        <div className="pt-2.5">
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <TypeIcon size={13} aria-hidden />
+            {PROPERTY_TYPE_LABELS[property.type]}
+          </p>
+          <h3 className="mt-1 line-clamp-2 text-[15px] font-bold leading-snug text-foreground transition-colors group-hover:text-primary">
             {property.title}
           </h3>
-          <p className="mt-1 line-clamp-1 text-[13px] text-muted-foreground">
+          <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">
             {property.address ?? property.city}
           </p>
-          {specs && <p className="mt-0.5 text-[13px] text-muted-foreground">{specs}</p>}
+          {specs && (
+            <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted-foreground">
+              <BedDouble size={13} aria-hidden />
+              {specs}
+            </p>
+          )}
           {/* Right padding keeps the price clear of the WhatsApp button. */}
-          <p className="mt-2.5 flex items-baseline gap-0.5 pr-11 text-lg font-bold leading-none text-primary">
+          <p className="mt-2 flex items-baseline gap-0.5 pr-11 text-[17px] font-bold leading-none text-foreground">
             <span className="text-[0.7em] font-semibold">{price.prefix}</span>
             <span>{price.value}</span>
-            {price.suffix && <span className="text-[0.7em] font-medium">{price.suffix}</span>}
+            {suffix && <span className="ml-0.5 text-[0.75em] font-normal text-muted-foreground">{suffix}</span>}
           </p>
         </div>
       </Link>
@@ -111,9 +120,9 @@ export default function PropertyCard({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Tanya lewat WhatsApp: ${property.title}`}
-          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-accent text-accent-foreground transition-colors hover:bg-primary"
+          className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground transition-colors hover:bg-primary"
         >
-          <MessageCircle size={16} aria-hidden />
+          <MessageCircle size={15} aria-hidden />
         </a>
       )}
     </article>
