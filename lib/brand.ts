@@ -26,7 +26,7 @@ export const BRAND = {
 
   pageDescription: {
     home: "Temukan rumah, apartemen, tanah, dan ruko terbaik di seluruh Indonesia",
-    catalog: "Telusuri katalog properti terverifikasi di seluruh Indonesia",
+    catalog: "Telusuri rumah, apartemen, tanah, dan ruko di seluruh Indonesia",
     register: "Buat akun TRIHUNI gratis",
     login: "Masuk ke akun TRIHUNI kamu",
   },
@@ -58,7 +58,7 @@ export const BRAND = {
     heading: "Keuntungan bersama TRIHUNI",
     subtitle: "Semua yang kamu butuhkan untuk menemukan properti yang tepat.",
     items: [
-      { icon: "FileCheck", title: "Listing terverifikasi", description: "Setiap listing melalui verifikasi dokumen dan legalitas." },
+      { icon: "FileCheck", title: "Harga dan lokasi jelas", description: "Setiap listing mencantumkan harga dan kotanya, tanpa perlu bertanya dulu." },
       { icon: "Users", title: "Agen terpercaya", description: "Terhubung langsung dengan agen yang menangani setiap listing." },
       { icon: "MessageCircle", title: "Tanya lewat WhatsApp", description: "Hubungi agen langsung, tanpa formulir panjang." },
       { icon: "Calculator", title: "Simulasi KPR", description: "Hitung cicilan bulanan di setiap listing yang dijual." },
