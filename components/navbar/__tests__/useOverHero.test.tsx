@@ -49,4 +49,47 @@ describe("useOverHero", () => {
     rerender(<Probe pathname="/" />)
     expect(container.textContent).toBe("true")
   })
+
+  it("stays solid while the homepage is still streaming in, so it never sits white on the white skeleton", () => {
+    document.body.innerHTML = "<main><div>skeleton</div></main>"
+    const { container } = render(<Probe pathname="/" />)
+    expect(container.textContent).toBe("false")
+  })
+
+  it("turns transparent once the streamed hero arrives, however late", async () => {
+    jest.useFakeTimers()
+    try {
+      document.body.innerHTML = ""
+      const { container } = render(<Probe pathname="/" />)
+      expect(container.textContent).toBe("false")
+      act(() => {
+        jest.advanceTimersByTime(5000)
+      })
+      hero(600)
+      await act(async () => {})
+      expect(container.textContent).toBe("true")
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it("waits while the streamed hero is still parked in React's hidden container", async () => {
+    document.body.innerHTML = ""
+    const parked = document.createElement("div")
+    parked.hidden = true
+    const el = document.createElement("section")
+    el.id = "home"
+    el.getBoundingClientRect = () => ({ bottom: 600 } as DOMRect)
+    parked.appendChild(el)
+    document.body.appendChild(parked)
+
+    const { container } = render(<Probe pathname="/" />)
+    expect(container.textContent).toBe("false")
+
+    // React swaps the finished segment into place.
+    document.body.appendChild(el)
+    parked.remove()
+    await act(async () => {})
+    expect(container.textContent).toBe("true")
+  })
 })

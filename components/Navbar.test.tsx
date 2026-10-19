@@ -76,6 +76,11 @@ describe('Mobile menu', () => {
 
 describe('Navbar surface', () => {
   it('is transparent over the homepage hero, with light text', () => {
+    document.body.innerHTML = ''
+    const heroEl = document.createElement('section')
+    heroEl.id = 'home'
+    heroEl.getBoundingClientRect = () => ({ bottom: 600 }) as DOMRect
+    document.body.appendChild(heroEl)
     const { container } = renderAt('/')
     const header = container.querySelector('header')!
     expect(header.className).toContain('bg-transparent')

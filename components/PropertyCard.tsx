@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { BedDouble, Building2, Home, MessageCircle, Store, Trees } from "lucide-react"
+import { BedDouble, Building2, Home, Maximize2, MessageCircle, Store, Trees } from "lucide-react"
 import type { PropertyWithImages } from "@/lib/types"
 import { formatPriceCompactValue, PROPERTY_TYPE_LABELS, SITE_URL } from "@/lib/constants"
 import { BRAND } from "@/lib/brand"
@@ -57,6 +57,9 @@ export default function PropertyCard({
 
   const TypeIcon = TYPE_ICONS[property.type as keyof typeof TYPE_ICONS] ?? Home
   const suffix = price.suffix ? "/bulan" : ""
+  // A bed only where there are bedrooms; land, and buildings listed by area
+  // alone, get the area icon.
+  const SpecIcon = property.type !== "tanah" && property.bedrooms != null ? BedDouble : Maximize2
 
   return (
     <article className={cn("group relative", variant === "rail" && "w-[260px] shrink-0")}>
@@ -97,7 +100,7 @@ export default function PropertyCard({
           </p>
           {specs && (
             <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted-foreground">
-              <BedDouble size={13} aria-hidden />
+              <SpecIcon size={13} aria-hidden />
               {specs}
             </p>
           )}

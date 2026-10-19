@@ -120,6 +120,27 @@ describe('PropertyCard layout', () => {
   })
 })
 
+describe('PropertyCard spec icon', () => {
+  it('shows a bed for a listing with bedrooms', () => {
+    const { container } = renderWithSession(<PropertyCard property={mockProperty} />)
+    expect(container.querySelector('.lucide-bed-double')).not.toBeNull()
+  })
+
+  it('shows an area icon, not a bed, for land', () => {
+    const { container } = renderWithSession(<PropertyCard property={{ ...mockProperty, type: 'tanah' }} />)
+    expect(container.querySelector('.lucide-bed-double')).toBeNull()
+    expect(container.querySelector('.lucide-maximize-2')).not.toBeNull()
+  })
+
+  it('shows an area icon when a building lists no bedrooms', () => {
+    const { container } = renderWithSession(
+      <PropertyCard property={{ ...mockProperty, type: 'ruko', bedrooms: null, bathrooms: null }} />,
+    )
+    expect(container.querySelector('.lucide-bed-double')).toBeNull()
+    expect(container.querySelector('.lucide-maximize-2')).not.toBeNull()
+  })
+})
+
 describe('specLine', () => {
   it('joins rooms and building area', () => {
     expect(specLine(mockProperty)).toBe('3 KT · 2 KM · 100 m²')

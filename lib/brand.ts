@@ -104,7 +104,7 @@ export const BRAND = {
   searchHero: {
     headline: "Temukan properti impianmu di seluruh Indonesia",
     subtitle: "Rumah, apartemen, tanah, dan ruko — dijual dan disewakan langsung oleh agen terpercaya.",
-    placeholder: "Cari kota, area, atau nama properti",
+    placeholder: "Cari lokasi atau properti",
     cta: "Cari",
     image:
       "https://images.unsplash.com/photo-1646928229117-08e84cde1692?auto=format&fit=crop&w=2000&q=80",

@@ -17,20 +17,31 @@ export function useOverHero(pathname: string): boolean {
 
   useEffect(() => {
     if (!onHome) return
-    // Look the hero up on every check: the homepage streams in behind
-    // app/loading.tsx, so the navbar can mount before the hero exists. Until
-    // it does, the viewport stands in for it — the hero is the first section.
+    // The homepage streams in behind app/loading.tsx, a white skeleton with
+    // no hero: until #home exists the bar stays solid (a transparent bar there
+    // is white on white). A MutationObserver waits for it, however long the
+    // stream takes, and lets go once it is there.
+    // React streams a segment into a `<div hidden>` first and moves it into
+    // place once it is complete, so a hero found in there is not on screen yet.
     const update = () => {
-      const hero = document.getElementById("home")
-      const bottom = hero ? hero.getBoundingClientRect().bottom : window.innerHeight - window.scrollY
-      setOver(bottom > BAR_HEIGHT)
+      const found = document.getElementById("home")
+      const hero = found && !found.closest("[hidden]") ? found : null
+      setOver(hero ? hero.getBoundingClientRect().bottom > BAR_HEIGHT : false)
+      return hero
     }
-    update()
+    let waiting: MutationObserver | null = null
+    if (!update()) {
+      waiting = new MutationObserver(() => {
+        if (update()) waiting?.disconnect()
+      })
+      waiting.observe(document.body, { childList: true, subtree: true })
+    }
     window.addEventListener("scroll", update, { passive: true })
     window.addEventListener("resize", update)
     return () => {
       window.removeEventListener("scroll", update)
       window.removeEventListener("resize", update)
+      waiting?.disconnect()
       setOver(true)
     }
   }, [onHome])

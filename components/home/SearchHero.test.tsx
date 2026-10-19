@@ -78,4 +78,10 @@ describe("SearchHero", () => {
     const { container } = render(<SearchHero />)
     expect(container.querySelector("img")?.getAttribute("sizes")).toBe("(max-width: 767px) 840px, 100vw")
   })
+
+  it("keeps the placeholder short enough to read whole in a 375px phone pill", () => {
+    render(<SearchHero />)
+    // ~250px of input at 14px fits about 26 characters before it is cut off.
+    expect(screen.getByRole("searchbox").getAttribute("placeholder")!.length).toBeLessThanOrEqual(26)
+  })
 })

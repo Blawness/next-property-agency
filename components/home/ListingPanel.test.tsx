@@ -68,6 +68,24 @@ describe("ListingPanel", () => {
     renderPanel()
     expect(within(screen.getByRole("group", { name: "Kategori" })).getAllByRole("radio")).toHaveLength(5)
   })
+
+  it("ties the listings to the selected tab as its tab panel", () => {
+    renderPanel()
+    const panel = screen.getByRole("tabpanel")
+    expect(panel).toHaveAccessibleName("Dijual")
+    expect(within(panel).getByText("Listing j1")).toBeInTheDocument()
+    fireEvent.mouseDown(screen.getByRole("tab", { name: "Disewa" }))
+    expect(screen.getByRole("tabpanel")).toHaveAccessibleName("Disewa")
+  })
+
+  it("links the empty state onward to the catalog filtered the same way", () => {
+    renderPanel()
+    fireEvent.click(screen.getByRole("radio", { name: "Tanah" }))
+    expect(screen.getByRole("link", { name: /lihat semua/i })).toHaveAttribute(
+      "href",
+      "/properti?listingType=jual&type=tanah",
+    )
+  })
 })
 
 describe("panelHref", () => {
