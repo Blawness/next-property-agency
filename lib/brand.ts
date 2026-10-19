@@ -36,31 +36,33 @@ export const BRAND = {
 
   // The navbar: three dropdowns, from the agency's submenu brief. Items with
   // no page of their own yet open a "Segera hadir" page (BRAND.comingSoon).
+  // Each item's one-line description and lucide icon show in the desktop
+  // dropdown; the descriptions are placeholders until the real pages exist.
   navMenu: [
     {
       id: "produk",
       label: "Produk Trihuni",
       items: [
-        { label: "Kunjungi Kerjasama", href: "/kerjasama" },
-        { label: "Trihuni Catalog", href: "/properti" },
-        { label: "Trihuni Finance", href: "/finance" },
-        { label: "Trihuni Studio", href: "/studio" },
+        { label: "Kunjungi Kerjasama", href: "/kerjasama", icon: "Handshake", description: "Peluang kerja sama dengan TRIHUNI" },
+        { label: "Trihuni Catalog", href: "/properti", icon: "LayoutGrid", description: "Rumah, apartemen, tanah, dan ruko" },
+        { label: "Trihuni Finance", href: "/finance", icon: "Wallet", description: "Seputar pembiayaan properti" },
+        { label: "Trihuni Studio", href: "/studio", icon: "Camera", description: "Foto dan konten properti" },
       ],
     },
     {
       id: "corp",
       label: "Trihuni Corp",
       items: [
-        { label: "For Business", href: "/bisnis" },
-        { label: "Trihuni Hub", href: "/hub" },
+        { label: "For Business", href: "/bisnis", icon: "Briefcase", description: "TRIHUNI untuk perusahaan" },
+        { label: "Trihuni Hub", href: "/hub", icon: "Network", description: "Jaringan dan mitra TRIHUNI" },
       ],
     },
     {
       id: "tentang",
       label: "Tentang Trihuni",
       items: [
-        { label: "Tentang Kami", href: "/tentang" },
-        { label: "Kontak Kami", href: "/#contact" },
+        { label: "Tentang Kami", href: "/tentang", icon: "Info", description: "Kenali TRIHUNI lebih dekat" },
+        { label: "Kontak Kami", href: "/#contact", icon: "Phone", description: "Hubungi tim kami" },
       ],
     },
   ],

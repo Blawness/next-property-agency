@@ -35,8 +35,8 @@ describe('Navbar dropdowns', () => {
   it('opens a dropdown on click and lists its items with their links', () => {
     renderAt('/')
     fireEvent.click(screen.getByRole('button', { name: 'Produk Trihuni' }))
-    expect(screen.getByRole('link', { name: 'Trihuni Catalog' })).toHaveAttribute('href', '/properti')
-    expect(screen.getByRole('link', { name: 'Kunjungi Kerjasama' })).toHaveAttribute('href', '/kerjasama')
+    expect(screen.getByRole('link', { name: /^Trihuni Catalog/ })).toHaveAttribute('href', '/properti')
+    expect(screen.getByRole('link', { name: /^Kunjungi Kerjasama/ })).toHaveAttribute('href', '/kerjasama')
   })
 
   it('marks nothing on the homepage before a section is observed', () => {
@@ -71,6 +71,38 @@ describe('Mobile menu', () => {
     expect(within(dialog).getByRole('link', { name: 'Kontak Kami' })).toHaveAttribute('href', '/#contact')
     expect(within(dialog).getByRole('link', { name: 'Tentang Kami' })).toHaveAttribute('aria-current', 'page')
     expect(within(dialog).getByRole('link', { name: 'For Business' })).not.toHaveAttribute('aria-current')
+  })
+})
+
+describe('Navbar dropdown UX', () => {
+  it('keeps a dropdown open when its trigger is clicked again, as on hover-then-click', () => {
+    renderAt('/properti')
+    const trigger = screen.getByRole('button', { name: 'Produk Trihuni' })
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('data-state', 'open')
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('data-state', 'open')
+  })
+
+  it('shows the pointer cursor on every trigger', () => {
+    renderAt('/properti')
+    for (const name of ['Produk Trihuni', 'Trihuni Corp', 'Tentang Trihuni']) {
+      expect(screen.getByRole('button', { name }).className).toContain('cursor-pointer')
+    }
+  })
+
+  it('gives every item a one-line description under its label', () => {
+    renderAt('/properti')
+    fireEvent.click(screen.getByRole('button', { name: 'Produk Trihuni' }))
+    const catalog = screen.getByRole('link', { name: /Trihuni Catalog/ })
+    expect(catalog).toHaveTextContent('Rumah, apartemen, tanah, dan ruko')
+  })
+
+  it('dims the page behind an open dropdown, and only then', () => {
+    const { container } = renderAt('/properti')
+    expect(container.querySelector('[data-nav-overlay]')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Trihuni Corp' }))
+    expect(container.querySelector('[data-nav-overlay]')).not.toBeNull()
   })
 })
 

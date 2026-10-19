@@ -3,6 +3,10 @@ import { BRAND } from "@/lib/brand"
 export interface NavItem {
   label: string
   href: string
+  /** One line under the label in the desktop dropdown. */
+  description: string
+  /** A lucide icon name; DesktopNav maps it to the component. */
+  icon: string
 }
 
 export interface NavGroup {

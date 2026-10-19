@@ -221,7 +221,14 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   are active is decided by `isNavItemActive` / `activeNavGroup` in
   `components/navbar/nav-links.ts` — pure and unit-tested; the
   render-and-look-for-bold tests in `components/Navbar.test.tsx` stay as a
-  behavioural safety net. `/agen` is no longer in the navbar; it is reached
+  behavioural safety net. The desktop dropdown follows Rukita's behaviour, and three
+  details keep it from feeling broken: each trigger is the full 64px of the
+  bar with `cursor-pointer` (Tailwind v4 leaves `<button>` on the default
+  arrow), the panel starts exactly at the bar's bottom edge (shadcn's
+  `mt-1.5` gap closed the menu as the pointer crossed it), and clicking an
+  open trigger keeps it open (`DesktopNav` prevents Radix's toggle). Items
+  carry an icon and a one-line description from `BRAND.navMenu`; the page
+  behind an open menu is dimmed, never blurred. `/agen` is no longer in the navbar; it is reached
   from the homepage contact band and from listing pages.
 - **Navbar items without content yet open a "Segera hadir" page.**
   `app/[slug]/page.tsx` serves only the slugs in `BRAND.comingSoon.pages`
