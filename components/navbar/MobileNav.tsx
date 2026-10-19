@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/sheet"
 import { Menu, X } from "lucide-react"
 import NavLink from "@/components/navbar/NavLink"
-import { NAV_LINKS } from "@/components/navbar/nav-links"
+import { NAV_GROUPS } from "@/components/navbar/nav-links"
 import BrandMark from "@/components/BrandMark"
 import { cn } from "@/lib/utils"
 
-export default function MobileNav({ isActive }: { isActive: (id: string) => boolean }) {
+export default function MobileNav({ isItemActive }: { isItemActive: (href: string) => boolean }) {
   const { data: session } = useSession()
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
@@ -49,24 +49,34 @@ export default function MobileNav({ isActive }: { isActive: (id: string) => bool
           </SheetClose>
         </div>
 
-        <nav aria-label="Mobile navigation" className="flex flex-col px-5 py-4">
-          {NAV_LINKS.map(({ href, label, id }) => {
-            const active = isActive(id)
-            return (
-              <NavLink
-                key={id}
-                href={href}
-                id={id}
-                onNavigate={close}
-                className={cn(
-                  "flex items-center justify-between rounded-xl px-3 py-3 text-base transition-colors",
-                  active ? "bg-primary/10 font-bold text-primary" : "font-medium text-foreground/75 hover:bg-muted",
-                )}
-              >
-                {label}
-              </NavLink>
-            )
-          })}
+        <nav aria-label="Mobile navigation" className="flex flex-col gap-5 overflow-y-auto px-5 py-5">
+          {NAV_GROUPS.map((group) => (
+            <section key={group.id}>
+              <h2 className="mb-1 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {group.label}
+              </h2>
+              <ul>
+                {group.items.map((item) => {
+                  const active = isItemActive(item.href)
+                  return (
+                    <li key={item.href}>
+                      <NavLink
+                        href={item.href}
+                        onNavigate={close}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "flex items-center rounded-xl px-3 py-2.5 text-base transition-colors",
+                          active ? "bg-primary/10 font-bold text-primary" : "font-medium text-foreground/80 hover:bg-muted",
+                        )}
+                      >
+                        {item.label}
+                      </NavLink>
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          ))}
         </nav>
 
         {!session && (

@@ -1,77 +1,82 @@
-import { NAV_LINKS, isHashLink, isNavLinkActive } from "@/components/navbar/nav-links"
+import { NAV_GROUPS, activeNavGroup, isHashLink, isNavItemActive } from "@/components/navbar/nav-links"
+
+describe("NAV_GROUPS", () => {
+  it("follows the brief: three dropdowns in order", () => {
+    expect(NAV_GROUPS.map((g) => g.label)).toEqual(["Produk Trihuni", "Trihuni Corp", "Tentang Trihuni"])
+  })
+
+  it("lists each dropdown's items in the brief's order", () => {
+    expect(NAV_GROUPS.map((g) => g.items.map((i) => i.label))).toEqual([
+      ["Kunjungi Kerjasama", "Trihuni Catalog", "Trihuni Finance", "Trihuni Studio"],
+      ["For Business", "Trihuni Hub"],
+      ["Tentang Kami", "Kontak Kami"],
+    ])
+  })
+
+  it("sends Catalog to the catalog and Kontak Kami to the homepage contact band", () => {
+    const all = NAV_GROUPS.flatMap((g) => g.items)
+    expect(all.find((i) => i.label === "Trihuni Catalog")?.href).toBe("/properti")
+    expect(all.find((i) => i.label === "Kontak Kami")?.href).toBe("/#contact")
+  })
+
+  it("has no duplicate destinations", () => {
+    const hrefs = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.href))
+    expect(new Set(hrefs).size).toBe(hrefs.length)
+  })
+})
 
 describe("isHashLink", () => {
   it("treats a homepage section link as a hash link", () => {
-    expect(isHashLink("/#about")).toBe(true)
-    expect(isHashLink("#about")).toBe(true)
+    expect(isHashLink("/#contact")).toBe(true)
+    expect(isHashLink("#contact")).toBe(true)
   })
 
   it("treats a real route as navigable, so it can use <Link>", () => {
     expect(isHashLink("/properti")).toBe(false)
-    expect(isHashLink("/agen")).toBe(false)
-    expect(isHashLink("/")).toBe(false)
-  })
-
-  it("classifies every link the navbar actually renders", () => {
-    const routes = NAV_LINKS.filter((l) => !isHashLink(l.href)).map((l) => l.href)
-    expect(routes).toEqual(["/", "/properti", "/agen"])
-  })
-
-  it("points Kontak at the homepage's #contact section", () => {
-    expect(NAV_LINKS.find((l) => l.id === "contact")?.href).toBe("/#contact")
-  })
-
-  it("no longer links the removed brochure sections", () => {
-    expect(NAV_LINKS.map((l) => l.id)).toEqual(["home", "listings", "agents", "contact"])
+    expect(isHashLink("/tentang")).toBe(false)
   })
 })
 
-describe("isNavLinkActive", () => {
-  it("marks Listings on the catalog and on the map", () => {
-    expect(isNavLinkActive("listings", "/properti", null)).toBe(true)
-    expect(isNavLinkActive("listings", "/properti/abc", null)).toBe(true)
-    expect(isNavLinkActive("listings", "/peta", null)).toBe(true)
+describe("isNavItemActive", () => {
+  it("marks a route item on its page and the pages under it", () => {
+    expect(isNavItemActive("/properti", "/properti", null)).toBe(true)
+    expect(isNavItemActive("/properti", "/properti/abc", null)).toBe(true)
   })
 
-  it("marks Agen anywhere under /agen", () => {
-    expect(isNavLinkActive("agents", "/agen", null)).toBe(true)
-    expect(isNavLinkActive("agents", "/agen/a1", null)).toBe(true)
+  it("does not match a route that merely shares a prefix", () => {
+    expect(isNavItemActive("/hub", "/hubungi", null)).toBe(false)
   })
 
-  it("does not mark Listings while on an agent page", () => {
-    expect(isNavLinkActive("listings", "/agen", null)).toBe(false)
+  it("marks a section item only on the homepage, once that section is in view", () => {
+    expect(isNavItemActive("/#contact", "/", "contact")).toBe(true)
+    expect(isNavItemActive("/#contact", "/", "home")).toBe(false)
+    expect(isNavItemActive("/#contact", "/properti", "contact")).toBe(false)
   })
 
-  it("does not mark Agen while on the catalog", () => {
-    expect(isNavLinkActive("agents", "/properti", null)).toBe(false)
+  it("marks nothing inside the admin panel", () => {
+    expect(isNavItemActive("/properti", "/admin/properti", null)).toBe(false)
+  })
+})
+
+describe("activeNavGroup", () => {
+  it("highlights Produk Trihuni on the catalog and a listing", () => {
+    expect(activeNavGroup("/properti", null)).toBe("produk")
+    expect(activeNavGroup("/properti/abc", null)).toBe("produk")
   })
 
-  it("falls back to Home on the homepage until a section is observed", () => {
-    expect(isNavLinkActive("home", "/", null)).toBe(true)
-    expect(isNavLinkActive("contact", "/", null)).toBe(false)
+  it("highlights the group of a coming-soon page", () => {
+    expect(activeNavGroup("/hub", null)).toBe("corp")
+    expect(activeNavGroup("/tentang", null)).toBe("tentang")
   })
 
-  it("follows the observed section once there is one", () => {
-    expect(isNavLinkActive("contact", "/", "contact")).toBe(true)
-    expect(isNavLinkActive("home", "/", "contact")).toBe(false)
+  it("highlights Tentang Trihuni when the homepage contact band is in view", () => {
+    expect(activeNavGroup("/", "contact")).toBe("tentang")
   })
 
-  it("marks no section link outside the homepage", () => {
-    for (const id of ["home", "contact"]) {
-      expect(isNavLinkActive(id, "/properti", "contact")).toBe(false)
-    }
-  })
-
-  it("marks nothing at all inside the admin panel", () => {
-    for (const { id } of NAV_LINKS) {
-      expect(isNavLinkActive(id, "/admin/properti", null)).toBe(false)
-    }
-  })
-
-  it("never marks two links at once, on any path", () => {
-    for (const pathname of ["/", "/properti", "/properti/abc", "/peta", "/agen", "/agen/a1"]) {
-      const active = NAV_LINKS.filter((l) => isNavLinkActive(l.id, pathname, null))
-      expect(active).toHaveLength(1)
-    }
+  it("highlights nothing on the homepage top, the agent pages, or admin", () => {
+    expect(activeNavGroup("/", null)).toBeNull()
+    expect(activeNavGroup("/", "home")).toBeNull()
+    expect(activeNavGroup("/agen", null)).toBeNull()
+    expect(activeNavGroup("/admin", null)).toBeNull()
   })
 })

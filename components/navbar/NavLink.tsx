@@ -1,33 +1,30 @@
 "use client"
 
+import type { ComponentProps } from "react"
 import Link from "next/link"
 import { isHashLink } from "@/components/navbar/nav-links"
 
-interface NavLinkProps {
+interface NavLinkProps extends Omit<ComponentProps<"a">, "href"> {
   href: string
-  id: string
-  className: string
+  /** Called after a click, e.g. to close the mobile drawer. */
   onNavigate?: () => void
-  children: React.ReactNode
 }
 
 /**
- * One place decides anchor vs Link, so the desktop bar and the mobile drawer
- * cannot drift apart. Route links used to be plain anchors in both, which meant
- * every visit to /properti or /agen reloaded the entire app shell.
+ * One place decides anchor vs Link, so the desktop dropdowns and the mobile
+ * drawer cannot drift apart. Route links used to be plain anchors in both,
+ * which meant every visit to /properti reloaded the entire app shell. Extra
+ * props and the ref pass through, so Radix can wrap it with `asChild`.
  */
-export default function NavLink({ href, id, className, onNavigate, children }: NavLinkProps) {
-  if (isHashLink(href)) {
-    return (
-      <a href={href} data-nav={id} onClick={onNavigate} className={className}>
-        {children}
-      </a>
-    )
+export default function NavLink({ href, onNavigate, onClick, ...rest }: NavLinkProps) {
+  const handleClick: NavLinkProps["onClick"] = (event) => {
+    onClick?.(event)
+    onNavigate?.()
   }
 
-  return (
-    <Link href={href} data-nav={id} onClick={onNavigate} className={className}>
-      {children}
-    </Link>
-  )
+  if (isHashLink(href)) {
+    return <a href={href} onClick={handleClick} {...rest} />
+  }
+
+  return <Link href={href} onClick={handleClick} {...rest} />
 }

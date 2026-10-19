@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { SessionProvider } from 'next-auth/react'
 import Navbar from '@/components/Navbar'
 
@@ -23,36 +23,54 @@ function renderAt(pathname: string) {
   )
 }
 
-describe('Navbar active link', () => {
-  it('marks only Home active on the homepage before a section is observed', () => {
-    const { container } = renderAt('/')
-    expect(activeNavIds(container)).toEqual(['home'])
+describe('Navbar dropdowns', () => {
+  it('shows the three dropdowns from the brief', () => {
+    renderAt('/')
+    const nav = screen.getByRole('navigation', { name: 'Primary' })
+    for (const label of ['Produk Trihuni', 'Trihuni Corp', 'Tentang Trihuni']) {
+      expect(within(nav).getByRole('button', { name: label })).toBeInTheDocument()
+    }
   })
 
-  it('marks only Listings active on the catalog', () => {
-    const { container } = renderAt('/properti')
-    expect(activeNavIds(container)).toEqual(['listings'])
+  it('opens a dropdown on click and lists its items with their links', () => {
+    renderAt('/')
+    fireEvent.click(screen.getByRole('button', { name: 'Produk Trihuni' }))
+    expect(screen.getByRole('link', { name: 'Trihuni Catalog' })).toHaveAttribute('href', '/properti')
+    expect(screen.getByRole('link', { name: 'Kunjungi Kerjasama' })).toHaveAttribute('href', '/kerjasama')
   })
 
-  it('marks only Listings active on the map view', () => {
-    const { container } = renderAt('/peta')
-    expect(activeNavIds(container)).toEqual(['listings'])
+  it('marks nothing on the homepage before a section is observed', () => {
+    expect(activeNavIds(renderAt('/').container)).toEqual([])
   })
 
-  it('marks only Agen active on the agent index', () => {
-    const { container } = renderAt('/agen')
-    expect(activeNavIds(container)).toEqual(['agents'])
+  it('marks Produk Trihuni on the catalog', () => {
+    expect(activeNavIds(renderAt('/properti').container)).toEqual(['produk'])
   })
 
-  it('marks only Agen active on an agent profile', () => {
-    const { container } = renderAt('/agen/a1')
-    expect(activeNavIds(container)).toEqual(['agents'])
+  it('marks Produk Trihuni on a listing page', () => {
+    expect(activeNavIds(renderAt('/properti/abc').container)).toEqual(['produk'])
   })
 
-  it('renders a link to the agent index', () => {
-    const { container } = renderAt('/')
-    const agen = container.querySelector('[data-nav="agents"]')
-    expect(agen).toHaveAttribute('href', '/agen')
+  it('marks Trihuni Corp on a coming-soon page of its own', () => {
+    expect(activeNavIds(renderAt('/hub').container)).toEqual(['corp'])
+  })
+
+  it('marks nothing on the agent pages, which are no longer in the navbar', () => {
+    expect(activeNavIds(renderAt('/agen').container)).toEqual([])
+  })
+})
+
+describe('Mobile menu', () => {
+  it('groups every item under its dropdown heading', () => {
+    renderAt('/tentang')
+    fireEvent.click(screen.getByRole('button', { name: 'Buka menu navigasi' }))
+    const dialog = screen.getByRole('dialog')
+    for (const label of ['Produk Trihuni', 'Trihuni Corp', 'Tentang Trihuni']) {
+      expect(within(dialog).getByRole('heading', { name: label })).toBeInTheDocument()
+    }
+    expect(within(dialog).getByRole('link', { name: 'Kontak Kami' })).toHaveAttribute('href', '/#contact')
+    expect(within(dialog).getByRole('link', { name: 'Tentang Kami' })).toHaveAttribute('aria-current', 'page')
+    expect(within(dialog).getByRole('link', { name: 'For Business' })).not.toHaveAttribute('aria-current')
   })
 })
 

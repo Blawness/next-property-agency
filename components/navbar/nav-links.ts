@@ -1,15 +1,18 @@
-export interface NavLink {
-  href: string
+import { BRAND } from "@/lib/brand"
+
+export interface NavItem {
   label: string
-  id: string
+  href: string
 }
 
-export const NAV_LINKS: NavLink[] = [
-  { href: "/", label: "Beranda", id: "home" },
-  { href: "/properti", label: "Properti", id: "listings" },
-  { href: "/agen", label: "Agen", id: "agents" },
-  { href: "/#contact", label: "Kontak", id: "contact" },
-]
+export interface NavGroup {
+  id: string
+  label: string
+  items: readonly NavItem[]
+}
+
+/** The navbar's dropdowns, in order. The copy lives in BRAND.navMenu. */
+export const NAV_GROUPS: readonly NavGroup[] = BRAND.navMenu
 
 /** Sections observed on the homepage: the search hero and the contact band. */
 export const HOME_SECTIONS = ["home", "contact"]
@@ -24,21 +27,27 @@ export function isHashLink(href: string): boolean {
 }
 
 /**
- * Which single nav item is highlighted. Pure on purpose: the previous version
- * lived inside the component and could only be checked by rendering the whole
- * navbar and looking for a bold class.
+ * Whether a menu item is the page being viewed. A route matches itself and
+ * the pages under it (/properti covers /properti/abc, not /propertiX); a
+ * homepage section matches only on the homepage while that section is in view.
+ * Pure on purpose, so it is tested without rendering the navbar.
  */
-export function isNavLinkActive(
-  id: string,
+export function isNavItemActive(
+  href: string,
   pathname: string,
   activeSection: string | null,
 ): boolean {
   if (pathname.startsWith("/admin")) return false
-  if (id === "listings") return pathname.startsWith("/properti") || pathname.startsWith("/peta")
-  if (id === "agents") return pathname.startsWith("/agen")
+  if (isHashLink(href)) {
+    return pathname === "/" && activeSection === href.slice(href.indexOf("#") + 1)
+  }
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
 
-  // The remaining links point at homepage sections, so they can only be active
-  // on the homepage itself; "home" stands in until the observer reports one.
-  if (pathname !== "/") return false
-  return activeSection ? activeSection === id : id === "home"
+/** The id of the dropdown holding the current page, or null when none does. */
+export function activeNavGroup(pathname: string, activeSection: string | null): string | null {
+  const group = NAV_GROUPS.find((g) =>
+    g.items.some((item) => isNavItemActive(item.href, pathname, activeSection)),
+  )
+  return group?.id ?? null
 }

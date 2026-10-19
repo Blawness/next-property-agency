@@ -34,6 +34,72 @@ export const BRAND = {
   loginDescription: "Masuk ke akun TRIHUNI kamu",
   registerDescription: "Buat akun TRIHUNI gratis",
 
+  // The navbar: three dropdowns, from the agency's submenu brief. Items with
+  // no page of their own yet open a "Segera hadir" page (BRAND.comingSoon).
+  navMenu: [
+    {
+      id: "produk",
+      label: "Produk Trihuni",
+      items: [
+        { label: "Kunjungi Kerjasama", href: "/kerjasama" },
+        { label: "Trihuni Catalog", href: "/properti" },
+        { label: "Trihuni Finance", href: "/finance" },
+        { label: "Trihuni Studio", href: "/studio" },
+      ],
+    },
+    {
+      id: "corp",
+      label: "Trihuni Corp",
+      items: [
+        { label: "For Business", href: "/bisnis" },
+        { label: "Trihuni Hub", href: "/hub" },
+      ],
+    },
+    {
+      id: "tentang",
+      label: "Tentang Trihuni",
+      items: [
+        { label: "Tentang Kami", href: "/tentang" },
+        { label: "Kontak Kami", href: "/#contact" },
+      ],
+    },
+  ],
+
+  // Placeholder pages for navbar items whose content is not written yet.
+  // Keyed by URL slug; neutral copy only — replace with the real page text.
+  comingSoon: {
+    badge: "Segera hadir",
+    followUp: "Sementara itu, jelajahi katalog properti kami atau hubungi kami langsung.",
+    catalogCta: "Lihat Katalog",
+    contactCta: "Hubungi Kami",
+    pages: {
+      kerjasama: {
+        title: "Kunjungi Kerjasama",
+        body: "Informasi kerja sama dengan TRIHUNI sedang kami siapkan.",
+      },
+      finance: {
+        title: "Trihuni Finance",
+        body: "Halaman Trihuni Finance sedang kami siapkan.",
+      },
+      studio: {
+        title: "Trihuni Studio",
+        body: "Halaman Trihuni Studio sedang kami siapkan.",
+      },
+      bisnis: {
+        title: "For Business",
+        body: "Halaman TRIHUNI untuk bisnis sedang kami siapkan.",
+      },
+      hub: {
+        title: "Trihuni Hub",
+        body: "Halaman Trihuni Hub sedang kami siapkan.",
+      },
+      tentang: {
+        title: "Tentang Kami",
+        body: "Profil lengkap TRIHUNI sedang kami siapkan.",
+      },
+    },
+  },
+
   // Homepage search hero: a rounded banner photograph with the search form on it.
   searchHero: {
     headline: "Temukan properti impianmu di seluruh Indonesia",

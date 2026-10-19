@@ -154,8 +154,9 @@ database. Generate new ones with `pnpm exec drizzle-kit generate`, then
 | `/properti` | Catalog with filters, sort and pagination; `?view=peta` swaps the grid for the map |
 | `/properti/[id]` | Detail — gallery, map, KPR simulation (sale listings), lead form, agent card |
 | `/peta` | 308 to `/properti?view=peta` (a `next.config.ts` redirect, not a route) |
-| `/agen` | Agent index — grid of every agent with their active listing count; linked from the Navbar |
+| `/agen` | Agent index — grid of every agent with their active listing count; linked from the homepage contact band |
 | `/agen/[id]` | Public agent profile — bio, WhatsApp, and that agent's active listings |
+| `/kerjasama`, `/finance`, `/studio`, `/bisnis`, `/hub`, `/tentang` | "Segera hadir" placeholders for navbar items (`app/[slug]/page.tsx`) |
 | `/masuk`, `/daftar` | Sign in / sign up (buyer only; agents are created by an admin) |
 | `/lupa-password`, `/atur-ulang-password` | Password reset — request a link, then set a new password |
 | `/profil` | Profile and favorites |
@@ -200,14 +201,26 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   (`lib/share.ts` — no recipient, so WhatsApp opens its contact picker). Never
   hand-roll a `wa.me` href: an Indonesian `08xx` has to become `628xx` or the
   chat will not open.
-- **Navbar links go through `components/navbar/NavLink.tsx`**, which picks
-  `<Link>` for routes and a plain `<a>` for `/#section` hash links. Both were
-  plain anchors once, so every visit to `/properti` or `/agen` reloaded the
-  whole app shell. Keep the choice in that one component rather than in the
-  desktop bar and the mobile drawer separately. `isNavLinkActive` in
-  `components/navbar/nav-links.ts` is pure and unit-tested; the older
+- **The navbar is three dropdowns** — Produk Trihuni, Trihuni Corp, Tentang
+  Trihuni — from the agency's submenu brief. Labels and destinations live in
+  `BRAND.navMenu`; desktop renders them with shadcn `NavigationMenu`, mobile
+  as grouped lists in the Sheet. Every item goes through
+  `components/navbar/NavLink.tsx`, which picks `<Link>` for routes and a plain
+  `<a>` for `/#section` hash links (both were plain anchors once, so every
+  visit to `/properti` reloaded the whole app shell) and forwards its props
+  and ref so Radix can wrap it with `asChild`. Which item and which dropdown
+  are active is decided by `isNavItemActive` / `activeNavGroup` in
+  `components/navbar/nav-links.ts` — pure and unit-tested; the
   render-and-look-for-bold tests in `components/Navbar.test.tsx` stay as a
-  behavioural safety net.
+  behavioural safety net. `/agen` is no longer in the navbar; it is reached
+  from the homepage contact band and from listing pages.
+- **Navbar items without content yet open a "Segera hadir" page.**
+  `app/[slug]/page.tsx` serves only the slugs in `BRAND.comingSoon.pages`
+  (`dynamicParams = false`, so any other top-level path 404s; static routes
+  always win over the dynamic segment). Writing a real page means creating
+  `app/<slug>/page.tsx` and removing the slug from `BRAND.comingSoon.pages`;
+  `lib/__tests__/coming-soon.test.ts` fails if a navbar item is left with
+  neither.
 - **`navigator.share` and `navigator.clipboard` are both optional.** The first
   is absent on most desktops, the second throws outside HTTPS and in some
   in-app browsers. `ShareButton` reads them at click time, falls back to its

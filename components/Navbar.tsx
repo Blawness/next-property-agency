@@ -7,7 +7,7 @@ import DesktopNav from "@/components/navbar/DesktopNav"
 import MobileNav from "@/components/navbar/MobileNav"
 import UserMenu from "@/components/navbar/UserMenu"
 import { useActiveSection } from "@/components/navbar/useActiveSection"
-import { isNavLinkActive } from "@/components/navbar/nav-links"
+import { activeNavGroup, isNavItemActive } from "@/components/navbar/nav-links"
 import { BRAND } from "@/lib/brand"
 
 export default function Navbar() {
@@ -16,7 +16,8 @@ export default function Navbar() {
 
   if (pathname.startsWith("/admin")) return null
 
-  const isActive = (id: string) => isNavLinkActive(id, pathname, activeSection)
+  const isItemActive = (href: string) => isNavItemActive(href, pathname, activeSection)
+  const activeGroup = activeNavGroup(pathname, activeSection)
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
@@ -25,11 +26,11 @@ export default function Navbar() {
           <BrandMark size="md" />
         </Link>
 
-        <DesktopNav isActive={isActive} />
+        <DesktopNav activeGroup={activeGroup} isItemActive={isItemActive} />
 
         <div className="flex shrink-0 items-center gap-2">
           <UserMenu />
-          <MobileNav isActive={isActive} />
+          <MobileNav isItemActive={isItemActive} />
         </div>
       </nav>
     </header>
