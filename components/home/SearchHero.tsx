@@ -3,11 +3,10 @@
 import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Search } from "lucide-react"
+import { Home, MapPin, Search, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { BRAND } from "@/lib/brand"
 import { PROPERTY_TYPES, PROPERTY_TYPE_LABELS } from "@/lib/constants"
 
@@ -29,12 +28,11 @@ export function searchHref(form: FormData): string {
 const ALL = "semua"
 
 const LISTING_OPTIONS = [
-  { value: ALL, label: "Semua" },
+  { value: ALL, label: "Dijual & disewa" },
   { value: "jual", label: "Dijual" },
   { value: "sewa", label: "Disewa" },
 ]
 
-const FIELD = "h-12 rounded-full border-border bg-background text-sm"
 
 /**
  * The homepage's opening section. A GET form to /properti: without JavaScript
@@ -48,82 +46,89 @@ export default function SearchHero() {
   const [listingType, setListingType] = useState(ALL)
 
   return (
-    <section id="home" className="container mx-auto px-4 pt-4 sm:pt-6">
-      <div className="relative overflow-hidden rounded-2xl bg-accent">
-        <Image
-          src={searchHero.image}
-          alt={searchHero.imageAlt}
-          fill
-          loading="eager"
-          fetchPriority="high"
-          // Below sm the stacked form makes the banner taller than wide, so
-          // object-cover draws the 3:2 photo ~735–825px wide at any phone width.
-          sizes="(max-width: 639px) 830px, (max-width: 1535px) 100vw, 1504px"
-          className="object-cover"
-        />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/10" />
+    <section
+      id="home"
+      className="relative -mt-16 h-[520px] overflow-hidden rounded-bl-[2.5rem] bg-accent sm:h-[600px] sm:rounded-bl-[5rem]"
+    >
+      <Image
+        src={searchHero.image}
+        alt={searchHero.imageAlt}
+        fill
+        loading="eager"
+        fetchPriority="high"
+        // Full-bleed. Below md the banner is taller than a 3:2 photo is wide
+        // at that width, so object-cover draws it ~780–840px wide.
+        sizes="(max-width: 767px) 840px, 100vw"
+        className="object-cover"
+      />
+      <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/30" />
 
-        <div className="relative px-5 py-12 sm:px-10 sm:py-16 lg:py-20">
-          <h1 className="max-w-2xl text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
-            {searchHero.headline}
-          </h1>
-          <p className="mt-3 max-w-xl text-[15px] text-white/85 sm:text-base">{searchHero.subtitle}</p>
+      <div className="container relative mx-auto flex h-full flex-col justify-end px-4 pb-10 sm:pb-14">
+        <h1 className="max-w-2xl text-3xl font-bold leading-tight text-white sm:text-5xl">{searchHero.headline}</h1>
+        <p className="mt-2 max-w-xl text-[15px] font-medium text-white/90 sm:text-lg">{searchHero.subtitle}</p>
 
-          <form
-            action="/properti"
-            method="get"
-            onSubmit={(e) => {
-              e.preventDefault()
-              router.push(searchHref(new FormData(e.currentTarget)))
-            }}
-            className="mt-8 rounded-2xl bg-background p-3 shadow-lg sm:p-4 lg:max-w-4xl"
-          >
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              aria-label="Dijual atau disewa"
-              value={listingType}
-              // Always one choice: pressing the active item again keeps it.
-              onValueChange={(v) => v && setListingType(v)}
-              className="mb-3"
-            >
-              {LISTING_OPTIONS.map((o) => (
-                <ToggleGroupItem key={o.value} value={o.value} className="h-8 border-border px-4 text-[13px]">
-                  {o.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-            <input type="hidden" name="listingType" value={listingType === ALL ? "" : listingType} />
-            <input type="hidden" name="type" value={type === ALL ? "" : type} />
+        <form
+          action="/properti"
+          method="get"
+          onSubmit={(e) => {
+            e.preventDefault()
+            router.push(searchHref(new FormData(e.currentTarget)))
+          }}
+          className="mt-6 flex items-center rounded-full bg-background p-1.5 shadow-xl sm:p-2"
+        >
+          <input type="hidden" name="type" value={type === ALL ? "" : type} />
+          <input type="hidden" name="listingType" value={listingType === ALL ? "" : listingType} />
 
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <label className="relative flex-1">
-                <span className="sr-only">Lokasi atau kata kunci</span>
-                <Search
-                  aria-hidden
-                  className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                />
-                <Input name="q" type="search" placeholder={searchHero.placeholder} className={`${FIELD} pl-10 pr-4`} />
-              </label>
-              <Select value={type} onValueChange={setType}>
-                <SelectTrigger aria-label="Tipe properti" className={`${FIELD} !h-12 w-full px-4 sm:w-44`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL}>Semua tipe</SelectItem>
-                  {PROPERTY_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {PROPERTY_TYPE_LABELS[t]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button type="submit" className="h-12 px-7 font-semibold">
-                {searchHero.cta}
-              </Button>
-            </div>
-          </form>
-        </div>
+          <label className="relative flex min-w-0 flex-1 items-center">
+            <span className="sr-only">Lokasi atau kata kunci</span>
+            <MapPin aria-hidden className="pointer-events-none absolute left-4 h-5 w-5 text-muted-foreground" />
+            <Input
+              name="q"
+              type="search"
+              placeholder={searchHero.placeholder}
+              className="h-11 border-0 bg-transparent pl-12 shadow-none focus-visible:ring-0 sm:h-12"
+            />
+          </label>
+
+          {/* Type and jual/sewa ride along from sm up; on a phone the pill is
+              the query alone, and the catalog has every filter. */}
+          <div className="hidden items-center sm:flex">
+            <span aria-hidden className="h-8 w-px bg-border" />
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger aria-label="Tipe properti" className="!h-12 w-40 border-0 shadow-none focus-visible:ring-0">
+                <Home aria-hidden className="text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>Semua tipe</SelectItem>
+                {PROPERTY_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {PROPERTY_TYPE_LABELS[t]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span aria-hidden className="h-8 w-px bg-border" />
+            <Select value={listingType} onValueChange={setListingType}>
+              <SelectTrigger aria-label="Dijual atau disewa" className="!h-12 w-44 border-0 shadow-none focus-visible:ring-0">
+                <Tag aria-hidden className="text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LISTING_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button type="submit" className="h-11 w-11 shrink-0 px-0 font-semibold sm:h-12 sm:w-auto sm:px-7">
+            <Search aria-hidden />
+            <span className="sr-only sm:not-sr-only">{searchHero.cta}</span>
+          </Button>
+        </form>
       </div>
     </section>
   )

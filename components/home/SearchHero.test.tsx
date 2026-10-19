@@ -40,20 +40,6 @@ describe("SearchHero", () => {
     expect(container.querySelector("section")).toHaveAttribute("id", "home")
   })
 
-  it("submits the query and the jual/sewa choice to the catalog", () => {
-    render(<SearchHero />)
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Kemang" } })
-    fireEvent.click(screen.getByRole("radio", { name: "Disewa" }))
-    fireEvent.click(screen.getByRole("button", { name: "Cari Sekarang" }))
-    expect(push).toHaveBeenCalledWith("/properti?q=Kemang&listingType=sewa")
-  })
-
-  it("offers jual/sewa as a labelled single-choice toggle group, Semua on by default", () => {
-    render(<SearchHero />)
-    expect(screen.getByRole("group", { name: "Dijual atau disewa" })).toBeInTheDocument()
-    expect(screen.getByRole("radio", { name: "Semua" })).toHaveAttribute("aria-checked", "true")
-  })
-
   it("uses the shadcn Select for the property type, still submitting as `type`", () => {
     const { container } = render(<SearchHero />)
     const trigger = screen.getByRole("combobox", { name: "Tipe properti" })
@@ -68,8 +54,28 @@ describe("SearchHero", () => {
     expect(form).toHaveAttribute("method", "get")
   })
 
-  it("asks for a photo as wide as it is drawn on phones, where the tall banner crops a 3:2 photo to ~825px", () => {
+
+  it("submits the query from the search pill", () => {
+    render(<SearchHero />)
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Kemang" } })
+    fireEvent.click(screen.getByRole("button", { name: "Cari" }))
+    expect(push).toHaveBeenCalledWith("/properti?q=Kemang")
+  })
+
+  it("offers jual/sewa as a Select, submitted as blank until chosen", () => {
     const { container } = render(<SearchHero />)
-    expect(container.querySelector("img")?.getAttribute("sizes")).toMatch(/^\(max-width: 639px\) 830px, /)
+    expect(screen.getByRole("combobox", { name: "Dijual atau disewa" })).toHaveAttribute("data-slot", "select-trigger")
+    expect(container.querySelector('input[type="hidden"][name="listingType"]')).toHaveValue("")
+  })
+
+  it("runs full-bleed and slides up under the navbar", () => {
+    const { container } = render(<SearchHero />)
+    expect(container.querySelector("section")!.className).toContain("-mt-16")
+    expect(container.querySelector("section")!.className).not.toContain("container")
+  })
+
+  it("asks for a photo as wide as the tall phone banner draws it", () => {
+    const { container } = render(<SearchHero />)
+    expect(container.querySelector("img")?.getAttribute("sizes")).toBe("(max-width: 767px) 840px, 100vw")
   })
 })

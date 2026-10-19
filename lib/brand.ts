@@ -105,7 +105,7 @@ export const BRAND = {
     headline: "Temukan properti impianmu di seluruh Indonesia",
     subtitle: "Rumah, apartemen, tanah, dan ruko — dijual dan disewakan langsung oleh agen terpercaya.",
     placeholder: "Cari kota, area, atau nama properti",
-    cta: "Cari Sekarang",
+    cta: "Cari",
     image:
       "https://images.unsplash.com/photo-1646928229117-08e84cde1692?auto=format&fit=crop&w=2000&q=80",
     imageAlt: "Rumah di tengah hutan tropis",
