@@ -269,6 +269,6 @@ export const photoIdByProperty: Record<string, string> = {
   "Rumah Villa di Malang": "1719887805632-de5be825f72b",
   "Tanah Perkebunan di Bogor": "1475875518799-44f63f828ab8",
   "Apartemen Familly di Depok": "1514895413746-feb3d266273d",
-  "Ruko Sewa di Tangerang": "1486407611111-a8df5e5d1e7a",
+  "Ruko Sewa di Tangerang": "1521208059781-bcf3fd4d1245",
   "Rumah Minimalis di Bekasi": "1564013799919-ab600027ffc6",
 }

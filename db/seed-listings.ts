@@ -30,7 +30,7 @@ const PHOTO = {
   interiorLight: "1525953776754-6c4b7ee655ab",
   living: "1514895413746-feb3d266273d",
   apartment: "1464746133101-a2c3f88e0dd9",
-  apartmentTower: "1486407611111-a8df5e5d1e7a",
+  apartmentTower: "1545324418-cc1a3fa10c00",
   land: "1654230163544-b69049014b60",
   landOpen: "1663293761246-56a9b0693052",
   shop: "1697604501923-2590ec2d7ca9",
