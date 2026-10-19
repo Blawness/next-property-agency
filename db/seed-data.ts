@@ -262,7 +262,7 @@ export const photoIdByProperty: Record<string, string> = {
   "Ruko 2 Lantai di Jakarta Barat": "1654230163544-b69049014b60",
   "Rumah Sewa di Bandung": "1701589212541-a0949839a1c3",
   "Apartemen Mewah di Tunjungan Plaza": "1525953776754-6c4b7ee655ab",
-  "Tanah Strategis di Surabaya Utara": "1464746133101-a2c3f88e0dd9",
+  "Tanah Strategis di Surabaya Utara": "1500382017468-9049fed747ef",
   "Rumah Tradisional Jawa di Yogyakarta": "1637968892928-705abff0e1b3",
   "Apartemen Sewa Murah di Yogyakarta": "1663293761246-56a9b0693052",
   "Ruko Modern di Semarang": "1521208059781-bcf3fd4d1245",
