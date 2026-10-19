@@ -8,7 +8,9 @@ import BenefitsGrid from "@/components/home/BenefitsGrid"
 import ContactCta from "@/components/home/ContactCta"
 import HashScroll from "@/components/home/HashScroll"
 import PopularCities from "@/components/PopularCities"
-import { TYPE_CHIPS, budgetChips } from "@/components/home/rail-chips"
+import { budgetChips } from "@/components/home/rail-chips"
+import ListingPanel from "@/components/home/ListingPanel"
+import { groupByType } from "@/lib/listing-groups"
 import { BUDGET_RANGES, budgetHref, budgetParams, type BudgetRange } from "@/lib/budget-ranges"
 import {
   CATALOG_ORDER_BY,
@@ -23,16 +25,19 @@ import type { PropertyWithImages } from "@/lib/types"
 export const revalidate = 60
 
 const RAIL_SIZE = 10
+// Newest listings fetched per listing type for the panel: enough that the
+// rarer property types still fill their own category after grouping.
+const PANEL_FETCH = 48
 
 /** The newest visible listings for a catalog filter — the same rules the catalog applies. */
-function newestMatching(raw: RawCatalogParams): Promise<PropertyWithImages[]> {
+function newestMatching(raw: RawCatalogParams, limit = RAIL_SIZE): Promise<PropertyWithImages[]> {
   return getPropertiesWithImagesBatch(
     db
       .select()
       .from(properties)
       .where(catalogConditions(parseCatalogFilters(raw)))
       .orderBy(...CATALOG_ORDER_BY.terbaru)
-      .limit(RAIL_SIZE),
+      .limit(limit),
   )
 }
 
@@ -50,8 +55,9 @@ async function getBudgetShowcase(): Promise<{ range: BudgetRange; items: Propert
 }
 
 export default async function HomePage() {
-  const [latest, budget, session] = await Promise.all([
-    newestMatching({}),
+  const [forSale, forRent, budget, session] = await Promise.all([
+    newestMatching({ listingType: "jual" }, PANEL_FETCH),
+    newestMatching({ listingType: "sewa" }, PANEL_FETCH),
     getBudgetShowcase(),
     getServerSession(authOptions),
   ])
@@ -60,13 +66,9 @@ export default async function HomePage() {
   return (
     <>
       <SearchHero />
-      <ListingRail
-        heading={BRAND.listingRail.heading}
-        subheading={BRAND.listingRail.subheading}
-        chips={TYPE_CHIPS}
-        properties={latest}
-        favoriteIds={favoriteIds}
-        seeAllHref="/properti"
+      <ListingPanel
+        groups={{ jual: groupByType(forSale), sewa: groupByType(forRent) }}
+        favoriteIds={[...favoriteIds]}
       />
       {budget && (
         <ListingRail
@@ -76,7 +78,6 @@ export default async function HomePage() {
           properties={budget.items}
           favoriteIds={favoriteIds}
           seeAllHref={budgetHref(budget.range)}
-          className="pt-0 sm:pt-0"
         />
       )}
       <PopularCities />

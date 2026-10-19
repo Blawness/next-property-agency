@@ -111,9 +111,13 @@ export const BRAND = {
     imageAlt: "Rumah di tengah hutan tropis",
   },
 
-  listingRail: {
+  // The tabbed listing panel under the homepage hero.
+  listingPanel: {
     heading: "Pilihan Untukmu",
-    subheading: "Listing terbaru dari agen kami",
+    tabs: { jual: "Dijual", sewa: "Disewa" },
+    categories: { semua: "Semua", rumah: "Rumah", apartemen: "Apartemen", tanah: "Tanah", ruko: "Ruko" },
+    empty: "Belum ada listing untuk pilihan ini.",
+    seeAll: "Lihat Semua",
   },
 
   budgetRail: {

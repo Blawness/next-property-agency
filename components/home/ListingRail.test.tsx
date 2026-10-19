@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { SessionProvider } from "next-auth/react"
 import ListingRail from "@/components/home/ListingRail"
-import { TYPE_CHIPS, budgetChips } from "@/components/home/rail-chips"
+import { budgetChips } from "@/components/home/rail-chips"
 import { BUDGET_RANGES } from "@/lib/budget-ranges"
 import type { PropertyWithImages } from "@/lib/types"
 
@@ -31,7 +31,7 @@ function renderRail(properties: PropertyWithImages[]) {
     <SessionProvider>
       <ListingRail
         heading="Pilihan Untukmu"
-        chips={TYPE_CHIPS}
+        chips={budgetChips(BUDGET_RANGES[0])}
         properties={properties}
         favoriteIds={new Set()}
         seeAllHref="/properti"
@@ -56,7 +56,7 @@ describe("ListingRail", () => {
 
   it("links every chip to the catalog", () => {
     renderRail([listing])
-    for (const chip of TYPE_CHIPS) {
+    for (const chip of budgetChips(BUDGET_RANGES[0])) {
       expect(screen.getByRole("link", { name: chip.label })).toHaveAttribute("href", chip.href)
     }
   })
@@ -68,16 +68,6 @@ describe("ListingRail", () => {
 })
 
 describe("chips", () => {
-  it("offers every type plus rentals", () => {
-    expect(TYPE_CHIPS.map((c) => c.href)).toEqual([
-      "/properti",
-      "/properti?type=rumah",
-      "/properti?type=apartemen",
-      "/properti?type=tanah",
-      "/properti?type=ruko",
-      "/properti?listingType=sewa",
-    ])
-  })
 
   it("marks only the budget range being shown", () => {
     const chips = budgetChips(BUDGET_RANGES[2])
@@ -85,9 +75,4 @@ describe("chips", () => {
     expect(chips).toHaveLength(BUDGET_RANGES.length)
   })
 
-  it("does not announce the type chips as the current page — they link away to the catalog", () => {
-    for (const chip of TYPE_CHIPS) {
-      expect(chip).not.toHaveProperty("active", true)
-    }
-  })
 })
