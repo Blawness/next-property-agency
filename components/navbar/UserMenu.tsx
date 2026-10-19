@@ -11,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { PlusCircle, ChevronDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-export default function UserMenu() {
+export default function UserMenu({ light = false }: { light?: boolean }) {
   const { data: session } = useSession()
 
   if (!session) {
@@ -41,7 +42,7 @@ export default function UserMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="flex items-center gap-1.5 rounded-full px-2 py-1.5 transition-colors outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn("flex items-center gap-1.5 rounded-full px-2 py-1.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring", light ? "hover:bg-white/10" : "hover:bg-muted")}
           >
             <div className="h-7 w-7 rounded-full bg-secondary border-2 border-border flex items-center justify-center shrink-0 overflow-hidden">
               {session.user.image ? (
@@ -58,7 +59,7 @@ export default function UserMenu() {
                 </span>
               )}
             </div>
-            <ChevronDown size={12} className="hidden text-foreground/40 sm:block" />
+            <ChevronDown size={12} className={cn("hidden sm:block", light ? "text-white/80" : "text-foreground/40")} />
           </button>
         </DropdownMenuTrigger>
 

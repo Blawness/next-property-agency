@@ -19,9 +19,12 @@ import { cn } from "@/lib/utils"
 export default function DesktopNav({
   activeGroup,
   isItemActive,
+  light = false,
 }: {
   activeGroup: string | null
   isItemActive: (href: string) => boolean
+  /** White type, for when the bar sits transparent over the homepage hero */
+  light?: boolean
 }) {
   return (
     <NavigationMenu viewport={false} aria-label="Primary" className="mr-auto hidden lg:flex">
@@ -33,9 +36,13 @@ export default function DesktopNav({
               className={cn(
                 // font-bold on the active group is what Navbar.test reads.
                 "rounded-full px-4",
-                activeGroup === group.id
-                  ? "bg-primary/10 font-bold text-primary hover:bg-primary/15"
-                  : "font-medium text-foreground/70 hover:text-foreground",
+                light
+                  ? activeGroup === group.id
+                    ? "bg-white/15 font-bold text-white hover:bg-white/20 hover:text-white"
+                    : "bg-transparent font-medium text-white hover:bg-white/10 hover:text-white"
+                  : activeGroup === group.id
+                    ? "bg-primary/10 font-bold text-primary hover:bg-primary/15"
+                    : "font-medium text-foreground/70 hover:text-foreground",
               )}
             >
               {group.label}

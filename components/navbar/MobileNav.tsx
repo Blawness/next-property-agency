@@ -16,7 +16,13 @@ import { NAV_GROUPS } from "@/components/navbar/nav-links"
 import BrandMark from "@/components/BrandMark"
 import { cn } from "@/lib/utils"
 
-export default function MobileNav({ isItemActive }: { isItemActive: (href: string) => boolean }) {
+export default function MobileNav({
+  isItemActive,
+  light = false,
+}: {
+  isItemActive: (href: string) => boolean
+  light?: boolean
+}) {
   const { data: session } = useSession()
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
@@ -27,7 +33,7 @@ export default function MobileNav({ isItemActive }: { isItemActive: (href: strin
         <button
           type="button"
           aria-label="Buka menu navigasi"
-          className="lg:hidden flex h-9 w-9 items-center justify-center rounded-full text-accent transition-colors hover:bg-muted outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={cn("lg:hidden flex h-9 w-9 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring", light ? "text-white hover:bg-white/10" : "text-accent hover:bg-muted")}
         >
           <Menu size={20} />
         </button>

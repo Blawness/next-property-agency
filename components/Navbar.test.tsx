@@ -75,8 +75,15 @@ describe('Mobile menu', () => {
 })
 
 describe('Navbar surface', () => {
-  it('is solid on the homepage too, with no transparent mode', () => {
+  it('is transparent over the homepage hero, with light text', () => {
     const { container } = renderAt('/')
+    const header = container.querySelector('header')!
+    expect(header.className).toContain('bg-transparent')
+    expect(screen.getByRole('button', { name: 'Produk Trihuni' }).className).toContain('text-white')
+  })
+
+  it('is solid on every other page', () => {
+    const { container } = renderAt('/properti')
     const header = container.querySelector('header')!
     expect(header.className).toContain('bg-background')
     expect(header.className).not.toContain('bg-transparent')
