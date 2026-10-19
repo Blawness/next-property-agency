@@ -44,12 +44,14 @@ export default function ListingPanel({
     <section className="container mx-auto px-4 pt-8 sm:pt-10">
       <div className="overflow-hidden rounded-3xl bg-muted">
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-          <TabsList className="grid h-auto w-full grid-cols-2 rounded-none bg-transparent p-0">
+          {/* group-data-horizontal/tabs:h-auto: the shadcn list pins itself to h-8
+              with a group variant that a plain h-auto cannot override. */}
+          <TabsList className="grid h-auto w-full grid-cols-2 rounded-none bg-transparent p-0 group-data-horizontal/tabs:h-auto">
             {(["jual", "sewa"] as const).map((t) => (
               <TabsTrigger
                 key={t}
                 value={t}
-                className="h-14 rounded-none border-0 bg-secondary text-[15px] font-semibold text-muted-foreground shadow-none data-[state=active]:bg-muted data-[state=active]:text-primary data-[state=active]:shadow-none"
+                className="h-14 rounded-none border-0 bg-border/70 text-[15px] font-semibold text-muted-foreground shadow-none data-[state=active]:bg-muted data-[state=active]:text-primary data-[state=active]:shadow-none"
               >
                 {copy.tabs[t]}
               </TabsTrigger>

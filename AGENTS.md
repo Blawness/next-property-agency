@@ -68,8 +68,8 @@ There is no dark mode: `app/globals.css` defines one palette on `:root` only.
 Every colour lives in `app/globals.css`. The palette is deep brown `#4A2E1C`,
 warm brown `#8A5526`, sand gold `#D6A76A` and terracotta `#C06A14` on white,
 with near-black `#1B1B1B` text, mapped to roles rather than to those names:
-`--primary` is terracotta and drives calls to action, active chips and
-prices; `--accent` is deep brown and carries headings and every dark surface
+`--primary` is terracotta and drives calls to action and active states
+(prices are set in the text colour); `--accent` is deep brown and carries headings and every dark surface
 (footer, admin sidebar, the homepage contact band); `--gold` is highlight
 only. `--muted` is the warm grey behind alternating sections. `--radius` is
 `0.75rem`; cards are `rounded-xl`, and buttons and chips are full pills
@@ -82,22 +82,31 @@ Typography is Plus Jakarta Sans throughout (`font-sans`, `font-heading`,
 
 The look is a property marketplace (modelled on the browsing style of Indonesian
 rental marketplaces — style only, no borrowed assets or copy). The homepage is
-built from `components/home/`: `SearchHero` (a rounded banner photograph with
-a GET search form, `id="home"`), two `ListingRail`s — "Pilihan Untukmu" with
-type chips, and "Cari sesuai budgetmu" showing the cheapest band from
-`lib/budget-ranges.ts` that has a sale listing (left out when nothing is for
-sale) — then `PopularCities`, `BenefitsGrid`, and `ContactCta`
-(`id="contact"`, the navbar's Kontak target). Chips are links into
-`/properti`, so the rails need no client-side fetching. Budget bands stop one
-rupiah short of the next band because `catalogConditions` applies price
-bounds inclusively.
+built from `components/home/`: a full-bleed `SearchHero` (`id="home"`, pulled
+up under the navbar with `-mt-16`, a large curved bottom-left corner, and a
+one-row search pill — location | type | jual/sewa | Cari; on a phone the pill
+is the query alone), then `ListingPanel` — Dijual | Disewa shadcn `Tabs`, a
+row of property-type categories (`ToggleGroup`), and a carousel of cards.
+The panel switches in the browser without fetching: `app/page.tsx` loads the
+newest 48 listings per listing type (two queries) and `groupByType` in
+`lib/listing-groups.ts` splits them per category. Then the budget
+`ListingRail` (the cheapest band from `lib/budget-ranges.ts` that has a sale
+listing; left out when nothing is for sale), `PopularCities`, `BenefitsGrid`,
+and `ContactCta` (`id="contact"`, the navbar's Kontak Kami target). Budget
+bands stop one rupiah short of the next band because `catalogConditions`
+applies price bounds inclusively.
 
 `PropertyCard` is the one listing card everywhere — homepage rails
-(`variant="rail"`, fixed 260px), catalog, agent and profile grids. Title,
-location, a one-line spec (`specLine`), then the price.
+(`variant="rail"`, fixed 260px), catalog, agent and profile grids. It is flat
+(no border, no shadow): a rounded photo with a Dijual/Disewa badge, then a
+type label with its icon, the title, location, specs (`specLine`), and the
+price in the text colour, with `/bulan` for rent.
 
-The navbar is always solid white with a bottom border; there is no
-transparent-over-hero mode. Scrolling is native everywhere — there is no
+On `/` the navbar is transparent, with white type, while the hero is behind
+it (`components/navbar/useOverHero.ts`), and turns solid once the hero has
+passed; elsewhere it is always solid. Anything that becomes the first
+homepage section must slide up under the bar with `-mt-16`, or the bar will
+float white-on-white. Scrolling is native everywhere — there is no
 Lenis, GSAP, or intro curtain. `Reveal` is a single short `rise`, used on
 catalog, agent and profile grids, not on the homepage.
 
