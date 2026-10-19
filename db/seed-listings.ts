@@ -29,7 +29,7 @@ const PHOTO = {
   interior: "1521208059781-bcf3fd4d1245",
   interiorLight: "1525953776754-6c4b7ee655ab",
   living: "1514895413746-feb3d266273d",
-  apartment: "1464746133101-a2c3f88e0dd9",
+  apartment: "1522708323590-d24dbb6b0267",
   apartmentTower: "1545324418-cc1a3fa10c00",
   land: "1654230163544-b69049014b60",
   landOpen: "1663293761246-56a9b0693052",
