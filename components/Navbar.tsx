@@ -25,8 +25,11 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b transition-colors duration-300",
-        overHero ? "border-transparent bg-transparent" : "border-border bg-background",
+        // The bottom rule is an inset shadow, not a border: a border would make
+        // the bar 65px while the hero slides up under it by exactly 64px
+        // (-mt-16), leaving a white pixel row at the top of the homepage.
+        "sticky top-0 z-40 transition-[background-color,box-shadow] duration-300",
+        overHero ? "bg-transparent" : "bg-background shadow-[inset_0_-1px_0_var(--border)]",
       )}
     >
       <nav className="container mx-auto flex h-16 items-center justify-between gap-6 px-4">

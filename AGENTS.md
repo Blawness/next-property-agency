@@ -106,7 +106,9 @@ On `/` the navbar is transparent, with white type, while the hero is behind
 it (`components/navbar/useOverHero.ts`), and turns solid once the hero has
 passed; elsewhere it is always solid. Anything that becomes the first
 homepage section must slide up under the bar with `-mt-16`, or the bar will
-float white-on-white. Scrolling is native everywhere — there is no
+float white-on-white. The bar is exactly 64px: its bottom rule is an inset
+shadow, not a border, because a 1px border made it 65px and left a white
+pixel row above the hero. Scrolling is native everywhere — there is no
 Lenis, GSAP, or intro curtain. `Reveal` is a single short `rise`, used on
 catalog, agent and profile grids, not on the homepage.
 

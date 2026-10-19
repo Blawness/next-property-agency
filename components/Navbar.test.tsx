@@ -106,6 +106,20 @@ describe('Navbar dropdown UX', () => {
   })
 })
 
+describe('Navbar height', () => {
+  // The hero slides up under the bar by exactly -mt-16 (64px). A 1px bottom
+  // border made the header 65px, so the top pixel row of the homepage showed
+  // the white page behind the transparent bar.
+  it('draws its bottom rule without adding height, on every page and state', () => {
+    for (const path of ['/', '/properti']) {
+      const { container, unmount } = renderAt(path)
+      const header = container.querySelector('header')!
+      expect(header.className).not.toMatch(/(^|\s)border-b(\s|$)/)
+      unmount()
+    }
+  })
+})
+
 describe('Navbar surface', () => {
   it('is transparent over the homepage hero, with light text', () => {
     document.body.innerHTML = ''
