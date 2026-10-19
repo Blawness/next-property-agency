@@ -25,6 +25,19 @@ describe("NAV_GROUPS", () => {
   })
 })
 
+describe("NAV_GROUPS descriptions", () => {
+  it("keeps every description to one line in the 30rem dropdown", () => {
+    const long = NAV_GROUPS.flatMap((g) => g.items).filter((i) => i.description.length > 45)
+    expect(long.map((i) => i.label)).toEqual([])
+  })
+
+  it("does not repeat the item's own label as its description", () => {
+    for (const item of NAV_GROUPS.flatMap((g) => g.items)) {
+      expect(item.description.toLowerCase()).not.toContain(item.label.toLowerCase())
+    }
+  })
+})
+
 describe("isHashLink", () => {
   it("treats a homepage section link as a hash link", () => {
     expect(isHashLink("/#contact")).toBe(true)

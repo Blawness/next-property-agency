@@ -95,7 +95,7 @@ describe('Navbar dropdown UX', () => {
     renderAt('/properti')
     fireEvent.click(screen.getByRole('button', { name: 'Produk Trihuni' }))
     const catalog = screen.getByRole('link', { name: /Trihuni Catalog/ })
-    expect(catalog).toHaveTextContent('Rumah, apartemen, tanah, dan ruko')
+    expect(catalog).toHaveTextContent('Cari rumah, apartemen, tanah, dan ruko')
   })
 
   it('dims the page behind an open dropdown, and only then', () => {

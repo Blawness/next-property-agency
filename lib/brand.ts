@@ -37,32 +37,33 @@ export const BRAND = {
   // The navbar: three dropdowns, from the agency's submenu brief. Items with
   // no page of their own yet open a "Segera hadir" page (BRAND.comingSoon).
   // Each item's one-line description and lucide icon show in the desktop
-  // dropdown; the descriptions are placeholders until the real pages exist.
+  // dropdown. Descriptions stay under 45 characters (one line) and make no
+  // claim the product does not back; nav-links.test.ts checks the length.
   navMenu: [
     {
       id: "produk",
       label: "Produk Trihuni",
       items: [
-        { label: "Kunjungi Kerjasama", href: "/kerjasama", icon: "Handshake", description: "Peluang kerja sama dengan TRIHUNI" },
-        { label: "Trihuni Catalog", href: "/properti", icon: "LayoutGrid", description: "Rumah, apartemen, tanah, dan ruko" },
-        { label: "Trihuni Finance", href: "/finance", icon: "Wallet", description: "Seputar pembiayaan properti" },
-        { label: "Trihuni Studio", href: "/studio", icon: "Camera", description: "Foto dan konten properti" },
+        { label: "Kunjungi Kerjasama", href: "/kerjasama", icon: "Handshake", description: "Jadi mitra dan kembangkan bisnis properti" },
+        { label: "Trihuni Catalog", href: "/properti", icon: "LayoutGrid", description: "Cari rumah, apartemen, tanah, dan ruko" },
+        { label: "Trihuni Finance", href: "/finance", icon: "Wallet", description: "Info pembiayaan dan simulasi KPR" },
+        { label: "Trihuni Studio", href: "/studio", icon: "Camera", description: "Foto dan video profesional untuk listing" },
       ],
     },
     {
       id: "corp",
       label: "Trihuni Corp",
       items: [
-        { label: "For Business", href: "/bisnis", icon: "Briefcase", description: "TRIHUNI untuk perusahaan" },
-        { label: "Trihuni Hub", href: "/hub", icon: "Network", description: "Jaringan dan mitra TRIHUNI" },
+        { label: "For Business", href: "/bisnis", icon: "Briefcase", description: "Solusi properti untuk kebutuhan perusahaan" },
+        { label: "Trihuni Hub", href: "/hub", icon: "Network", description: "Ruang kolaborasi agen dan mitra TRIHUNI" },
       ],
     },
     {
       id: "tentang",
       label: "Tentang Trihuni",
       items: [
-        { label: "Tentang Kami", href: "/tentang", icon: "Info", description: "Kenali TRIHUNI lebih dekat" },
-        { label: "Kontak Kami", href: "/#contact", icon: "Phone", description: "Hubungi tim kami" },
+        { label: "Tentang Kami", href: "/tentang", icon: "Info", description: "Cerita, visi, dan tim di balik TRIHUNI" },
+        { label: "Kontak Kami", href: "/#contact", icon: "Phone", description: "Tanya langsung ke tim TRIHUNI" },
       ],
     },
   ],
