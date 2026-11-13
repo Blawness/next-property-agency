@@ -6,8 +6,7 @@ import Link from "next/link"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { UploadButton } from "@uploadthing/react"
-import type { OurFileRouter } from "@/lib/uploadthing"
+import ImageUploadButton from "@/components/ImageUploadButton"
 import PropertyCard from "@/components/PropertyCard"
 import { useFavorites } from "@/hooks/useFavorites"
 import Reveal from "@/components/Reveal"
@@ -75,27 +74,20 @@ export default function ProfilPage() {
             {uploading ? (
               <Loader2 size={18} className="animate-spin text-primary-foreground" />
             ) : (
-              <UploadButton<OurFileRouter, "profileImage">
-                endpoint="profileImage"
+              <ImageUploadButton
+                kind="profileImage"
+                variant="ghost"
+                aria-label="Ganti foto profil"
+                className="h-20 w-20 hover:bg-transparent"
                 onUploadBegin={() => setUploading(true)}
-                onClientUploadComplete={(res) => {
+                onUploadComplete={(urls) => {
                   setUploading(false)
-                  const url = res?.[0]?.ufsUrl
-                  if (url) saveAvatar(url)
+                  if (urls[0]) saveAvatar(urls[0])
                 }}
-                onUploadError={(err) => {
-                  setUploading(false)
-                  toast.error(`Upload gagal: ${err.message}`)
-                }}
-                appearance={{
-                  button: "h-20 w-20 rounded-full flex items-center justify-center bg-transparent hover:bg-transparent ut-ready:bg-transparent ut-uploading:bg-transparent",
-                  container: "",
-                  allowedContent: "hidden",
-                }}
-                content={{
-                  button: <Camera size={18} className="text-primary-foreground" />,
-                }}
-              />
+                onError={(msg) => toast.error(`Upload gagal: ${msg}`)}
+              >
+                <Camera size={18} className="text-primary-foreground" />
+              </ImageUploadButton>
             )}
           </div>
         </div>

@@ -11,8 +11,8 @@ pnpm lint       # ESLint
 pnpm typecheck  # tsc --noEmit
 pnpm test       # Jest (jsdom, setup via jest.setup.js)
 pnpm seed       # DESTRUCTIVE — db/seed.ts truncates profiles, properties,
-                # images and favorites first. Never run it against the shared
-                # database; it would take the admin account with it.
+                # images and favorites first. Never run it against the
+                # production database; it would take the admin account with it.
 pnpm seed:listings  # additive — inserts realistic listings for existing
                 # agents, skipping any title already present. Safe to re-run.
 ```
@@ -24,9 +24,22 @@ Verify in this order: `lint → typecheck → test → build`.
 Forked from [`next-property-catalog`](https://github.com/Blawness/next-property-catalog).
 The core — schema, migrations, API routes, auth, admin, map, leads, favorites —
 came across unchanged; the brand, palette, typography and two features are this
-repo's own. **It currently shares that project's `DATABASE_URL`**, so a schema
-change here lands on both sites. Point `.env.local` at a separate Neon project
-before either app needs a column the other does not have.
+repo's own. Since 13 Nov 2026 it has its **own Neon project, `trihuni`**
+(`billowing-smoke-39394305`, aws-ap-southeast-1, branch `main`); `.neon` links
+the repo to it and `neon env pull` refreshes `DATABASE_URL` /
+`DATABASE_URL_UNPOOLED`. Rows were copied from the old shared project
+(`catalog-property`, `red-poetry-15243114`), which `next-property-catalog`
+still uses — the two databases now diverge, so a schema change here touches
+only this site.
+
+Production is the Vercel project `next-property-agency` (scope
+`blawness-projects`; `.vercel` links the repo), served at `trihuni.id` —
+`www.trihuni.id`, `trihuni.tigaanakpropertindo.com` and
+`next-property-agency.vercel.app` redirect there. Its `DATABASE_URL` /
+`DATABASE_URL_DIRECT` (Production and Preview) point at the `trihuni` project;
+env changes need a rebuild (`vercel redeploy <deployment-url>`). Its secrets
+are Sensitive, so `vercel env pull` cannot fetch them; local values come from
+Neon (`neon env pull`, `neon credentials reveal`).
 
 Dev runs on **port 3001** so both apps can be up at once.
 
@@ -36,7 +49,13 @@ Required in `.env.local`:
 - `DATABASE_URL` — Neon PostgreSQL connection string (pooled)
 - `DATABASE_URL_DIRECT` — direct connection, used by drizzle-kit
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL` — NextAuth v4
-- `UPLOADTHING_TOKEN` — UploadThing image uploads
+- `STORAGE_ENDPOINT`, `STORAGE_REGION`, `STORAGE_ACCESS_KEY_ID`,
+  `STORAGE_SECRET_ACCESS_KEY` — Neon Object Storage on the `trihuni` branch
+  (`lib/storage.ts`). The key pair is the `trihuni-app` credential
+  (`neon credentials list`; `reveal <tokenId>` prints `token_id` /
+  `s3_secret_access_key`); endpoint and region are `AWS_ENDPOINT_URL_S3` /
+  `AWS_REGION` from `neon env pull`. They are not the `AWS_*` names because
+  Vercel reserves `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_REGION`.
 - `NEXT_PUBLIC_APP_URL` — public origin; `SITE_URL` in `lib/constants.ts` reads
   it to build shareable links, so WhatsApp enquiries point at the wrong host if
   it is stale
@@ -58,7 +77,9 @@ tanah, ruko) with an agency-facing admin.
   training data; read `node_modules/next/dist/docs/` before guessing at APIs
 - **Drizzle ORM** + **Neon** serverless Postgres — client `db/index.ts`, schema `db/schema.ts`
 - **NextAuth v4** (Credentials + bcrypt) — `lib/auth.ts`, handler at `app/api/auth/[...nextauth]/route.ts`
-- **UploadThing** — `lib/uploadthing.ts`, route `app/api/uploadthing/route.ts`
+- **Neon Object Storage** — bucket `property-images` (`public_read`), client
+  `lib/storage.ts`, upload route `app/api/upload/route.ts`, button
+  `components/ImageUploadButton.tsx`, limits in `lib/upload-rules.ts`
 - **Tailwind CSS v4** + **shadcn/ui** (Radix primitives) — `components/ui/`
 - **Leaflet / react-leaflet** — `components/PropertyMap.tsx`, `components/LeafletMapView.tsx`
 
@@ -149,14 +170,12 @@ Enums: `role` (buyer|agent|admin), `property_type` (rumah|apartemen|tanah|ruko),
 `listing_type` (jual|sewa), `status` (active|sold|rented|archived).
 
 `profiles.title` and `profiles.bio` (migration 0008) back the public agent
-profile. Both nullable, so the sibling site sharing this database is unaffected
-— but if you ever run `drizzle-kit generate` from *that* repo, drizzle will see
-two columns its schema does not declare and write a `DROP COLUMN` migration.
-Add the same two nullable columns there before generating anything.
+profile.
 
-Migrations live in `drizzle/` (0000–0010) and are already applied to the shared
-database. Generate new ones with `pnpm exec drizzle-kit generate`, then
-`pnpm exec drizzle-kit migrate`.
+Migrations live in `drizzle/` (0000–0010) and are applied to the `trihuni`
+project. `drizzle.config.ts` reads `DATABASE_URL_DIRECT` from `.env.local`
+(set it to the same value as `DATABASE_URL_UNPOOLED`). Generate new ones with
+`pnpm exec drizzle-kit generate`, then `pnpm exec drizzle-kit migrate`.
 
 ### Routes
 | Path | Purpose |
@@ -289,6 +308,14 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   and these values grant account access.
 - **Admin role** is set with SQL: `UPDATE profiles SET role = 'admin' WHERE email = '…'`.
   It rides the JWT session and is enforced in `app/admin/layout.tsx`.
-- **Image domains** allowed: `images.unsplash.com`, `utfs.io`, `*.ufsedge.com`,
-  `*.uploadthing.com` (`next.config.ts`).
+- **Uploads are one file per request through `POST /api/upload`.** Vercel caps
+  a function's request body at 4.5MB, so batching would break at two photos.
+  The route requires a session, enforces `UPLOAD_KINDS` (listing photos 4MB,
+  avatars 2MB) and takes the stored Content-Type from the file's signature
+  (`sniffImageType`), never from the browser — the bucket serves objects with
+  that type to anyone, so an HTML file labelled `image/png` must not get in.
+  Keys are `<folder>/<user id>/<uuid>.<ext>`, never reused, and stored with an
+  immutable `Cache-Control`; the full public URL goes in the database.
+- **Image domains** allowed: `images.unsplash.com` (seed listings) and Neon
+  storage `**.aws.neon.tech/property-images/**` (`next.config.ts`).
 - **`.env*` is gitignored.** Never commit secrets.

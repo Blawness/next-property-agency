@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { UploadButton } from "@uploadthing/react"
-import type { OurFileRouter } from "@/lib/uploadthing"
+import ImageUploadButton from "@/components/ImageUploadButton"
+import { UPLOAD_KINDS, formatMegabytes } from "@/lib/upload-rules"
 import { Label } from "@/components/ui/label"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2, ImagePlus } from "lucide-react"
 
 interface ImageManagerProps {
   imageUrls: string[]
@@ -74,33 +74,24 @@ export default function ImageManager({ imageUrls, setImageUrls, onError }: Image
             <p className="text-xs text-primary/70">Jangan tutup halaman ini</p>
           </div>
         ) : (
-          <div className="p-6">
-            <UploadButton<OurFileRouter, "propertyImages">
-              endpoint="propertyImages"
-              onUploadBegin={() => {
+          <div className="p-6 flex flex-col items-center gap-2">
+            <ImageUploadButton
+              kind="propertyImages"
+              onUploadBegin={(count) => {
+                setUploadingCount(count)
                 setUploading(true)
-                setUploadingCount(0)
               }}
-              onClientUploadComplete={(res) => {
-                setImageUrls((prev) => [...prev, ...res.map((r) => r.ufsUrl)])
+              onUploadComplete={(urls) => {
+                setImageUrls((prev) => [...prev, ...urls])
                 setUploading(false)
               }}
-              onUploadError={(err) => {
-                onError(`Upload error: ${err.message}`)
-                setUploading(false)
-              }}
-              onBeforeUploadBegin={(files) => {
-                setUploadingCount(files.length)
-                return files
-              }}
-              className="uploadthing-button"
-              appearance={{
-                button:
-                  "bg-primary hover:bg-primary/90 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ut-ready:bg-primary ut-uploading:bg-primary/70 ut-uploading:cursor-not-allowed",
-                container: "",
-                allowedContent: "text-muted-foreground text-xs",
-              }}
-            />
+              onError={(msg) => onError(`Upload error: ${msg}`)}
+            >
+              <ImagePlus /> Pilih Foto
+            </ImageUploadButton>
+            <p className="text-xs text-muted-foreground">
+              Maks {UPLOAD_KINDS.propertyImages.maxFiles} foto, {formatMegabytes(UPLOAD_KINDS.propertyImages.maxBytes)} per foto
+            </p>
           </div>
         )}
       </div>

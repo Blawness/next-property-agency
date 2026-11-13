@@ -17,21 +17,22 @@ pnpm dev
 Buka <http://localhost:3001>. Port 3001 dipilih supaya bisa nyala berbarengan
 dengan proyek asalnya.
 
-Salin kredensial ke `.env.local`:
+Repo ini sudah di-link ke project Neon `trihuni` (`.neon`), jadi `neon env pull`
+mengisi `DATABASE_URL` dan `DATABASE_URL_UNPOOLED`. Sisanya isi sendiri di
+`.env.local`:
 
 | Variabel | Keterangan |
 |---|---|
 | `DATABASE_URL` | Neon Postgres (pooled) |
-| `DATABASE_URL_DIRECT` | koneksi langsung, dipakai drizzle-kit |
+| `DATABASE_URL_DIRECT` | koneksi langsung, dipakai drizzle-kit — samakan dengan `DATABASE_URL_UNPOOLED` |
 | `NEXTAUTH_SECRET` | rahasia NextAuth — `openssl rand -base64 32` |
 | `NEXTAUTH_URL` | origin aplikasi, mis. `http://localhost:3001` |
 | `NEXT_PUBLIC_APP_URL` | origin publik untuk link yang dibagikan |
-| `UPLOADTHING_TOKEN` | token upload gambar |
+| `STORAGE_ENDPOINT`, `STORAGE_REGION` | Neon Object Storage — nilai `AWS_ENDPOINT_URL_S3` / `AWS_REGION` dari `neon env pull` |
+| `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY` | credential `trihuni-app` — `neon credentials reveal <tokenId>` |
 
-> Saat ini `DATABASE_URL` masih menunjuk ke database yang sama dengan proyek
-> asal, jadi listing-nya kelihatan di dua situs dan perubahan schema kena
-> dua-duanya. Arahkan ke project Neon terpisah sebelum salah satu aplikasi butuh
-> kolom yang tidak dipakai yang lain.
+Database dan foto sudah terpisah dari proyek asal; detailnya di
+[`AGENTS.md`](AGENTS.md).
 
 ## Perintah
 

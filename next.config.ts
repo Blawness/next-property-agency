@@ -12,20 +12,11 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
       },
       {
+        // Neon Object Storage, bucket `property-images` (lib/storage.ts). The
+        // host carries the branch id, so any branch's endpoint is allowed.
         protocol: "https",
-        hostname: "utfs.io",
-      },
-      {
-        protocol: "https",
-        hostname: "**.ufs.sh",
-      },
-      {
-        protocol: "https",
-        hostname: "**.ufsedge.com",
-      },
-      {
-        protocol: "https",
-        hostname: "**.uploadthing.com",
+        hostname: "**.aws.neon.tech",
+        pathname: "/property-images/**",
       },
     ],
   },

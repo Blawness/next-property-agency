@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { UploadButton } from "@uploadthing/react"
-import type { OurFileRouter } from "@/lib/uploadthing"
+import ImageUploadButton from "@/components/ImageUploadButton"
+import { UPLOAD_KINDS, formatMegabytes } from "@/lib/upload-rules"
 import { Label } from "@/components/ui/label"
-import { Loader2, X } from "lucide-react"
+import { ImagePlus, Loader2, X } from "lucide-react"
 
 interface ImageUploadSectionProps {
   imageUrls: string[]
@@ -59,24 +59,21 @@ export default function ImageUploadSection({ imageUrls, setImageUrls, onError }:
             <span className="text-sm font-medium text-primary">Mengupload...</span>
           </div>
         ) : (
-          <div className="p-3">
-            <UploadButton<OurFileRouter, "propertyImages">
-              endpoint="propertyImages"
+          <div className="p-3 flex flex-col items-center gap-1.5">
+            <ImageUploadButton
+              kind="propertyImages"
               onUploadBegin={() => setUploading(true)}
-              onClientUploadComplete={(res) => {
-                setImageUrls((prev) => [...prev, ...res.map((r) => r.ufsUrl)])
+              onUploadComplete={(urls) => {
+                setImageUrls((prev) => [...prev, ...urls])
                 setUploading(false)
               }}
-              onUploadError={(err) => {
-                onError(`Upload error: ${err.message}`)
-                setUploading(false)
-              }}
-              appearance={{
-                button: "bg-primary hover:bg-primary/90 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ut-ready:bg-primary ut-uploading:bg-primary/70",
-                container: "",
-                allowedContent: "text-muted-foreground text-xs",
-              }}
-            />
+              onError={(msg) => onError(`Upload error: ${msg}`)}
+            >
+              <ImagePlus /> Pilih Foto
+            </ImageUploadButton>
+            <p className="text-xs text-muted-foreground">
+              Maks {UPLOAD_KINDS.propertyImages.maxFiles} foto, {formatMegabytes(UPLOAD_KINDS.propertyImages.maxBytes)} per foto
+            </p>
           </div>
         )}
       </div>

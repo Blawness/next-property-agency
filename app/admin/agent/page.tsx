@@ -16,8 +16,7 @@ import {
 import { Plus, Pencil, Trash2, Upload, KeyRound } from "lucide-react"
 import { toast } from "sonner"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { UploadButton } from "@uploadthing/react"
-import type { OurFileRouter } from "@/lib/uploadthing"
+import ImageUploadButton from "@/components/ImageUploadButton"
 
 interface Agent {
   id: string
@@ -367,28 +366,18 @@ export default function AdminAgentsPage() {
                 ) : (
                   <div className="border-2 border-dashed rounded-lg text-center transition-colors hover:border-primary/50 hover:bg-primary/5">
                     <div className="p-2">
-                      <UploadButton<OurFileRouter, "profileImage">
-                        endpoint="profileImage"
-                        onClientUploadComplete={(res) => {
-                          const url = res?.[0]?.ufsUrl
-                          if (url) setFormAvatarUrl(url)
+                      <ImageUploadButton
+                        kind="profileImage"
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground"
+                        onUploadComplete={(urls) => {
+                          if (urls[0]) setFormAvatarUrl(urls[0])
                         }}
-                        onUploadError={(err) => {
-                          toast.error(`Upload gagal: ${err.message}`)
-                        }}
-                        appearance={{
-                          button: "text-xs font-medium px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors",
-                          container: "",
-                          allowedContent: "hidden",
-                        }}
-                        content={{
-                          button: (
-                            <span className="flex items-center gap-1">
-                              <Upload size={12} /> Upload
-                            </span>
-                          ),
-                        }}
-                      />
+                        onError={(msg) => toast.error(`Upload gagal: ${msg}`)}
+                      >
+                        <Upload size={12} /> Upload
+                      </ImageUploadButton>
                     </div>
                   </div>
                 )}
