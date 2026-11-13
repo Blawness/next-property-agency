@@ -27,6 +27,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/peta", destination: "/properti?view=peta", permanent: true }]
   },
+
+  // The OAuth sign-in and consent pages (Neon Auth's login/consent pages for
+  // Claude's connector) must not be framed, or a page could overlay "Izinkan".
+  async headers() {
+    const noFraming = [{ key: "Content-Security-Policy", value: "frame-ancestors 'none'" }]
+    return [
+      { source: "/masuk", headers: noFraming },
+      { source: "/oauth/persetujuan", headers: noFraming },
+    ]
+  },
 };
 
 export default nextConfig;

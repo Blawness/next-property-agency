@@ -20,6 +20,7 @@ export const BRAND = {
     forgotPassword: "Lupa Password — TRIHUNI",
     resetPassword: "Atur Ulang Password — TRIHUNI",
     register: "Daftar — TRIHUNI",
+    oauthConsent: "Izinkan Akses — TRIHUNI",
     propertyNotFound: "Properti Tidak Ditemukan — TRIHUNI",
     catalogHeading: "Katalog Properti",
   },

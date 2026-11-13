@@ -202,6 +202,8 @@ project. `drizzle.config.ts` reads `DATABASE_URL_DIRECT` from `.env.local`
 | `/admin/properti`, `/admin/properti/create`, `/admin/properti/[id]/edit` | Property CRUD |
 | `/admin/agent` | Agent management |
 | `/admin/leads`, `/admin/aktivitas` | Leads inbox (WhatsApp reply per lead) and admin action log |
+| `/api/mcp` | MCP server for Claude — admins post and edit listings (see below) |
+| `/oauth/persetujuan` | OAuth consent page for the Claude connector (Neon Auth's consent page) |
 
 ### Key shared types (`lib/types.ts`)
 `PropertyWithImages` (`Property` + `images` + optional `agentPhone`) is the shape
@@ -339,4 +341,22 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
   immutable `Cache-Control`; the full public URL goes in the database.
 - **Image domains** allowed: `images.unsplash.com` (seed listings) and Neon
   storage `**.aws.neon.tech/property-images/**` (`next.config.ts`).
+- **The MCP server (`/api/mcp`) is how Claude posts listings.** Claude adds
+  `https://trihuni.id/api/mcp` as a custom connector and signs in through
+  Neon Auth's OAuth 2.1 server (branch config: `neon neon-auth config
+  oauth-server get` — login page `/masuk`, consent page
+  `/oauth/persetujuan`, MCP resource `https://trihuni.id/api/mcp`, CIMD on,
+  so Claude registers no client). `/masuk` resumes a signed `sig` query with
+  `oauth2.continue`; the consent page calls `oauth2.consent`. The token's
+  `aud` must equal `MCP_RESOURCE` (`lib/mcp/auth.ts`, built from
+  `NEXT_PUBLIC_APP_URL`), so that variable and `--mcp-resource` must name the
+  same host. Only `profiles.role = 'admin'` may call the tools
+  (`app/api/mcp/route.ts`); they live in `lib/mcp/server.ts` and write through
+  `lib/admin-properties.ts`, the same code as the admin REST routes, so a
+  listing from Claude obeys the form's rules. Claude sends photo links, not
+  files: `lib/remote-image.ts` downloads each into the bucket under the
+  `POST /api/upload` rules. MCP writes are logged in `admin_actions` with
+  `{"via":"claude"}`. To test locally, point the branch's OAuth config at
+  `http://localhost:3001` (login, consent, resource) and back afterwards — a
+  branch has one MCP resource.
 - **`.env*` is gitignored.** Never commit secrets.

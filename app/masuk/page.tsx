@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -14,20 +14,38 @@ import { Label } from "@/components/ui/label"
 import PasswordInput from "@/components/PasswordInput"
 import BrandMark from "@/components/BrandMark"
 
+// Claude's connector (an OAuth client of Neon Auth) sends the user here with a
+// signed authorization query (`sig`). The auth client forwards that query on
+// every sign-in call, and Neon Auth answers with the consent page to go to.
+const OAUTH_EXPIRED = "Link masuk ini sudah kedaluwarsa. Kembali ke aplikasi yang meminta akses dan coba hubungkan lagi."
+
 export default function MasukPage() {
   const router = useRouter()
-  const { update } = useSession()
+  const { status, update } = useSession()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  // Already signed in: resume the authorization instead of asking again.
+  useEffect(() => {
+    if (status !== "authenticated" || !new URLSearchParams(window.location.search).has("sig")) return
+    authAttempt(() => authClient.oauth2.continue({ selected: true })).then((failure) => {
+      if (failure) setError(OAUTH_EXPIRED)
+    })
+  }, [status])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError("")
 
-    const failure = await authAttempt(() => authClient.signIn.email({ email, password }))
+    let oauthRedirect = false
+    const failure = await authAttempt(async () => {
+      const result = await authClient.signIn.email({ email, password })
+      oauthRedirect = Boolean((result.data as { redirect?: boolean } | null)?.redirect)
+      return result
+    })
 
     if (failure) {
       toast.error(
@@ -38,6 +56,9 @@ export default function MasukPage() {
       setLoading(false)
       return
     }
+
+    // An OAuth sign-in: the auth client is already navigating to the consent page.
+    if (oauthRedirect) return
 
     await update()
     toast.success("Berhasil masuk")

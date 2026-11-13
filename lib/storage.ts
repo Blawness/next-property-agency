@@ -32,6 +32,11 @@ function s3(): S3Client {
   return client
 }
 
+/** Every public object URL starts with this; the database stores full URLs. */
+export function publicObjectPrefix(): string {
+  return `${requireEnv("STORAGE_ENDPOINT")}/${PHOTO_BUCKET}/`
+}
+
 export async function putPublicObject(key: string, body: Uint8Array, contentType: string): Promise<string> {
   await s3().send(
     new PutObjectCommand({
@@ -42,5 +47,5 @@ export async function putPublicObject(key: string, body: Uint8Array, contentType
       CacheControl: "public, max-age=31536000, immutable",
     }),
   )
-  return `${requireEnv("STORAGE_ENDPOINT")}/${PHOTO_BUCKET}/${key}`
+  return `${publicObjectPrefix()}${key}`
 }
