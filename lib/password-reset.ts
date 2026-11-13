@@ -12,10 +12,9 @@ export function generateResetToken(): string {
 }
 
 /**
- * Only the hash is stored. This database is shared with a sibling project, so
- * being able to read the token table must not be enough to take over an
- * account. SHA-256 without a salt is right here: the input is already 32 bytes
- * of entropy, so there is nothing to brute-force.
+ * Only the hash is stored, so being able to read the token table must not be
+ * enough to take over an account. SHA-256 without a salt is right here: the
+ * input is already 32 bytes of entropy, so there is nothing to brute-force.
  */
 export function hashResetToken(token: string): string {
   return createHash("sha256").update(token).digest("hex")

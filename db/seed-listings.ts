@@ -6,8 +6,8 @@ import { eq } from "drizzle-orm"
 
 /**
  * Additive listing seed — unlike `db/seed.ts`, this NEVER deletes. That script
- * truncates profiles, properties and images before inserting, which on a shared
- * database would take the admin account and the sibling site's data with it.
+ * truncates profiles, properties and images before inserting, which on the
+ * production database would take the admin account and every real listing with it.
  *
  * Listings here are written for this project: real neighbourhoods and prices in
  * the right range for the market, but original copy and Unsplash photography —

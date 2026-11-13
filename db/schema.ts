@@ -28,8 +28,7 @@ export const profiles = pgTable("profiles", {
   phone: text("phone"),
   avatarUrl: text("avatar_url"),
   role: roleEnum("role").default("buyer"),
-  // Shown on the public agent profile. Nullable so existing rows — and the
-  // sibling site sharing this database — are unaffected.
+  // Shown on the public agent profile. Nullable so existing rows are unaffected.
   title: text("title"),
   bio: text("bio"),
   // Sessions are JWTs with no server-side store, so a password change cannot
@@ -159,9 +158,8 @@ export const passwordResetTokens = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "cascade" }),
-    // SHA-256 of the token, never the token itself. This database is shared
-    // with a sibling project, so read access to this table must not be enough
-    // to take over an account.
+    // SHA-256 of the token, never the token itself, so read access to this
+    // table must not be enough to take over an account.
     tokenHash: text("token_hash").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     usedAt: timestamp("used_at"),

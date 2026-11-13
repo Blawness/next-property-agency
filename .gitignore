@@ -52,3 +52,4 @@ references/
 
 # local preview servers for Claude Code (ports differ per machine)
 /.claude/launch.json
+.neon
