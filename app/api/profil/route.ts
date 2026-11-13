@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { profiles } from "@/db/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { auth, getSession } from "@/lib/auth"
 import { eq } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
-import bcrypt from "bcryptjs"
 import { z } from "zod"
 
 // Every field is optional so the avatar uploader can keep sending `{ avatarUrl }`
@@ -27,7 +25,7 @@ const updateProfileSchema = z
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -40,7 +38,7 @@ export async function GET() {
         avatarUrl: profiles.avatarUrl,
       })
       .from(profiles)
-      .where(eq(profiles.id, session.user.id!))
+      .where(eq(profiles.id, session.user.id))
       .limit(1)
 
     if (!profile) {
@@ -56,7 +54,7 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -84,32 +82,27 @@ export async function PATCH(req: NextRequest) {
     if (fullName !== undefined) updateData.fullName = fullName
     if (phone !== undefined) updateData.phone = phone || null
 
-    // A password change must prove ownership of the current password, so it is
-    // verified against the stored hash before anything is written.
+    // Neon Auth checks the current password and stores the new one. Every
+    // other session of the account ends with it, so a stolen one stops here.
     if (newPassword !== undefined && currentPassword !== undefined) {
-      const [profile] = await db
-        .select({ passwordHash: profiles.passwordHash })
-        .from(profiles)
-        .where(eq(profiles.id, session.user.id!))
-        .limit(1)
-
-      if (!profile) {
-        return NextResponse.json({ error: "Not found" }, { status: 404 })
+      const { error: passwordError } = await auth.changePassword({
+        currentPassword,
+        newPassword,
+        revokeOtherSessions: true,
+      })
+      if (passwordError) {
+        // The server SDK normalises Better Auth's INVALID_PASSWORD to this.
+        const wrongPassword = passwordError.code === "invalid_credentials"
+        return NextResponse.json(
+          { error: wrongPassword ? "Password lama tidak cocok" : "Gagal mengganti password" },
+          { status: wrongPassword ? 400 : 502 },
+        )
       }
-
-      const valid = await bcrypt.compare(currentPassword, profile.passwordHash)
-      if (!valid) {
-        return NextResponse.json({ error: "Password lama tidak cocok" }, { status: 400 })
-      }
-
-      updateData.passwordHash = await bcrypt.hash(newPassword, 10)
     }
 
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json({ error: "Tidak ada perubahan" }, { status: 400 })
+    if (Object.keys(updateData).length > 0) {
+      await db.update(profiles).set(updateData).where(eq(profiles.id, session.user.id))
     }
-
-    await db.update(profiles).set(updateData).where(eq(profiles.id, session.user.id!))
 
     return NextResponse.json({ ok: true, avatarUrl, fullName, phone })
   } catch (error) {

@@ -1,5 +1,5 @@
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+jest.mock('../../../../lib/auth', () => ({
+  getSession: jest.fn(),
 }))
 jest.mock('../../../../lib/rate-limit', () => ({
   rateLimit: jest.fn(() => ({ success: true, remaining: 29, resetAt: Date.now() + 60_000 })),
@@ -24,11 +24,11 @@ jest.mock('../../../../db', () => {
 })
 
 import { GET, POST } from '@/app/api/properties/route'
-import { getServerSession } from 'next-auth'
+import { getSession } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 import { NextRequest } from 'next/server'
 
-const mockSession = getServerSession as jest.Mock
+const mockSession = getSession as jest.Mock
 const mockRateLimit = rateLimit as jest.Mock
 
 function makeReq(url: string, body?: any): NextRequest {

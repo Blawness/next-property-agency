@@ -4,37 +4,24 @@ import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
-import { ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import PasswordInput from "@/components/PasswordInput"
 import BrandMark from "@/components/BrandMark"
+import { authAttempt, authClient } from "@/lib/auth-client"
 
 const MIN_PASSWORD_LENGTH = 8
+const LABEL_CLASS = "text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground"
 
 function ResetForm() {
   const router = useRouter()
-  const token = useSearchParams().get("token") ?? ""
-
+  const [email, setEmail] = useState(useSearchParams().get("email") ?? "")
+  const [otp, setOtp] = useState("")
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-
-  if (!token) {
-    return (
-      <div className="rounded-sm border border-border bg-card p-6 text-center">
-        <ShieldAlert className="mx-auto h-8 w-8 text-destructive" aria-hidden />
-        <p className="mt-3 text-[15px] font-medium text-foreground">Tautan tidak lengkap</p>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          Buka halaman ini lewat tautan di email Anda, atau minta tautan baru.
-        </p>
-        <Button variant="outline" className="mt-5 rounded-sm" asChild>
-          <Link href="/lupa-password">Minta tautan baru</Link>
-        </Button>
-      </div>
-    )
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -48,30 +35,61 @@ function ResetForm() {
     }
 
     setLoading(true)
-    try {
-      const res = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error ?? "Gagal mengatur ulang password.")
-
-      toast.success("Password berhasil diubah. Silakan masuk dengan password baru.")
-      router.push("/masuk")
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal mengatur ulang password.")
+    const failure = await authAttempt(() =>
+      authClient.emailOtp.resetPassword({ email, otp: otp.trim(), password }),
+    )
+    if (failure) {
+      setError(
+        failure.status === 429
+          ? "Terlalu banyak percobaan. Minta kode baru."
+          : "Kode salah atau sudah kedaluwarsa. Periksa lagi, atau minta kode baru.",
+      )
       setLoading(false)
+      return
     }
+
+    toast.success("Password berhasil diubah. Silakan masuk dengan password baru.")
+    router.push("/masuk")
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <p className="text-center text-sm text-muted-foreground">
+        Jika email tersebut terdaftar, kami sudah mengirim kode 6 digit ke sana.
+      </p>
+
       <div className="space-y-1.5">
-        <Label
-          htmlFor="password"
-          className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground"
-        >
+        <Label htmlFor="email" className={LABEL_CLASS}>
+          Email
+        </Label>
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="rounded-sm border-border focus-visible:ring-primary"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="otp" className={LABEL_CLASS}>
+          Kode dari Email
+        </Label>
+        <Input
+          id="otp"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          placeholder="123456"
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+          required
+          className="rounded-sm border-border tracking-[0.3em] focus-visible:ring-primary"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="password" className={LABEL_CLASS}>
           Password Baru
         </Label>
         <PasswordInput
@@ -87,10 +105,7 @@ function ResetForm() {
       </div>
 
       <div className="space-y-1.5">
-        <Label
-          htmlFor="confirm"
-          className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground"
-        >
+        <Label htmlFor="confirm" className={LABEL_CLASS}>
           Ulangi Password Baru
         </Label>
         <PasswordInput
@@ -115,7 +130,10 @@ function ResetForm() {
       </Button>
 
       <p className="text-center text-xs text-muted-foreground">
-        Mengubah password akan mengeluarkan Anda dari semua perangkat lain.
+        Mengubah password akan mengeluarkan Anda dari semua perangkat lain.{" "}
+        <Link href="/lupa-password" className="underline underline-offset-4 hover:text-primary">
+          Minta kode baru
+        </Link>
       </p>
     </form>
   )

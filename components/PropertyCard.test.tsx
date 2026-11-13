@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react'
-import { SessionProvider } from 'next-auth/react'
+import { SessionProvider } from '@/components/SessionProvider'
 import PropertyCard, { specLine } from '@/components/PropertyCard'
 import type { PropertyWithImages } from '@/lib/types'
 
 function renderWithSession(ui: React.ReactElement) {
-  return render(<SessionProvider>{ui}</SessionProvider>)
+  return render(<SessionProvider session={null}>{ui}</SessionProvider>)
 }
 
 const mockProperty: PropertyWithImages = {

@@ -1,4 +1,4 @@
-jest.mock('next-auth', () => ({ getServerSession: jest.fn() }))
+jest.mock('../../../../lib/auth', () => ({ getSession: jest.fn() }))
 jest.mock('../../../../lib/rate-limit', () => ({
   rateLimit: jest.fn(async () => ({ success: true, remaining: 9, resetAt: Date.now() + 60_000 })),
   getRateLimitKey: jest.fn((id: string, action: string) => `${action}:${id}`),
@@ -17,10 +17,10 @@ jest.mock('../../../../db', () => ({
 }))
 
 import { PATCH, DELETE } from '@/app/api/properties/bulk/route'
-import { getServerSession } from 'next-auth'
+import { getSession } from '@/lib/auth'
 import { NextRequest } from 'next/server'
 
-const mockSession = getServerSession as jest.Mock
+const mockSession = getSession as jest.Mock
 function req(body: any) {
   return new NextRequest(new Request('http://localhost/api/properties/bulk', {
     method: 'POST', body: JSON.stringify(body), headers: { 'content-type': 'application/json' },

@@ -3,8 +3,7 @@ import { db } from "@/db"
 import { properties } from "@/db/schema"
 import { eq, desc, and, isNull } from "drizzle-orm"
 import { getPublicAgents } from "@/lib/db-helpers"
-
-const BASE = process.env.NEXTAUTH_URL ?? "http://localhost:3000"
+import { SITE_URL } from "@/lib/constants"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const rows = await db
@@ -14,14 +13,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .orderBy(desc(properties.createdAt))
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${BASE}/`, changeFrequency: "daily", priority: 1.0 },
-    { url: `${BASE}/properti`, changeFrequency: "hourly", priority: 0.9 },
-    { url: `${BASE}/properti?view=peta`, changeFrequency: "daily", priority: 0.7 },
-    { url: `${BASE}/agen`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1.0 },
+    { url: `${SITE_URL}/properti`, changeFrequency: "hourly", priority: 0.9 },
+    { url: `${SITE_URL}/properti?view=peta`, changeFrequency: "daily", priority: 0.7 },
+    { url: `${SITE_URL}/agen`, changeFrequency: "weekly", priority: 0.7 },
   ]
 
   const propertyRoutes: MetadataRoute.Sitemap = rows.map((r) => ({
-    url: `${BASE}/properti/${r.id}`,
+    url: `${SITE_URL}/properti/${r.id}`,
     lastModified: r.updatedAt ?? new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
@@ -29,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const agents = await getPublicAgents()
   const agentRoutes: MetadataRoute.Sitemap = agents.map((a) => ({
-    url: `${BASE}/agen/${a.id}`,
+    url: `${SITE_URL}/agen/${a.id}`,
     changeFrequency: "weekly",
     priority: 0.6,
   }))

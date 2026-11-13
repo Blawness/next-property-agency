@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgres://stub:stub@localhost:5432/stub
-      NEXTAUTH_SECRET: ci-stub-secret
-      NEXTAUTH_URL: http://localhost:3000
+      NEON_AUTH_BASE_URL: https://stub.neonauth.invalid/neondb/auth
+      NEON_AUTH_COOKIE_SECRET: ci-stub-cookie-secret-at-least-32-chars
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

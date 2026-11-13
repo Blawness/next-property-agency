@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { authAttempt, authClient } from "@/lib/auth-client"
+import { useSession } from "@/components/SessionProvider"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { BRAND } from "@/lib/brand"
@@ -15,6 +16,7 @@ import BrandMark from "@/components/BrandMark"
 
 export default function DaftarPage() {
   const router = useRouter()
+  const { update } = useSession()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -26,29 +28,32 @@ export default function DaftarPage() {
     setLoading(true)
     setError("")
 
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      setError(data.error ?? "Terjadi kesalahan. Coba lagi.")
+    if (name.trim().length < 2) {
+      setError("Nama minimal 2 karakter")
       setLoading(false)
       return
     }
 
-    const result = await signIn("credentials", { email, password, redirect: false })
-    if (result?.error) {
-      toast.error("Akun dibuat, tapi gagal login otomatis. Silakan masuk manual.")
+    // Signs the new account in as well. Its buyer profile is made by the first
+    // session read (lib/auth.ts), which `update()` below is.
+    const failure = await authAttempt(() => authClient.signUp.email({ name: name.trim(), email, password }))
+
+    if (failure) {
+      setError(
+        failure.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL" || failure.code === "USER_ALREADY_EXISTS"
+          ? "Email sudah terdaftar."
+          : failure.status === 429
+            ? "Terlalu banyak permintaan. Coba lagi nanti."
+            : "Pendaftaran gagal. Periksa data Anda dan coba lagi.",
+      )
       setLoading(false)
-    } else {
-      toast.success("Akun berhasil dibuat!")
-      router.push("/")
-      router.refresh()
+      return
     }
+
+    await update()
+    toast.success("Akun berhasil dibuat!")
+    router.push("/")
+    router.refresh()
   }
 
   return (

@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react"
-import { SessionProvider } from "next-auth/react"
+import { SessionProvider } from "@/components/SessionProvider"
 import AgentCard from "@/components/AgentCard"
 
 const agent = { id: "a1", fullName: "Ahmad Rahman", phone: "081234567890", avatarUrl: null }
 
 function renderCard(props: Partial<React.ComponentProps<typeof AgentCard>> = {}) {
   return render(
-    <SessionProvider>
+    <SessionProvider session={null}>
       <AgentCard
         agent={agent}
         createdAt={null}

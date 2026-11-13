@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { favorites, properties, propertyImages } from "@/db/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import { eq, and, inArray, isNull } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session?.user?.id) return NextResponse.json({ favorites: [] })
 
     const userId = session.user.id
@@ -56,7 +55,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const ip = req.headers.get("x-forwarded-for") ?? "unknown"

@@ -25,8 +25,8 @@ mengisi `DATABASE_URL` dan `DATABASE_URL_UNPOOLED`. Sisanya isi sendiri di
 |---|---|
 | `DATABASE_URL` | Neon Postgres (pooled) |
 | `DATABASE_URL_DIRECT` | koneksi langsung, dipakai drizzle-kit — samakan dengan `DATABASE_URL_UNPOOLED` |
-| `NEXTAUTH_SECRET` | rahasia NextAuth — `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | origin aplikasi, mis. `http://localhost:3001` |
+| `NEON_AUTH_BASE_URL` | URL Neon Auth branch `trihuni` — dari `neon neon-auth status` |
+| `NEON_AUTH_COOKIE_SECRET` | rahasia cookie sesi, min. 32 karakter — `openssl rand -base64 32` |
 | `NEXT_PUBLIC_APP_URL` | origin publik untuk link yang dibagikan |
 | `STORAGE_ENDPOINT`, `STORAGE_REGION` | Neon Object Storage — nilai `AWS_ENDPOINT_URL_S3` / `AWS_REGION` dari `neon env pull` |
 | `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY` | credential `trihuni-app` — `neon credentials reveal <tokenId>` |

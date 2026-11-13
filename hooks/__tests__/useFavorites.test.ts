@@ -1,10 +1,10 @@
-jest.mock('next-auth/react', () => ({
+jest.mock('../../components/SessionProvider', () => ({
   useSession: jest.fn(),
 }))
 
 import { renderHook, waitFor } from '@testing-library/react'
 import { useFavorites } from '@/hooks/useFavorites'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/components/SessionProvider'
 
 const mockUseSession = useSession as jest.Mock
 

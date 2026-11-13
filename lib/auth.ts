@@ -1,114 +1,111 @@
-import { NextAuthOptions, DefaultSession } from "next-auth"
-
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id?: string
-      role?: string
-    } & DefaultSession["user"]
-  }
-  interface User {
-    role?: string
-    image?: string
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    role?: string
-    image?: string
-  }
-}
-import CredentialsProvider from "next-auth/providers/credentials"
+import { cache } from "react"
+import { createNeonAuth, type NeonAuthServerApiError } from "@neon/auth/next/server"
+import { eq, sql } from "drizzle-orm"
 import { db } from "@/db"
 import { profiles } from "@/db/schema"
-import { eq } from "drizzle-orm"
-import bcrypt from "bcryptjs"
-import { isSessionStale } from "@/lib/password-reset"
-import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
-export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
-  providers: [
-    CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) return null
+/**
+ * Neon Auth (Managed Better Auth) on the `trihuni` branch. It owns accounts,
+ * passwords and sessions (schema `neon_auth`); this app owns `profiles` —
+ * role, phone, avatar, agent bio — joined on `profiles.auth_user_id`.
+ */
+export const auth = createNeonAuth({
+  baseUrl: process.env.NEON_AUTH_BASE_URL!,
+  cookies: { secret: process.env.NEON_AUTH_COOKIE_SECRET! },
+})
 
-        const ip = req.headers?.["x-forwarded-for"] ?? "unknown"
-        const key = getRateLimitKey(ip as string, "login")
-        const limit = await rateLimit(key, { windowMs: 15 * 60 * 1000, max: 5 })
+type AdminResult<T> = Promise<{ data: T | null; error: NeonAuthServerApiError | null }>
 
-        if (!limit.success) {
-          throw new Error("Terlalu banyak percobaan login. Coba lagi nanti.")
-        }
-
-        const [user] = await db
-          .select()
-          .from(profiles)
-          .where(eq(profiles.email, credentials.email))
-          .limit(1)
-
-        const dummyHash = await bcrypt.hash("dummy-timing-attack-prevention", 4)
-
-        if (!user) {
-          await bcrypt.compare(credentials.password, dummyHash)
-          return null
-        }
-
-        const valid = await bcrypt.compare(credentials.password, user.passwordHash)
-        if (!valid) return null
-        return { id: user.id, name: user.fullName, email: user.email, role: user.role ?? "buyer", image: user.avatarUrl ?? undefined }
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-        token.id = user.id
-        token.role = user.role
-        token.image = user.image as string | undefined
-        // Freshly minted at sign-in — nothing to invalidate yet, and `iat` is
-        // not set until the token is encoded.
-        return token
-      }
-
-      if (trigger === "update" && session?.image !== undefined) {
-        token.image = session.image as string
-      }
-
-      // A password reset has to end sessions that were already open, or an
-      // intruder simply keeps the one they have. Sessions are JWTs with no
-      // server-side store, so the only way to notice is to compare the token's
-      // issue time against the account. That costs one indexed primary-key read
-      // per session read; throwing is what NextAuth turns into a cleared
-      // session cookie (see core/routes/session.js).
-      if (token.id) {
-        const [row] = await db
-          .select({ passwordChangedAt: profiles.passwordChangedAt })
-          .from(profiles)
-          .where(eq(profiles.id, token.id as string))
-          .limit(1)
-
-        if (isSessionStale(row?.passwordChangedAt, token.iat as number | undefined)) {
-          throw new Error("Session predates a password change")
-        }
-      }
-
-      return token
-    },
-    session({ session, token }) {
-      if (token.id) session.user.id = token.id as string
-      if (token.role) session.user.role = token.role as string
-      if (token.image) session.user.image = token.image as string
-      return session
-    },
-  },
-  pages: {
-    signIn: "/masuk",
-  },
+/**
+ * The Better Auth admin endpoints this app calls. @neon/auth 0.8.2 types
+ * `auth.admin` as `unknown` — its server type is picked from a client type
+ * built without the admin plugin — although the endpoints exist at runtime
+ * (`API_ENDPOINTS.admin` in the package). Signatures follow
+ * https://neon.com/docs/auth/guides/plugins/admin. They run with the calling
+ * request's cookies, so only an admin session gets past Neon Auth.
+ */
+interface AdminApi {
+  createUser(body: { email: string; password: string; name: string; role?: string }): AdminResult<{ user: { id: string } }>
+  setUserPassword(body: { userId: string; newPassword: string }): AdminResult<{ status: boolean }>
+  revokeUserSessions(body: { userId: string }): AdminResult<{ success: boolean }>
+  removeUser(body: { userId: string }): AdminResult<{ success: boolean }>
 }
+
+export const authAdmin = auth.admin as AdminApi
+
+export type Role = "buyer" | "agent" | "admin"
+
+export interface SessionUser {
+  /** `profiles.id` — what every table in this app points at. */
+  id: string
+  /** The Neon Auth user id, for the admin APIs. */
+  authUserId: string
+  email: string
+  name: string
+  image: string | null
+  role: Role
+}
+
+export interface Session {
+  user: SessionUser
+}
+
+const profileColumns = {
+  id: profiles.id,
+  fullName: profiles.fullName,
+  avatarUrl: profiles.avatarUrl,
+  role: profiles.role,
+}
+
+/**
+ * The signed-in user with their profile, or null. Cached per request, so a page
+ * and the components under it share one lookup.
+ *
+ * @neon/auth trusts its signed session cookie for up to five minutes before
+ * asking Neon Auth again, so a session revoked by a password change or reset
+ * would otherwise live on that long. The session row in `neon_auth.session` —
+ * same database, one indexed read alongside the profile — is checked on every
+ * call instead, which ends it at once.
+ *
+ * Sign-up happens in Neon Auth, which knows nothing of `profiles`, so the
+ * first request after it creates the buyer profile. A profile is never matched
+ * by email: sign-up does not verify the address, and claiming an existing
+ * profile by email would hand its listings to whoever registered it first.
+ */
+export const getSession = cache(async (): Promise<Session | null> => {
+  const { data } = await auth.getSession()
+  const authUser = data?.user
+  const authSession = data?.session
+  if (!authUser || !authSession) return null
+
+  const live = sql<boolean>`exists (select 1 from neon_auth.session s where s.id = ${authSession.id} and s."expiresAt" > now())`
+  const byAuthUser = eq(profiles.authUserId, authUser.id)
+  const [row] = await db.select({ live, profile: profileColumns }).from(profiles).where(byAuthUser).limit(1)
+  if (row && !row.live) return null
+
+  let profile = row?.profile
+  if (!profile) {
+    await db
+      .insert(profiles)
+      .values({ authUserId: authUser.id, email: authUser.email, fullName: authUser.name || authUser.email, role: "buyer" })
+      .onConflictDoNothing()
+    ;[profile] = await db.select(profileColumns).from(profiles).where(byAuthUser).limit(1)
+  }
+  if (!profile) {
+    // The email belongs to a profile with no login (or another login): refuse
+    // rather than guess which account this is.
+    console.error(`[auth] no profile for Neon Auth user ${authUser.id}`)
+    return null
+  }
+
+  return {
+    user: {
+      id: profile.id,
+      authUserId: authUser.id,
+      email: authUser.email,
+      name: profile.fullName,
+      image: profile.avatarUrl,
+      role: profile.role ?? "buyer",
+    },
+  }
+})

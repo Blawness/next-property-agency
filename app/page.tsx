@@ -1,7 +1,6 @@
 import { db } from "@/db"
 import { properties } from "@/db/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import SearchHero from "@/components/home/SearchHero"
 import ListingRail from "@/components/home/ListingRail"
 import BenefitsGrid from "@/components/home/BenefitsGrid"
@@ -59,7 +58,7 @@ export default async function HomePage() {
     newestMatching({ listingType: "jual" }, PANEL_FETCH),
     newestMatching({ listingType: "sewa" }, PANEL_FETCH),
     getBudgetShowcase(),
-    getServerSession(authOptions),
+    getSession(),
   ])
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()
 

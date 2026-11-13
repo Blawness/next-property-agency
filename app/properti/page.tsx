@@ -11,8 +11,7 @@ import { Suspense } from "react"
 import Link from "next/link"
 import type { PropertyWithImages } from "@/lib/types"
 import { getPropertiesWithImagesBatch, getFavoritePropertyIds } from "@/lib/db-helpers"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import {
   parseCatalogFilters,
   catalogConditions,
@@ -115,7 +114,7 @@ async function PropertyGrid({
 }) {
   const [{ items, total }, session] = await Promise.all([
     getProperties(filters),
-    getServerSession(authOptions),
+    getSession(),
   ])
   const page = filters.page
   const favoriteIds = session?.user?.id ? await getFavoritePropertyIds(session.user.id) : new Set<string>()

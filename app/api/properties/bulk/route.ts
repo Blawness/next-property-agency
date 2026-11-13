@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import { z } from "zod"
 import { db } from "@/db"
 import { properties, adminActions } from "@/db/schema"
@@ -14,7 +13,7 @@ const bulkSchema = z.object({
 
 export async function PATCH(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
@@ -61,7 +60,7 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }

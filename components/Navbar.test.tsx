@@ -1,12 +1,16 @@
 import { render, screen, fireEvent, within } from '@testing-library/react'
-import { SessionProvider } from 'next-auth/react'
+import { SessionProvider } from '@/components/SessionProvider'
 import Navbar from '@/components/Navbar'
 
 let mockPathname = '/'
 
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
+  useRouter: () => ({ push: jest.fn(), refresh: jest.fn() }),
 }))
+// @neon/auth ships ESM that Jest does not transform; these tests render the
+// signed-out navbar, which never calls it.
+jest.mock('../lib/auth-client', () => ({ authClient: {}, authAttempt: jest.fn() }))
 
 function activeNavIds(container: HTMLElement) {
   return [...container.querySelectorAll('[data-nav]')]
@@ -17,7 +21,7 @@ function activeNavIds(container: HTMLElement) {
 function renderAt(pathname: string) {
   mockPathname = pathname
   return render(
-    <SessionProvider>
+    <SessionProvider session={null}>
       <Navbar />
     </SessionProvider>,
   )

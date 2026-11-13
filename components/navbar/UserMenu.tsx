@@ -2,7 +2,9 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useSession, signOut } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useSession } from "@/components/SessionProvider"
+import { authAttempt, authClient } from "@/lib/auth-client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +16,16 @@ import { PlusCircle, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function UserMenu({ light = false }: { light?: boolean }) {
-  const { data: session } = useSession()
+  const { data: session, update } = useSession()
+  const router = useRouter()
+
+  const signOut = async () => {
+    // A failed sign-out still re-reads the session, so the menu shows the truth.
+    await authAttempt(() => authClient.signOut())
+    await update()
+    router.push("/")
+    router.refresh()
+  }
 
   if (!session) {
     return (
@@ -86,7 +97,7 @@ export default function UserMenu({ light = false }: { light?: boolean }) {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={() => signOut()}
+            onClick={signOut}
             className="text-destructive focus:text-destructive cursor-pointer"
           >
             Keluar

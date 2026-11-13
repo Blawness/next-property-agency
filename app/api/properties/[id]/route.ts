@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { properties, propertyImages, adminActions, profiles } from "@/db/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import { and, eq, isNull } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 import { z } from "zod"
@@ -20,7 +19,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
@@ -85,7 +84,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
@@ -188,7 +187,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }

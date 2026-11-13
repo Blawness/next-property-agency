@@ -4,7 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { authAttempt, authClient } from "@/lib/auth-client"
+import { useSession } from "@/components/SessionProvider"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { BRAND } from "@/lib/brand"
@@ -15,6 +16,7 @@ import BrandMark from "@/components/BrandMark"
 
 export default function MasukPage() {
   const router = useRouter()
+  const { update } = useSession()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -25,16 +27,22 @@ export default function MasukPage() {
     setLoading(true)
     setError("")
 
-    const result = await signIn("credentials", { email, password, redirect: false })
+    const failure = await authAttempt(() => authClient.signIn.email({ email, password }))
 
-    if (result?.error) {
-      toast.error("Email atau password salah")
+    if (failure) {
+      toast.error(
+        failure.status === 429
+          ? "Terlalu banyak percobaan masuk. Coba lagi nanti."
+          : "Email atau password salah",
+      )
       setLoading(false)
-    } else {
-      toast.success("Berhasil masuk")
-      router.push("/")
-      router.refresh()
+      return
     }
+
+    await update()
+    toast.success("Berhasil masuk")
+    router.push("/")
+    router.refresh()
   }
 
   return (

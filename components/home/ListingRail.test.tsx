@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react"
-import { SessionProvider } from "next-auth/react"
+import { SessionProvider } from "@/components/SessionProvider"
 import ListingRail from "@/components/home/ListingRail"
 import { budgetChips } from "@/components/home/rail-chips"
 import { BUDGET_RANGES } from "@/lib/budget-ranges"
@@ -28,7 +28,7 @@ const listing: PropertyWithImages = {
 
 function renderRail(properties: PropertyWithImages[]) {
   return render(
-    <SessionProvider>
+    <SessionProvider session={null}>
       <ListingRail
         heading="Pilihan Untukmu"
         chips={budgetChips(BUDGET_RANGES[0])}

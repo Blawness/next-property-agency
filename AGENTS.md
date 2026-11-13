@@ -48,7 +48,10 @@ Dev runs on **port 3001** so both apps can be up at once.
 Required in `.env.local`:
 - `DATABASE_URL` — Neon PostgreSQL connection string (pooled)
 - `DATABASE_URL_DIRECT` — direct connection, used by drizzle-kit
-- `NEXTAUTH_SECRET`, `NEXTAUTH_URL` — NextAuth v4
+- `NEON_AUTH_BASE_URL` — Neon Auth URL of the `trihuni` branch (`neon neon-auth
+  status` prints it as Base URL)
+- `NEON_AUTH_COOKIE_SECRET` — 32+ characters, signs @neon/auth's cached session
+  cookie; `openssl rand -base64 32`
 - `STORAGE_ENDPOINT`, `STORAGE_REGION`, `STORAGE_ACCESS_KEY_ID`,
   `STORAGE_SECRET_ACCESS_KEY` — Neon Object Storage on the `trihuni` branch
   (`lib/storage.ts`). The key pair is the `trihuni-app` credential
@@ -76,7 +79,10 @@ tanah, ruko) with an agency-facing admin.
 - **Next.js 16** (App Router) + **React 19** — this version may differ from
   training data; read `node_modules/next/dist/docs/` before guessing at APIs
 - **Drizzle ORM** + **Neon** serverless Postgres — client `db/index.ts`, schema `db/schema.ts`
-- **NextAuth v4** (Credentials + bcrypt) — `lib/auth.ts`, handler at `app/api/auth/[...nextauth]/route.ts`
+- **Neon Auth** (Managed Better Auth, `@neon/auth`) — server `lib/auth.ts`
+  (`auth`, `authAdmin`, `getSession`), browser `lib/auth-client.ts`, proxy
+  `app/api/auth/[...path]/route.ts`, `useSession()` from
+  `components/SessionProvider.tsx` (fed by `GET /api/session`)
 - **Neon Object Storage** — bucket `property-images` (`public_read`), client
   `lib/storage.ts`, upload route `app/api/upload/route.ts`, button
   `components/ImageUploadButton.tsx`, limits in `lib/upload-rules.ts`
@@ -163,8 +169,10 @@ the enquiry button, and an empty value hides the button rather than pointing
 buyers at a number nobody answers.
 
 ### Database (`db/schema.ts`)
-Eight tables: `profiles`, `properties`, `property_images`, `favorites`, `leads`,
-`admin_actions`, `rate_limits`, `password_reset_tokens`.
+Seven tables: `profiles`, `properties`, `property_images`, `favorites`, `leads`,
+`admin_actions`, `rate_limits`. Accounts, passwords and sessions are Neon
+Auth's, in the `neon_auth` schema of the same database; `profiles.auth_user_id`
+links a profile to its login (null for the seeded agents, which cannot sign in).
 
 Enums: `role` (buyer|agent|admin), `property_type` (rumah|apartemen|tanah|ruko),
 `listing_type` (jual|sewa), `status` (active|sold|rented|archived).
@@ -172,7 +180,7 @@ Enums: `role` (buyer|agent|admin), `property_type` (rumah|apartemen|tanah|ruko),
 `profiles.title` and `profiles.bio` (migration 0008) back the public agent
 profile.
 
-Migrations live in `drizzle/` (0000–0010) and are applied to the `trihuni`
+Migrations live in `drizzle/` (0000–0012) and are applied to the `trihuni`
 project. `drizzle.config.ts` reads `DATABASE_URL_DIRECT` from `.env.local`
 (set it to the same value as `DATABASE_URL_UNPOOLED`). Generate new ones with
 `pnpm exec drizzle-kit generate`, then `pnpm exec drizzle-kit migrate`.
@@ -188,7 +196,7 @@ project. `drizzle.config.ts` reads `DATABASE_URL_DIRECT` from `.env.local`
 | `/agen/[id]` | Public agent profile — bio, WhatsApp, and that agent's active listings |
 | `/kerjasama`, `/finance`, `/studio`, `/bisnis`, `/hub`, `/tentang` | "Segera hadir" placeholders for navbar items (`app/[slug]/page.tsx`) |
 | `/masuk`, `/daftar` | Sign in / sign up (buyer only; agents are created by an admin) |
-| `/lupa-password`, `/atur-ulang-password` | Password reset — request a link, then set a new password |
+| `/lupa-password`, `/atur-ulang-password` | Password reset — a 6-digit code by email (Neon Auth email OTP), then the new password |
 | `/profil` | Profile and favorites |
 | `/admin` | Dashboard stats |
 | `/admin/properti`, `/admin/properti/create`, `/admin/properti/[id]/edit` | Property CRUD |
@@ -223,8 +231,8 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
 - **Rate limiter** (`lib/rate-limit.ts`) picks its driver at import time: the
   `rate_limits` table when `DATABASE_URL` is set, an in-process Map otherwise.
   So it *is* shared across instances in production, and only tests and local
-  runs without a database fall back to memory. Guards login at 5 attempts /
-  15 min.
+  runs without a database fall back to memory. Sign-in and sign-up are not
+  behind it: they go straight to Neon Auth, which rate-limits them itself.
 - **WhatsApp links** go through `buildWhatsAppLink` for a listing enquiry,
   `buildAgentWhatsAppLink` for an agent profile (`lib/whatsapp.ts`), and
   `buildWhatsAppShareLink` for forwarding a listing to someone else
@@ -292,22 +300,35 @@ active and not soft-deleted — via `getPublicAgents` / `getPublicAgent`.
 - **`leads.phone` is required by the API, nullable in the database.** Rows
   written before migration 0009 have none, and `leads.email` is now optional —
   phone is the contact that matters in this market.
-- **Password reset never confirms whether an address is registered.**
-  `POST /api/auth/forgot-password` returns the same body either way; telling
-  them apart would make it a way to enumerate accounts. Reset tokens are stored
-  as a SHA-256 hash, live one hour, and are spent on first use.
-- **A password change ends other sessions**, via `profiles.passwordChangedAt`.
-  Sessions are JWTs with no server-side store, so the `jwt` callback compares
-  the token's `iat` against that column and throws when it is older — NextAuth
-  turns a throw there into a cleared session cookie (see
-  `node_modules/next-auth/core/routes/session.js`). This costs one indexed
-  primary-key read per session read, and it is what stops an intruder keeping
-  the session they already had.
-- **Generate secrets with `generateTempPassword` / `generateResetToken`**
-  (`lib/password-reset.ts`), never `Math.random()` — its output is predictable,
-  and these values grant account access.
-- **Admin role** is set with SQL: `UPDATE profiles SET role = 'admin' WHERE email = '…'`.
-  It rides the JWT session and is enforced in `app/admin/layout.tsx`.
+- **Auth is Neon Auth; the app's role lives in `profiles`.** `getSession()`
+  (`lib/auth.ts`) is the only way to read the signed-in user on the server — it
+  returns `profiles.id` as `user.id`, which is what every table points at. The
+  first session read after sign-up creates the buyer profile; a profile is
+  never matched by email, since sign-up does not verify the address.
+- **A revoked session ends at once.** @neon/auth trusts its signed session
+  cookie for five minutes, so `getSession()` also checks the session row in
+  `neon_auth.session` (one indexed read with the profile). Password change
+  (`revokeOtherSessions`), reset (branch setting "revoke sessions on password
+  reset") and an admin's agent reset all revoke sessions, and this check is
+  what makes that immediate.
+- **@neon/auth 0.8.2 quirks.** The browser client throws `AuthApiError` on any
+  non-2xx instead of returning `{ error }`; wrap calls in `authAttempt()`
+  (`lib/auth-client.ts`), which returns Better Auth's own `code`/`status`. On
+  the server, errors come back with Supabase-style codes (`INVALID_PASSWORD`
+  becomes `invalid_credentials`). `auth.admin` is typed `unknown`; use
+  `authAdmin`, which types the four endpoints the app calls.
+- **Password reset never confirms whether an address is registered.** Neon
+  Auth answers the code request the same either way. Codes are emailed from
+  Neon's shared sender (`auth@mail.myneon.app`) until a custom SMTP provider is
+  set (`neon neon-auth config email-provider`).
+- **Generate temp passwords with `generateTempPassword`**
+  (`lib/temp-password.ts`), never `Math.random()` — its output is predictable,
+  and the password grants panel access.
+- **An admin needs two roles**: `profiles.role = 'admin'` (the app) and the
+  Neon Auth role `admin` (`neon neon-auth user set-role <auth user id> --roles
+  admin`), without which creating, resetting or deleting an agent's login is
+  refused by Neon Auth. Pages enforce it in `app/admin/AdminLayoutClient.tsx`,
+  API routes in each handler.
 - **Uploads are one file per request through `POST /api/upload`.** Vercel caps
   a function's request body at 4.5MB, so batching would break at two photos.
   The route requires a session, enforces `UPLOAD_KINDS` (listing photos 4MB,

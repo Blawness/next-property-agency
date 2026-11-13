@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/components/SessionProvider"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -56,8 +56,8 @@ export default function ProfileSettings() {
     setSavingIdentity(true)
     try {
       await patchProfile({ fullName: identity.fullName, phone: identity.phone })
-      // Keep the JWT-backed session in sync so the navbar name updates immediately.
-      await update({ name: identity.fullName })
+      // Re-read the session so the navbar shows the new name at once.
+      await update()
       toast.success("Profil diperbarui")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Gagal menyimpan perubahan")

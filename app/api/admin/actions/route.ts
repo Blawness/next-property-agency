@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { adminActions, profiles } from "@/db/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import { desc, inArray } from "drizzle-orm"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }

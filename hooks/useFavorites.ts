@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/components/SessionProvider"
 import { toast } from "sonner"
 import type { PropertyWithImages } from "@/lib/types"
 

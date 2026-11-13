@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { profiles, properties } from "@/db/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authAdmin, getSession } from "@/lib/auth"
 import { eq } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
 import { z } from "zod"
-import bcrypt from "bcryptjs"
-import { generateTempPassword } from "@/lib/password-reset"
+import { generateTempPassword } from "@/lib/temp-password"
 
 const updateAgentSchema = z.object({
   name: z.string().min(2).optional(),
@@ -20,12 +18,22 @@ const updateAgentSchema = z.object({
   resetPassword: z.literal(true).optional(),
 })
 
+/** The Neon Auth user behind a profile; null for a profile with no login. */
+async function authUserIdOf(profileId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ authUserId: profiles.authUserId })
+    .from(profiles)
+    .where(eq(profiles.id, profileId))
+    .limit(1)
+  return row?.authUserId ?? null
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
@@ -48,19 +56,26 @@ export async function PATCH(
     }
 
     if (parsed.data.resetPassword) {
+      const authUserId = await authUserIdOf(id)
+      if (!authUserId) {
+        return NextResponse.json({ error: "Agen ini tidak punya akun login" }, { status: 404 })
+      }
       const tempPassword = generateTempPassword()
-      await db
-        .update(profiles)
-        .set({
-          passwordHash: await bcrypt.hash(tempPassword, 10),
-          // Ends every session the agent had open, same as a self-service
-          // reset — otherwise handing out a new password changes nothing for
-          // whoever is already signed in.
-          passwordChangedAt: new Date(),
-        })
-        .where(eq(profiles.id, id))
+      const { error: setError } = await authAdmin.setUserPassword({ userId: authUserId, newPassword: tempPassword })
+      if (setError) {
+        console.error("[PATCH /api/admin/agents] Neon Auth setUserPassword", setError)
+        return NextResponse.json({ error: "Gagal mengatur ulang password" }, { status: 502 })
+      }
+      // Ends every session the agent had open, same as a self-service reset —
+      // otherwise handing out a new password changes nothing for whoever is
+      // already signed in.
+      const { error: revokeError } = await authAdmin.revokeUserSessions({ userId: authUserId })
+      if (revokeError) {
+        console.error("[PATCH /api/admin/agents] Neon Auth revokeUserSessions", revokeError)
+        return NextResponse.json({ error: "Password diganti, tapi sesi lama gagal diakhiri" }, { status: 502 })
+      }
 
-      // Shown to the admin once, never stored in readable form.
+      // Shown to the admin once, never stored.
       return NextResponse.json({ ok: true, tempPassword })
     }
 
@@ -87,7 +102,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
@@ -99,6 +114,17 @@ export async function DELETE(
     }
 
     const { id } = await params
+
+    // The login goes first: removed after the profile, a failure would leave an
+    // account that signs in to a freshly made buyer profile.
+    const authUserId = await authUserIdOf(id)
+    if (authUserId) {
+      const { error: removeError } = await authAdmin.removeUser({ userId: authUserId })
+      if (removeError) {
+        console.error("[DELETE /api/admin/agents] Neon Auth removeUser", removeError)
+        return NextResponse.json({ error: "Gagal menghapus akun login agen" }, { status: 502 })
+      }
+    }
 
     await db
       .update(properties)

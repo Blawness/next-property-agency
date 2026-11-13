@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/components/SessionProvider"
 import Link from "next/link"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -30,7 +30,7 @@ export default function ProfilPage() {
       toast.error("Gagal menyimpan foto profil")
       return
     }
-    await update({ image: url })
+    await update()
     toast.success("Foto profil diperbarui")
   }
 

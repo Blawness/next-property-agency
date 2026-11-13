@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { redirect } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/components/SessionProvider"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Building, Users, History, Mail, LogOut, Menu, X, Loader2 } from "lucide-react"

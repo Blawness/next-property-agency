@@ -5,24 +5,23 @@ export type PropertyData = Omit<
   "id" | "createdAt" | "status" | "agentId" | "lat" | "lng"
 > & { agentId?: string; lat?: string; lng?: string }
 
+// Display-only agents: no Neon Auth account, so `authUserId` stays null and
+// they cannot sign in.
 export const agents = [
   {
     email: "agent1@example.com",
-    passwordHash: "$2a$10$dummy.hash.for.agent1",
     fullName: "Ahmad Rahman",
     phone: "+6281234567890",
     role: "agent" as const,
   },
   {
     email: "agent2@example.com",
-    passwordHash: "$2a$10$dummy.hash.for.agent2",
     fullName: "Siti Nurhaliza",
     phone: "+6281234567891",
     role: "agent" as const,
   },
   {
     email: "agent3@example.com",
-    passwordHash: "$2a$10$dummy.hash.for.agent3",
     fullName: "Budi Santoso",
     phone: "+6281234567892",
     role: "agent" as const,

@@ -102,8 +102,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? property.description.slice(0, 160)
     : `${property.title} di ${property.city} — ${formattedPrice}`
 
-  // SITE_URL, like every other shareable link: NEXTAUTH_URL is an auth
-  // setting, and its old fallback pointed canonical URLs at port 3000.
+  // SITE_URL, like every other shareable link.
   const url = `${SITE_URL}/properti/${property.id}`
   return {
     title: `${property.title} — ${formattedPrice} | ${BRAND.name}`,

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, within } from "@testing-library/react"
-import { SessionProvider } from "next-auth/react"
+import { SessionProvider } from "@/components/SessionProvider"
 import ListingPanel, { panelHref } from "@/components/home/ListingPanel"
 import { groupByType } from "@/lib/listing-groups"
 import type { PropertyWithImages } from "@/lib/types"
@@ -19,7 +19,7 @@ const groups = {
 
 function renderPanel() {
   return render(
-    <SessionProvider>
+    <SessionProvider session={null}>
       <ListingPanel groups={groups} favoriteIds={[]} />
     </SessionProvider>,
   )

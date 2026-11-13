@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { profiles, properties } from "@/db/schema"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { authAdmin, getSession } from "@/lib/auth"
 import { eq, count, inArray } from "drizzle-orm"
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit"
-import bcrypt from "bcryptjs"
-import { generateTempPassword } from "@/lib/password-reset"
+import { generateTempPassword } from "@/lib/temp-password"
 import { z } from "zod"
 
 const createAgentSchema = z.object({
@@ -20,7 +18,7 @@ const createAgentSchema = z.object({
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
@@ -68,7 +66,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession()
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
@@ -101,15 +99,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email sudah terdaftar." }, { status: 409 })
     }
 
+    // The agent's login lives in Neon Auth; only an admin session may create
+    // one there, and this request carries it.
     const tempPassword = generateTempPassword()
-    const passwordHash = await bcrypt.hash(tempPassword, 10)
+    const { data: created, error: authError } = await authAdmin.createUser({
+      email,
+      password: tempPassword,
+      name,
+      role: "user",
+    })
+    if (authError || !created?.user) {
+      console.error("[POST /api/admin/agents] Neon Auth createUser", authError)
+      return NextResponse.json(
+        { error: authError?.message ?? "Gagal membuat akun login agen" },
+        { status: authError?.status === 400 ? 409 : 502 },
+      )
+    }
 
     const [agent] = await db
       .insert(profiles)
       .values({
+        authUserId: created.user.id,
         fullName: name,
         email,
-        passwordHash,
         phone: phone || null,
         avatarUrl: avatarUrl || null,
         title: title || null,
